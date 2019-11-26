@@ -1,0 +1,16 @@
+{
+  "name": "nodelite",
+  "version": "1.0.0",
+  "description": "lite node server",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "nico pr",
+  "license": "MIT",
+  "dependencies": {
+    "connect": "^3.7.0",
+    "mime-types": "^2.1.25",
+    "socket.io": "^2.3.0"
+  }
+}
