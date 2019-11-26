@@ -39,11 +39,25 @@ class Base extends ModuleBase {
 	_onIOConnect(socket) {
 		super._onIOConnect(socket); // do not remove super call
 		socket.on("dummy", packet => this._onDummyData(socket, packet)); // listen to "dummy" messages
+		socket.on("connectRoom", packet => this._onConnectRoom(socket, packet));
 	}
 
 	_onDummyData(socket, packet) { // dummy message received
 		trace(socket.id, "dummy", packet); // say it
 		socket.emit("dummy", {message: "dummy indeed", value: Math.random()}); // answer dummy random message
+	}
+
+	_onConnectRoom(socket, packet){
+
+		let nbRoom = packet.value;
+
+		trace(socket.id, "connected to room", nbRoom);
+
+		//ON CREER LA ROOM --- A FAIRE
+
+		// 
+
+		socket.emit("connectedRoom", {value: nbRoom})
 	}
 
 }

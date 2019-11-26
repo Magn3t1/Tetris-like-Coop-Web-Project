@@ -38,6 +38,8 @@ class Base {
 		trace("yay IO connected");
 		this.io.on("dummy", packet => this.onDummyData(packet)); // listen to "dummy" messages
 		this.io.emit("dummy", {value: "dummy data from client"}) // send test message
+
+		this.io.on("connectedRoom", packet => this.onConnectedRoom(packet));
 	}
 
 	/**
@@ -47,6 +49,10 @@ class Base {
 	onDummyData(data) {
 		trace("IO data", data);
 		this.mvc.controller.ioDummy(data); // send it to controller
+	}
+
+	onConnectedRoom(packet){
+		this.mvc.controller.ioConnectedRoom(packet.value);
 	}
 }
 
@@ -68,6 +74,19 @@ class MyModel extends Model {
 		return result.response; // return it to controller
 	}
 
+}
+
+class gameView extends View {
+	constructor() {
+		super();
+	}
+
+	initialize(mvc) {
+		super.initialize(mvc);
+
+		this.stage.style.backgroundColor = "green";
+
+	}
 }
 
 class MyView extends View {
@@ -98,6 +117,47 @@ class MyView extends View {
 		// get dataset display
 		this.table = document.createElement("table");
 		this.stage.appendChild(this.table);
+
+		this.stage.style.backgroundColor = "black";
+
+		///TEST
+		this.connectDiv = new easyElement("div")
+						.setStyle({	position:"absolute",
+									backgroundColor:"blue",
+									top:"40%",
+									left:"0",
+									width:"100%",
+									height:"20%"})
+						.attach(this.stage)
+						.getElement();
+
+		this.connectTextField = new easyElement("input")
+						.setStyle({	position:"absolute",
+									//backgroundColor:"red",
+									fontSize:"4vh",
+									top:"43%",
+									left:"20%",
+									width:"60%",
+									height:"7%",
+									zIndex:"0",
+									textAlign:"center"})
+						.setAttribute({type:"text"})
+						.attach(this.stage)
+						.getElement();
+
+		this.connectButton = new easyElement("button")
+						.setStyle({	position:"absolute",
+									//backgroundColor:"blue",
+									top:"53%",
+									left:"40%",
+									width:"20%",
+									height:"5%"})
+						.setText("Connect")
+						.attach(this.stage)
+						.getElement();
+
+
+
 	}
 
 	// activate UI
@@ -118,11 +178,16 @@ class MyView extends View {
 
 		this.ioBtnHandler = e => this.ioBtnClick(e);
 		this.iobtn.addEventListener("click", this.ioBtnHandler);
+
+		this.connectButtonHandler = event => this.connectButtonClick(event);
+		this.connectButton.addEventListener("click", this.connectButtonHandler); 
 	}
 
 	removeListeners() {
 		this.btn.removeEventListener("click", this.getBtnHandler);
 		this.iobtn.removeEventListener("click", this.ioBtnHandler);
+		this.connectButton.removeEventListener("click", this.connectButtonHandler); 
+
 	}
 
 	btnClick(event) {
@@ -132,6 +197,12 @@ class MyView extends View {
 	ioBtnClick(event) {
 		this.mvc.controller.ioBtnWasClicked("io parameters"); // dispatch
 	}
+
+	connectButtonClick(event){
+		this.mvc.controller.connectButtonWasClicked(this.connectTextField.value);
+	}
+
+
 
 	update(data) {
 		while(this.table.firstChild) this.table.removeChild(this.table.firstChild); // empty table
@@ -173,8 +244,29 @@ class MyController extends Controller {
 		this.mvc.app.io.emit("dummy", {message: "dummy io click"}); // send socket.io packet
 	}
 
+	async connectButtonWasClicked(params){
+		this.mvc.app.io.emit("connectRoom", {value: params})
+	}
+
 	ioDummy(data) {
 		this.mvc.view.updateIO(data.value); // io dummy data received from main app
+	}
+
+	async ioConnectedRoom(nbRoom){
+		console.log("CONNECTED TO ROOM :", nbRoom); //test
+
+		///ON CHANGE DE CONTROLLER ET DE VIEW
+
+		this.mvc.view.detach(); // detach view
+		this.mvc.view.deactivate(); // deactivate user interface
+
+		await this.mvc.changeView(new gameView());
+
+		this.mvc.view.attach(document.body); // attach view
+		this.mvc.view.activate(); // activate user interface
+
+
+
 	}
 
 }

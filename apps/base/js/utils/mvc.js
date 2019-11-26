@@ -17,6 +17,11 @@ class MVC {
 		await this.view.initialize(this);
 		await this.controller.initialize(this);
 	}
+
+	async changeView(newView){
+		this.view = newView;
+		await this.view.initialize(this);
+	}
 	
 }
 
