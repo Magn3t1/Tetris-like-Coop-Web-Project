@@ -1,3 +1,24 @@
+//NOTE :
+/*
+
+
+Date.now() pour récuperer le temps actuel
+
+fs (file system)
+createReadStream
+
+users.json
+[
+{
+	id:1, name:"blabla",...	
+
+}
+]
+
+*/
+
+
+
 window.addEventListener("load", event => new Base());
 
 class Base {
