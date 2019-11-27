@@ -1,3 +1,24 @@
+//NOTE :
+/*
+
+
+Date.now() pour récuperer le temps actuel
+
+fs (file system)
+createReadStream
+
+users.json
+[
+{
+	id:1, name:"blabla",...	
+
+}
+]
+
+*/
+
+
+
 window.addEventListener("load", event => new Base());
 
 class Base {
@@ -14,8 +35,18 @@ class Base {
 		this.io = io.connect("http://localhost/" + this.iospace); // connect socket.io
 		this.io.on("connect", () => this.onIOConnect()); // listen connect event
 
-		this.mvc = new MVC("myMVC", this, new MyModel(), new MyView(), new MyController()); // init app MVC
+		this.mvc = new MVC("connection", this, new MyModel(), new MyView(), new MyController()); // init app MVC
 		await this.mvc.initialize(); // run init async tasks
+		this.mvc.view.attach(document.body); // attach view
+		this.mvc.view.activate(); // activate user interface
+
+	}
+
+	async changeMVC(model, view, controller){
+
+		this.mvc = new MVC("game", this, model, view, controller); // init app MVC
+		await this.mvc.initialize(); // run init async tasks
+		
 		this.mvc.view.attach(document.body); // attach view
 		this.mvc.view.activate(); // activate user interface
 
@@ -56,6 +87,9 @@ class Base {
 	}
 }
 
+
+
+
 class MyModel extends Model {
 
 	constructor() {
@@ -76,24 +110,18 @@ class MyModel extends Model {
 
 }
 
-class gameView extends View {
-	constructor() {
-		super();
-	}
 
-	initialize(mvc) {
-		super.initialize(mvc);
-
-		this.stage.style.backgroundColor = "green";
-
-	}
-}
 
 class MyView extends View {
 
 	constructor() {
 		super();
 		this.table = null;
+	}
+
+	destruct(){
+		this.mvc.view.detach(); // detach view
+		this.mvc.view.deactivate(); // deactivate user interface
 	}
 
 	initialize(mvc) {
@@ -223,6 +251,9 @@ class MyView extends View {
 
 }
 
+
+
+
 class MyController extends Controller {
 
 	constructor() {
@@ -257,13 +288,13 @@ class MyController extends Controller {
 
 		///ON CHANGE DE CONTROLLER ET DE VIEW
 
-		this.mvc.view.detach(); // detach view
-		this.mvc.view.deactivate(); // deactivate user interface
+		this.mvc.destruct();
 
-		await this.mvc.changeView(new gameView());
+		this.mvc.app.changeMVC(new gameModel(), new gameView(), new gameController());
+		//await this.mvc.changeView(new gameView());
 
-		this.mvc.view.attach(document.body); // attach view
-		this.mvc.view.activate(); // activate user interface
+		//this.mvc.view.attach(document.body); // attach view
+		//this.mvc.view.activate(); // activate user interface
 
 
 

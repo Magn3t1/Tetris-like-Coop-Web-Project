@@ -10,17 +10,16 @@ class MVC {
 		/** @export */this.view = view || undefined;
 		/** @export */this.controller = controller || new Controller();
 	}
+
+	destruct(){
+		this.view.destruct();
+	}
 	
 	async initialize() {
 		trace("init MVC");
 		await this.model.initialize(this);
 		await this.view.initialize(this);
 		await this.controller.initialize(this);
-	}
-
-	async changeView(newView){
-		this.view = newView;
-		await this.view.initialize(this);
 	}
 	
 }
