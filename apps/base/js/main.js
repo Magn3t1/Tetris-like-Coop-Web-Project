@@ -71,6 +71,7 @@ class Base {
 		this.io.emit("dummy", {value: "dummy data from client"}) // send test message
 
 		this.io.on("connectedRoom", packet => this.onConnectedRoom(packet));
+		this.io.on("tick", packet => this.onTick(packet));
 	}
 
 	/**
@@ -84,6 +85,10 @@ class Base {
 
 	onConnectedRoom(packet){
 		this.mvc.controller.ioConnectedRoom(packet.value);
+	}
+
+	onTick(packet){
+		this.mvc.controller.ioTick();
 	}
 }
 
@@ -173,6 +178,7 @@ class MyView extends View {
 						.attach(this.stage)
 						.getElement();
 
+
 		this.connectButton = new easyElement("button")
 						.setStyle({	position:"absolute",
 									//backgroundColor:"blue",
@@ -208,14 +214,18 @@ class MyView extends View {
 		this.iobtn.addEventListener("click", this.ioBtnHandler);
 
 		this.connectButtonHandler = event => this.connectButtonClick(event);
-		this.connectButton.addEventListener("click", this.connectButtonHandler); 
+		this.connectButton.addEventListener("click", this.connectButtonHandler);
+
+
+		this.connectTextFieldInputHandler = event => /[0-9]/.test(String.fromCharCode(event.which));
+		this.connectTextField.onkeypress = this.connectTextFieldInputHandler;
 	}
 
 	removeListeners() {
 		this.btn.removeEventListener("click", this.getBtnHandler);
 		this.iobtn.removeEventListener("click", this.ioBtnHandler);
 		this.connectButton.removeEventListener("click", this.connectButtonHandler); 
-
+		this.connectTextField.onkeypress = null;
 	}
 
 	btnClick(event) {
@@ -275,8 +285,17 @@ class MyController extends Controller {
 		this.mvc.app.io.emit("dummy", {message: "dummy io click"}); // send socket.io packet
 	}
 
-	async connectButtonWasClicked(params){
-		this.mvc.app.io.emit("connectRoom", {value: params})
+	async connectButtonWasClicked(roomNb){
+
+
+		if(!/^[0-9]+$/.test(roomNb)){
+			console.log(roomNb, "is an invalid room number.");
+			return;
+		}
+
+
+		this.mvc.app.io.emit("connectRoom", {value: roomNb})
+		//let result = await Comm.get("connectRoom/100");
 	}
 
 	ioDummy(data) {

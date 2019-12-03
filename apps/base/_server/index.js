@@ -32,6 +32,21 @@ class Base extends ModuleBase {
 		this.sendJSON(req, res, 200, data); // answer JSON
 	}
 
+	// connectRoom(req, res, roomNb){
+
+	// 	let nbRoom = roomNb;
+
+	// 	trace("test", "connected to room", nbRoom);
+
+	// 	//ON CREER LA ROOM --- A FAIRE
+
+	// 	//
+	// 	this.sendJSON(req, res, 200, {value: nbRoom}); // answer JSON
+
+	// 	//socket.emit("connectedRoom", {value: nbRoom})
+
+	// }
+
 	/**
 	 * @method _onIOConnect : new IO client connected
 	 * @param {*} socket 
@@ -55,9 +70,20 @@ class Base extends ModuleBase {
 
 		//ON CREER LA ROOM --- A FAIRE
 
+		socket.join(nbRoom);
+
+		//trace(Object.keys(socket.adapter.rooms));
+		setTimeout(() => {this._ioTickLoop(nbRoom)}, 1000);
 		// 
 
 		socket.emit("connectedRoom", {value: nbRoom})
+
+	}
+
+	_ioTickLoop(room){
+		setTimeout(() => {this._ioTickLoop(room)}, 1000);
+		trace("emit tick to room :", room);
+		this._io.to(room).emit("tick");
 	}
 
 }

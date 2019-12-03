@@ -84,7 +84,7 @@ class ViewBase {
 		this.stage.style.height ="100%";
 		this.stage.setAttribute("name", "view-" + this.name);
 		this._rect = null;
-		this.draw();
+		//this.draw();
 	}
 	
 	draw() {
