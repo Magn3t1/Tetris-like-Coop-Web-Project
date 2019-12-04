@@ -174,9 +174,15 @@ class MyView extends View {
 									height:"7%",
 									zIndex:"0",
 									textAlign:"center"})
-						.setAttribute({type:"text"})
+						.setAttribute({	type:"text",
+										pattern:"^[0-9]+$"})
 						.attach(this.stage)
 						.getElement();
+
+
+		this.connectTextField.pattern = "[A-Za-z]{3}";
+
+		console.log("ici : ",this.connectTextField.pattern);
 
 
 		this.connectButton = new easyElement("button")
@@ -217,15 +223,18 @@ class MyView extends View {
 		this.connectButton.addEventListener("click", this.connectButtonHandler);
 
 
-		this.connectTextFieldInputHandler = event => /[0-9]/.test(String.fromCharCode(event.which));
-		this.connectTextField.onkeypress = this.connectTextFieldInputHandler;
+		this.connectTextFieldInputHandler = event => {
+			//trace(event.target.value);
+			event.target.value = event.target.value.replace(/[0-9]/, "");
+		}
+		this.connectTextField.addEventListener("input", this.connectTextFieldInputHandler);
 	}
 
 	removeListeners() {
 		this.btn.removeEventListener("click", this.getBtnHandler);
 		this.iobtn.removeEventListener("click", this.ioBtnHandler);
 		this.connectButton.removeEventListener("click", this.connectButtonHandler); 
-		this.connectTextField.onkeypress = null;
+		this.connectTextField.removeEventListener("input", this.connectTextFieldInputHandler);
 	}
 
 	btnClick(event) {
@@ -288,11 +297,10 @@ class MyController extends Controller {
 	async connectButtonWasClicked(roomNb){
 
 
-		if(!/^[0-9]+$/.test(roomNb)){
+		if(!/^[0-9]+$/.test(roomNb)){//J'ai écris ca parceque ca marche 
 			console.log(roomNb, "is an invalid room number.");
 			return;
 		}
-
 
 		this.mvc.app.io.emit("connectRoom", {value: roomNb})
 		//let result = await Comm.get("connectRoom/100");

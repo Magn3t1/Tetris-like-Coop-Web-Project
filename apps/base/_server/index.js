@@ -66,6 +66,12 @@ class Base extends ModuleBase {
 
 		let nbRoom = packet.value;
 
+		if(!/^[0-9]+$/.test(nbRoom)){
+			trace(nbRoom, "is not a room number");
+			//Envoyer erreur ?
+			return;
+		}
+
 		trace(socket.id, "connected to room", nbRoom);
 
 		//ON CREER LA ROOM --- A FAIRE
