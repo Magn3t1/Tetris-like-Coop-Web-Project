@@ -225,7 +225,7 @@ class MyView extends View {
 
 		this.connectTextFieldInputHandler = event => {
 			//trace(event.target.value);
-			event.target.value = event.target.value.replace(/[0-9]/, "");
+			event.target.value = event.target.value.replace(/[^0-9]/, "");
 		}
 		this.connectTextField.addEventListener("input", this.connectTextFieldInputHandler);
 	}
