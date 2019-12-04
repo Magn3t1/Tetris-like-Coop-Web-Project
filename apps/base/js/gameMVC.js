@@ -17,9 +17,9 @@ class gameModel extends Model {
 		this.newPiecePos = [0, 0];
 
 
-		this.newPiece = [	0, 1, 0, 0,
-							0, 1, 0, 0,
-							0, 1, 1, 0,
+		this.newPiece = [	0, 0, 0, 0,
+							0, 0, 0, 0,
+							0, 0, 0, 0,
 							0, 0, 0, 0,]
 
 
@@ -36,6 +36,15 @@ class gameModel extends Model {
 			this.newPiecePos[1] += 1;
 		}
 
+	}
+
+
+	ioBoardData(packet){
+		trace("boardData recu :", packet);
+		this.boardData = packet;
+
+		//this.mvc.model.moveNew(0);
+		this.mvc.view.draw();
 	}
 
 }
@@ -137,11 +146,7 @@ class gameController extends Controller {
 
 	}
 
-	ioTick(){
-		trace("tick recu");
-		this.mvc.model.moveNew(0);
-		this.mvc.view.draw();
-	}
+
 
 
 }

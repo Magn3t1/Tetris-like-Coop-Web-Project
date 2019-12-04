@@ -71,7 +71,7 @@ class Base {
 		this.io.emit("dummy", {value: "dummy data from client"}) // send test message
 
 		this.io.on("connectedRoom", packet => this.onConnectedRoom(packet));
-		this.io.on("tick", packet => this.onTick(packet));
+		this.io.on("boardData", packet => this.onBoardData(packet));
 	}
 
 	/**
@@ -84,11 +84,12 @@ class Base {
 	}
 
 	onConnectedRoom(packet){
+		trace("RECU CONNECTED ROOM :", packet);
 		this.mvc.controller.ioConnectedRoom(packet.value);
 	}
 
-	onTick(packet){
-		this.mvc.controller.ioTick();
+	onBoardData(packet){
+		this.mvc.model.ioBoardData(packet);
 	}
 }
 
