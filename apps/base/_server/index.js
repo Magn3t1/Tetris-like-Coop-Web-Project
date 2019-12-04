@@ -123,7 +123,7 @@ class GameModel {
 
 		//DOWN
 		if(pos == 0){
-			this.newPiecePosition[1] += 1;
+			this.newPieceMoveDown();
 		}
 		//LEFT
 		else if(pos == 1){
@@ -143,7 +143,48 @@ class GameModel {
 
 	}
 
+	newPieceMoveDown(){
+
+		//Verif Collision
+
+		let isCollision = false;
+		for (let [index, element] of this.newPiece.entries()) {
+		
+			let x = this.newPiecePosition[0] + index%4;
+			let y = this.newPiecePosition[1]+1 + Math.trunc(index/4);
+
+			if(element > 0){
+
+				if(this.board[x + y * this.boardLen] > 0 || y >= this.boardSize/this.boardLen){
+					isCollision = true;
+					break;
+				}
+
+			}
+		
+		}
+
+		if(isCollision){
+
+			this.mergeNewPieceTo(this.board);
+			this.generateNewPiece();
+
+		}
+		else{
+			this.newPiecePosition[1] += 1;
+		}
+
+
+	}
+
+	//Shortcut to call mergeNewPieceTo with mergedBoard which is set to board
 	mergeNewPiece(){
+		this.mergedBoard = this.board.slice();
+		this.mergeNewPieceTo(this.mergedBoard);
+	}
+
+
+	mergeNewPieceTo(array){
 
 		this.newPiece.reduce((acc, element, index) => {
 
@@ -163,7 +204,9 @@ class GameModel {
 
 			return acc;
 
-		}, this.mergedBoard = this.board.slice());
+		}, array);
+
+		console.log(array);
 
 
 	}
