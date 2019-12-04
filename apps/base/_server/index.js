@@ -4,6 +4,19 @@ const BOARD_SIZE = 40;
 const BOARD_LEN = 5;
 
 
+const ALL_PIECE = [
+					[	0, 0, 0, 0,
+						0, 1, 1, 0,
+						0, 1, 1, 0,
+						0, 0, 0, 0],
+
+					[	0, 1, 0, 0,
+						0, 1, 0, 0,
+						0, 1, 0, 0,
+						0, 1, 0, 0]
+];
+
+
 class GameMVC {
 
 	constructor(name, app, roomNb, model, controller){
@@ -40,23 +53,38 @@ class GameMVC {
 class GameModel {
 
 	constructor(){
+
 		this.name = undefined;
 		this.mvc = null;
 		this.clients = new Set();
 
+
 		this.boardSize 	= BOARD_SIZE;
 		this.boardLen 	= BOARD_LEN;
 
-		this.board = new Array(this.boardSize).fill(0);
+
+		this.board = new Array(this.boardSize);
 
 
-		this.board[10] = 1;
+		this.newPiece = new Array(4 * 4);
+		this.newPiecePosition = [0, 0];
+
+
+		//this.board[10] = 1;
+
+		//Board and New piece merged
+		this.mergedBoard = new Array(this.boardSize).fill(0);
 
 	}
 
-	initialize(mvc) {
+	async initialize(mvc) {
+
 		this.mvc = mvc;
 		this.name = this.mvc.name + "-model";
+
+		this.board.fill(0);
+		this.newPiece.fill(0);
+
 	}
 
 	addClient(id){
@@ -75,7 +103,70 @@ class GameModel {
 
 	}
 
+	ioBoardData(){
+		trace("emit boardData to room :", this.mvc.room);
+		this.mvc.app._io.to(this.mvc.room).emit("boardData", this.mvc.model.mergedBoard);
+	}
 
+
+	//Game function :
+	generateNewPiece(){
+		let maxIndex = ALL_PIECE.length;
+		let chosenIndex = Math.floor(Math.random() * (maxIndex));
+
+		this.newPiece = ALL_PIECE[chosenIndex];
+		this.newPiecePosition = [0, 0];
+
+	}
+
+	newPieceMove(pos){
+
+		//DOWN
+		if(pos == 0){
+			this.newPiecePosition[1] += 1;
+		}
+		//LEFT
+		else if(pos == 1){
+			this.newPiecePosition[0] -= 1;
+		}
+		//RIGHT
+		else if(pos == 2){
+			this.newPiecePosition[0] += 1;
+		}
+		//UP ???
+		else if(pos == 3){
+			
+		}
+		else{
+			trace("ERROR moving pos of new piece");
+		}
+
+	}
+
+	mergeNewPiece(){
+
+		this.newPiece.reduce((acc, element, index) => {
+
+			let x = this.newPiecePosition[0] + index%4;
+			let y = this.newPiecePosition[1] + Math.trunc(index/4);
+
+
+
+			//Ou juste element ?
+			if(element > 0){
+
+				///RETIRER CE TEST APRES COLLISION AJOUTER
+				if(y >= this.boardSize/this.boardLen) return acc;
+
+				acc[x + y * this.boardLen] = element;
+			}
+
+			return acc;
+
+		}, this.mergedBoard = this.board.slice());
+
+
+	}
 	
 
 }
@@ -86,21 +177,41 @@ class GameController {
 		this.mvc = null;
 	}
 	
-	initialize(mvc) {
+	async initialize(mvc) {
 		this.mvc = mvc;
 		this.name = this.mvc.name + "-controller";
 	}
 
 	start(){
-		trace("start room : ", this.mvc.room);
-		setTimeout(() => this.ioTick(), 1000);		
+		this.mvc.model.generateNewPiece();
+
+		setTimeout(() => this.gameLoop(), 1000);
+
 	}
 
-	ioTick(){
-		setTimeout(() => this.ioTick(), 1000);
-		trace("emit tick to room :", this.mvc.room);
-		this.mvc.app._io.to(this.mvc.room).emit("boardData", this.mvc.model.board);
+	//Main game loop
+	gameLoop(){
+		//Prepare next loop
+		setTimeout(() => this.gameLoop(), 1000);
+
+		//Update the falling piece
+		this.update();
+		//Send data to clients
+		this.mvc.model.ioBoardData();
 	}
+
+	update(){
+		
+		///MAKE THE PIECE FALL
+		this.mvc.model.newPieceMove(0);
+		///
+
+		//Merge the board with the moving piece
+		this.mvc.model.mergeNewPiece();
+
+	}
+
+
 
 }
 
