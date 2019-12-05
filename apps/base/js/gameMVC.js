@@ -2,11 +2,12 @@
 
 class gameModel extends Model {
 
-	constructor() {
+	constructor(size, len) {
 		super();
 
-		this.boardLen 	= 5;
-		this.boardSize 	= 40;
+		this.boardSize 	= size;
+		this.boardLen 	= len;
+		
 
 		this.boardData 	= new Array(this.boardSize).fill(0);
 
@@ -31,7 +32,6 @@ class gameModel extends Model {
 
 
 	ioBoardData(packet){
-		trace("boardData recu :", packet);
 		this.boardData = packet;
 
 		//this.mvc.model.moveNew(0);
@@ -108,6 +108,10 @@ class gameView extends View {
 		}
 		else if(event.keyCode == 68) {
 			direction = 1;
+		}
+		else{
+			trace("The pressed key is not one of the moving key");
+			return;
 		}
 
 		trace("move to :", direction);

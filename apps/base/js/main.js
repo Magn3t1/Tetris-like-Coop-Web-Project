@@ -85,7 +85,7 @@ class Base {
 
 	onConnectedRoom(packet){
 		trace("RECU CONNECTED ROOM :", packet);
-		this.mvc.controller.ioConnectedRoom(packet.value);
+		this.mvc.controller.ioConnectedRoom(packet.room, packet.size, packet.len);
 	}
 
 	onBoardData(packet){
@@ -311,14 +311,14 @@ class MyController extends Controller {
 		this.mvc.view.updateIO(data.value); // io dummy data received from main app
 	}
 
-	async ioConnectedRoom(nbRoom){
+	async ioConnectedRoom(nbRoom, size, len){
 		console.log("CONNECTED TO ROOM :", nbRoom); //test
 
 		///ON CHANGE DE CONTROLLER ET DE VIEW
 
 		this.mvc.destruct();
 
-		this.mvc.app.changeMVC(new gameModel(), new gameView(), new gameController());
+		this.mvc.app.changeMVC(new gameModel(size, len), new gameView(), new gameController());
 		//await this.mvc.changeView(new gameView());
 
 		//this.mvc.view.attach(document.body); // attach view

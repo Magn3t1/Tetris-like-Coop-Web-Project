@@ -1,7 +1,20 @@
+///NOTE:
+/*
+A ajouter :
+	Couleur,
+	Resize,
+	Clear de ligne,
+	Rotation,
+	Fast fall,
+	retirer joueur de room / les fermer quand elles sont vide
+*/
+
+
+
 const ModuleBase = load("com/base"); // import ModuleBase class
 
-const BOARD_SIZE = 40;
-const BOARD_LEN = 5;
+const BOARD_SIZE = 200;
+const BOARD_LEN = 20;
 
 
 const ALL_PIECE = [
@@ -13,7 +26,33 @@ const ALL_PIECE = [
 					[	0, 1, 0, 0,
 						0, 1, 0, 0,
 						0, 1, 0, 0,
-						0, 1, 0, 0]
+						0, 1, 0, 0],
+
+					[	0, 0, 0, 0,
+						0, 1, 0, 0,
+						1, 1, 1, 0,
+						0, 0, 0, 0],
+
+					[	0, 0, 0, 0,
+						0, 1, 1, 0,
+						1, 1, 0, 0,
+						0, 0, 0, 0],
+
+					[	0, 0, 0, 0,
+						0, 1, 1, 0,
+						0, 0, 1, 1,
+						0, 0, 0, 0],
+
+					[	0, 0, 0, 0,
+						0, 1, 1, 0,
+						0, 1, 0, 0,
+						0, 1, 0, 0],
+
+					[	0, 0, 0, 0,
+						0, 1, 1, 0,
+						0, 0, 1, 0,
+						0, 0, 1, 0]
+
 ];
 
 
@@ -262,8 +301,6 @@ class GameModel {
 
 		}, array);
 
-		console.log(array);
-
 
 	}
 	
@@ -429,7 +466,7 @@ class Base extends ModuleBase {
 		this.roomGame.get(nbRoom).addClient(socket.id);
 
 		trace("EMIT CONNECTED ROOM ", nbRoom, " TO : ", socket.id);
-		socket.emit("connectedRoom", {value: nbRoom});
+		socket.emit("connectedRoom", {room: nbRoom, size: BOARD_SIZE, len: BOARD_LEN});
 
 
 		//setTimeout(() => {this._ioTickLoop(nbRoom)}, 1000);
@@ -437,14 +474,6 @@ class Base extends ModuleBase {
 
 	}
 
-	_ioTickLoop(room){
-
-		console.log(this._io);
-
-		setTimeout(() => {this._ioTickLoop(room)}, 1000);
-		trace("emit tick to room :", room);
-		this._io.to(room).emit("tick");
-	}
 
 	_onMovingKey(socket, packet){
 
