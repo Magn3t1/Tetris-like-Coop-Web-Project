@@ -6,7 +6,6 @@ A ajouter :
 	Clear de ligne,
 	Rotation,
 	Fast fall,
-	retirer joueur de room / les fermer quand elles sont vide
 */
 
 
@@ -77,9 +76,20 @@ class GameMVC {
 		await this.controller.initialize(this);
 	}
 
+	destruct(){
+		this.model.destruct();
+		this.controller.destruct();
+	}
+
 	addClient(id){
 
 		this.model.addClient(id);
+
+	}
+
+	removeClient(id){
+
+		this.model.removeClient(id);
 
 	}
 
@@ -132,6 +142,10 @@ class GameModel {
 
 	}
 
+	destruct(){
+		//Nothing to do
+	}
+
 	addClient(id){
 
 		//This should never arrive
@@ -145,6 +159,22 @@ class GameModel {
 			this.mvc.controller.start();
 
 		}
+
+	}
+
+	removeClient(id){
+
+		this.clients.delete(id);
+
+		//If there is no more client in the room, kill it.
+		if(this.clients.size == 0){
+
+			this.mvc.destruct();
+			return true;
+
+		}
+		
+		return false;
 
 	}
 
@@ -311,11 +341,20 @@ class GameController {
 	constructor() {
 		this.name = undefined;
 		this.mvc = null;
+
+		this.timeoutTime = 0;
 	}
 	
 	async initialize(mvc) {
 		this.mvc = mvc;
 		this.name = this.mvc.name + "-controller";
+	}
+
+	destruct(){
+
+		//Stop timeout :
+		this.stop();
+
 	}
 
 	//Input
@@ -337,14 +376,21 @@ class GameController {
 	start(){
 		this.mvc.model.generateNewPiece();
 
-		setTimeout(() => this.gameLoop(), 1000);
+		this.timeoutTime = setTimeout(() => this.gameLoop(), 1000);
 
+	}
+
+	stop(){
+		if(this.timeoutTime){
+			clearTimeout(this.timeoutTime);
+			this.timeoutTime = 0;
+		}
 	}
 
 	//Main game loop
 	gameLoop(){
 		//Prepare next loop
-		setTimeout(() => this.gameLoop(), 1000);
+		this.timeoutTime = setTimeout(() => this.gameLoop(), 1000);
 
 		//Update the falling piece
 		this.update();
@@ -419,6 +465,31 @@ class Base extends ModuleBase {
 		socket.on("dummy", packet => this._onDummyData(socket, packet)); // listen to "dummy" messages
 		socket.on("connectRoom", packet => this._onConnectRoom(socket, packet));
 		socket.on("movingKey", packet => this._onMovingKey(socket, packet));
+	}
+
+	/*
+	Changed the prototype of onIODisconnect to send the ID as a parametter.
+	The old version wasn't working because the socket was deleted before we could get the ID of it.
+	*/
+	_onIODisconnect(socketID) {
+		
+		super._onIODisconnect(socketID);
+
+		if(this.socketRoom.has(socketID)){
+
+			let room = this.socketRoom.get(socketID);
+			this.socketRoom.delete(socketID);
+
+			//If we did this well, we do not need to verify if the room exist in roomGame Map.
+			let isDead = this.roomGame.get(room).removeClient(socketID);
+
+			if(isDead){
+				this.roomGame.delete(room);
+			}
+
+		}
+
+
 	}
 
 	_onDummyData(socket, packet) { // dummy message received
