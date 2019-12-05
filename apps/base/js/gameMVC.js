@@ -69,6 +69,53 @@ class gameView extends View {
 
 	}
 
+	// activate UI
+	activate() {
+		super.activate();
+		this.addListeners(); // listen to events
+	}
+
+	// deactivate
+	deactivate() {
+		super.deactivate();
+		this.removeListeners();
+	}
+
+	addListeners() {
+
+		this.stageInputHandler = event => this.keyboardInput(event);
+		document.addEventListener("keydown", this.stageInputHandler);
+		//this.stage.addEventListener("keydown", this.stageInputHandler);
+
+	}
+
+	removeListeners() {
+
+		document.removeEventListener("keydown", this.stageInputHandler);
+		//this.stage.removeEventListener("keydown", this.stageInputHandler);
+
+	}
+
+	keyboardInput(event){
+
+
+
+		//0 = left, 1 = right
+		let direction;
+		if(event.keyCode == 81) {
+			direction = 0;
+
+		}
+		else if(event.keyCode == 68) {
+			direction = 1;
+		}
+
+		trace("move to :", direction);
+
+		this.mvc.controller.movingKey(direction);
+
+	}
+
 	update(){
 
 	}
@@ -117,7 +164,10 @@ class gameController extends Controller {
 
 	}
 
-
+	//0 = left, 1 = right
+	movingKey(direction){
+		this.mvc.app.io.emit("movingKey", direction);
+	}
 
 
 }

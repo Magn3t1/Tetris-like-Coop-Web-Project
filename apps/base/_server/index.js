@@ -44,6 +44,12 @@ class GameMVC {
 
 	}
 
+	onMovingKey(cliendId, direction){
+
+		this.controller.onMovingKey(cliendId, direction);
+
+	}
+
 	state(){
 		return this.gameState;
 	}
@@ -225,6 +231,22 @@ class GameController {
 		this.name = this.mvc.name + "-controller";
 	}
 
+	//Input
+	onMovingKey(cliendId, direction){
+
+		///Verifier si c'est le joueur "clientId" qui a la main
+
+		///
+
+		//0 = left, 1 = right, so we put +1 to correpond to newPieceMove
+		this.mvc.model.newPieceMove(direction+1);
+		
+		this.mvc.model.mergeNewPiece();
+		this.mvc.model.ioBoardData();
+	}
+
+
+	//STARTING
 	start(){
 		this.mvc.model.generateNewPiece();
 
@@ -268,6 +290,8 @@ class Base extends ModuleBase {
 
 		this.roomGame = new Map();
 
+		this.socketRoom = new Map();
+
 	}
 
 	/**
@@ -307,6 +331,7 @@ class Base extends ModuleBase {
 		super._onIOConnect(socket); // do not remove super call
 		socket.on("dummy", packet => this._onDummyData(socket, packet)); // listen to "dummy" messages
 		socket.on("connectRoom", packet => this._onConnectRoom(socket, packet));
+		socket.on("movingKey", packet => this._onMovingKey(socket, packet));
 	}
 
 	_onDummyData(socket, packet) { // dummy message received
@@ -349,6 +374,8 @@ class Base extends ModuleBase {
 
 		
 		socket.join(nbRoom);
+		this.socketRoom.set(socket.id, nbRoom);
+
 		this.roomGame.get(nbRoom).addClient(socket.id);
 
 		trace("EMIT CONNECTED ROOM ", nbRoom, " TO : ", socket.id);
@@ -367,6 +394,22 @@ class Base extends ModuleBase {
 		setTimeout(() => {this._ioTickLoop(room)}, 1000);
 		trace("emit tick to room :", room);
 		this._io.to(room).emit("tick");
+	}
+
+	_onMovingKey(socket, packet){
+
+		if(!this.socketRoom.has(socket.id)){
+			//ERROR 
+
+			//Send error message ? (Not in room)
+
+			return
+		}
+
+
+		this.roomGame.get(this.socketRoom.get(socket.id)).onMovingKey(socket.id, packet);
+
+
 	}
 
 }
