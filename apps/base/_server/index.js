@@ -133,11 +133,11 @@ class GameModel {
 		}
 		//LEFT
 		else if(pos == 1){
-			this.newPiecePosition[0] -= 1;
+			this.newPieceMoveLeft();
 		}
 		//RIGHT
 		else if(pos == 2){
-			this.newPiecePosition[0] += 1;
+			this.newPieceMoveRight();
 		}
 		//UP ???
 		else if(pos == 3){
@@ -145,6 +145,56 @@ class GameModel {
 		}
 		else{
 			trace("ERROR moving pos of new piece");
+		}
+
+	}
+
+	newPieceMoveLeft(){
+
+		let isCollision = false;
+		for (let [index, element] of this.newPiece.entries()) {
+		
+			let x = this.newPiecePosition[0]-1 	+ index%4;
+			let y = this.newPiecePosition[1] 	+ Math.trunc(index/4);
+
+			if(element > 0){
+
+				if(this.board[x + y * this.boardLen] > 0 || x < 0){
+					isCollision = true;
+					break;
+				}
+
+			}
+		
+		}
+
+		if(!isCollision){
+			this.newPiecePosition[0] -= 1;
+		}
+
+	}
+
+	newPieceMoveRight(){
+
+		let isCollision = false;
+		for (let [index, element] of this.newPiece.entries()) {
+		
+			let x = this.newPiecePosition[0]+1 	+ index%4;
+			let y = this.newPiecePosition[1] 	+ Math.trunc(index/4);
+
+			if(element > 0){
+
+				if(this.board[x + y * this.boardLen] > 0 || x >= this.boardLen){
+					isCollision = true;
+					break;
+				}
+
+			}
+		
+		}
+
+		if(!isCollision){
+			this.newPiecePosition[0] += 1;
 		}
 
 	}
@@ -240,7 +290,7 @@ class GameController {
 
 		//0 = left, 1 = right, so we put +1 to correpond to newPieceMove
 		this.mvc.model.newPieceMove(direction+1);
-		
+
 		this.mvc.model.mergeNewPiece();
 		this.mvc.model.ioBoardData();
 	}
