@@ -11,7 +11,14 @@ class gameModel extends Model {
 
 		this.boardData 	= new Array(this.boardSize).fill(0);
 
-		this.numColor 	= new Map([[0, "rgb(255, 255, 255)"], [1, "rgb(255, 0, 0)"]]);
+		this.numColor 	= new Map([[0, "rgb(255, 255, 255)"],
+									[1, "rgb(255, 0, 0)"],
+									[2, "rgb(255, 255, 0)"],
+									[3, "rgb(255, 0, 0)"],
+									[4, "rgb(255, 0, 0)"],
+									[5, "rgb(255, 0, 255)"],
+									[6, "rgb(255, 0, 0)"],
+									[7, "rgb(0, 0, 255)"]]);
 		
 
 

@@ -22,35 +22,35 @@ const ALL_PIECE = [
 						0, 1, 1, 0,
 						0, 0, 0, 0],
 
-					[	0, 1, 0, 0,
-						0, 1, 0, 0,
-						0, 1, 0, 0,
-						0, 1, 0, 0],
+					[	0, 2, 0, 0,
+						0, 2, 0, 0,
+						0, 2, 0, 0,
+						0, 2, 0, 0],
 
 					[	0, 0, 0, 0,
-						0, 1, 0, 0,
-						1, 1, 1, 0,
+						0, 3, 0, 0,
+						3, 3, 3, 0,
 						0, 0, 0, 0],
 
 					[	0, 0, 0, 0,
-						0, 1, 1, 0,
-						1, 1, 0, 0,
+						0, 4, 4, 0,
+						4, 4, 0, 0,
 						0, 0, 0, 0],
 
 					[	0, 0, 0, 0,
-						0, 1, 1, 0,
-						0, 0, 1, 1,
+						0, 5, 5, 0,
+						0, 0, 5, 5,
 						0, 0, 0, 0],
 
 					[	0, 0, 0, 0,
-						0, 1, 1, 0,
-						0, 1, 0, 0,
-						0, 1, 0, 0],
+						0, 6, 6, 0,
+						0, 6, 0, 0,
+						0, 6, 0, 0],
 
 					[	0, 0, 0, 0,
-						0, 1, 1, 0,
-						0, 0, 1, 0,
-						0, 0, 1, 0]
+						0, 7, 7, 0,
+						0, 0, 7, 0,
+						0, 0, 7, 0]
 
 ];
 
@@ -124,11 +124,8 @@ class GameModel {
 		this.newPiece = new Array(4 * 4);
 		this.newPiecePosition = [0, 0];
 
-
-		//this.board[10] = 1;
-
 		//Board and New piece merged
-		this.mergedBoard = new Array(this.boardSize).fill(0);
+		this.mergedBoard = new Array(this.boardSize);
 
 	}
 
@@ -139,6 +136,7 @@ class GameModel {
 
 		this.board.fill(0);
 		this.newPiece.fill(0);
+		this.mergedBoard.fill(0);
 
 	}
 
@@ -180,7 +178,7 @@ class GameModel {
 
 	ioBoardData(){
 		trace("emit boardData to room :", this.mvc.room);
-		this.mvc.app._io.to(this.mvc.room).emit("boardData", this.mvc.model.mergedBoard);
+		this.mvc.app._io.to(this.mvc.room).emit("boardData", this.mergedBoard);
 	}
 
 
@@ -194,22 +192,22 @@ class GameModel {
 
 	}
 
-	newPieceMove(pos){
+	newPieceMove(direction){
 
 		//DOWN
-		if(pos == 0){
+		if(direction == 0){
 			this.newPieceMoveDown();
 		}
 		//LEFT
-		else if(pos == 1){
+		else if(direction == 1){
 			this.newPieceMoveLeft();
 		}
 		//RIGHT
-		else if(pos == 2){
+		else if(direction == 2){
 			this.newPieceMoveRight();
 		}
 		//UP ???
-		else if(pos == 3){
+		else if(direction == 3){
 			
 		}
 		else{
@@ -311,6 +309,7 @@ class GameModel {
 
 	mergeNewPieceTo(array){
 
+
 		this.newPiece.reduce((acc, element, index) => {
 
 			let x = this.newPiecePosition[0] + index%4;
@@ -320,10 +319,6 @@ class GameModel {
 
 			//Ou juste element ?
 			if(element > 0){
-
-				///RETIRER CE TEST APRES COLLISION AJOUTER
-				if(y >= this.boardSize/this.boardLen) return acc;
-
 				acc[x + y * this.boardLen] = element;
 			}
 
@@ -421,8 +416,10 @@ class Base extends ModuleBase {
 	constructor(app, settings) {
 		super(app, new Map([["name", "baseapp"], ["io", true]]));
 
+		//Relie numéro de room à une Game
 		this.roomGame = new Map();
 
+		//Relie l'identifiant a une room
 		this.socketRoom = new Map();
 
 	}
@@ -508,7 +505,7 @@ class Base extends ModuleBase {
 		}
 
 
-		//Verify if the room isn't full if it exist
+		//Check if the room exist
 		if(this.roomGame.has(nbRoom)){
 			
 			let state = this.roomGame.get(nbRoom).state();
