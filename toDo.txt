@@ -1,0 +1,31 @@
+
+A faire :
+	Server : Preparation future piece et prevenir client - G
+	Client : Prévisualisation future piece - E
+
+	Server : Rotation, Client : Input rotation - E
+	Server : Fast fall, Client : Input Fast fall - G
+
+	Server : Calcul du score et envoie au client
+	Client : Recevoir Score et l'afficher
+
+
+
+	Server : Separer le plateau en deux pour deux joueur
+			 (Du coup gérer les input seulement du joueur qui a la main)
+
+ 	Server : Envoie la délimitation du tableau au client
+
+
+
+
+En cours :
+	
+	Server : Clear de ligne - G 
+	Client : Couleur - G
+
+	Client : Resize - E
+
+
+Fait :
+	
