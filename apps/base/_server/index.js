@@ -2,8 +2,8 @@
 
 const ModuleBase = load("com/base"); // import ModuleBase class
 
-const BOARD_SIZE = 200;
-const BOARD_LEN = 20;
+const BOARD_SIZE = 100;
+const BOARD_LEN = 10;
 
 
 const ALL_PIECE = [
@@ -106,6 +106,8 @@ class GameModel {
 
 		this.boardSize 	= BOARD_SIZE;
 		this.boardLen 	= BOARD_LEN;
+
+		this.boardRow 	= this.boardSize / this.boardLen;
 
 
 		this.board = new Array(this.boardSize);
@@ -279,8 +281,7 @@ class GameModel {
 
 		if(isCollision){
 
-			this.mergeNewPieceTo(this.board);
-			this.generateNewPiece();
+			this.newPieceTouchDown();
 
 		}
 		else{
@@ -290,15 +291,62 @@ class GameModel {
 
 	}
 
-	//Shortcut to call mergeNewPieceTo with mergedBoard which is set to board
+	/*	
+	*	This methode find and clear every completed line of the board.
+	*	A line is considered as completed when it contain no more 0.
+	*/
+	findAndCleaCompleteLine(){
+
+					//First we generate an array who has the size of the line number
+		this.board = new Array(this.boardRow).fill(0)
+					//Then we map on it every line of the board
+					.map((element, index) => this.board.slice(index * this.boardLen, (index + 1) * this.boardLen))
+					//Then we erase every line that contain no 0 (Note : we could delete the map and let only the reduce that would do the job of the map too)
+					.filter(element => element.find(el => el == 0) != undefined)
+					//Then concat every line to get a single array again
+					.reduce((acc, element) => acc.concat(element), []);
+
+		//Use this variable to increment the score
+		let numberOfSlot = this.boardSize - this.board.length;
+
+		//Then we add as many empty slots as there as deleted slot
+		this.board = new Array(numberOfSlot).fill(0).concat(this.board);
+
+		/// Use the numberOfSlot deleted to increment the score ?? ///
+
+	}
+
+	/*
+		This methode is called when a piece hit the ground
+	*/
+	newPieceTouchDown(){
+		//We firt merge the piece to the board
+		this.mergeNewPieceTo(this.board);
+		
+		//Then we clear every completed line
+		this.findAndCleaCompleteLine();
+
+		//And we generate a new piece
+		this.generateNewPiece();
+	}
+
+	/*
+		Shortcut to call mergeNewPieceTo with mergedBoard which is set to board
+	*/
 	mergeNewPiece(){
+		//First assign a copy of board to mergedBoard
 		this.mergedBoard = this.board.slice();
+		//Then merge the new piece to mergedBoard
 		this.mergeNewPieceTo(this.mergedBoard);
 	}
 
 
-	mergeNewPieceTo(array){
+	/*
+		Merge the actual newPiece to the array passed in argument.
 
+		array: An array of integer value (that represent the game board)
+	*/
+	mergeNewPieceTo(array){
 
 		this.newPiece.reduce((acc, element, index) => {
 
@@ -315,7 +363,6 @@ class GameModel {
 			return acc;
 
 		}, array);
-
 
 	}
 	
@@ -361,7 +408,7 @@ class GameController {
 	start(){
 		this.mvc.model.generateNewPiece();
 
-		this.timeoutTime = setTimeout(() => this.gameLoop(), 1000);
+		this.timeoutTime = setTimeout(() => this.gameLoop(), 300);
 
 	}
 
@@ -375,7 +422,7 @@ class GameController {
 	//Main game loop
 	gameLoop(){
 		//Prepare next loop
-		this.timeoutTime = setTimeout(() => this.gameLoop(), 1000);
+		this.timeoutTime = setTimeout(() => this.gameLoop(), 300);
 
 		//Update the falling piece
 		this.update();

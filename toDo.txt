@@ -17,15 +17,17 @@ A faire :
  	Server : Envoie la délimitation du tableau au client
 
 
+ 	Server : Ajouter un petit delais lorsqu'une ligne ou plus se brise
+
 
 
 En cours :
 	
-	Server : Clear de ligne - G 
+
 	Client : Couleur - G
 
 	Client : Resize - E
 
 
 Fait :
-	
+	Server : Clear de ligne - G
