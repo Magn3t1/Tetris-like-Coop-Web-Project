@@ -79,7 +79,7 @@ class GameMVC {
 
 	removeClient(id){
 
-		this.model.removeClient(id);
+		return this.model.removeClient(id);
 
 	}
 
@@ -544,7 +544,6 @@ class Base extends ModuleBase {
 
 		//Check if the room exist
 		if(this.roomGame.has(nbRoom)){
-			
 			let state = this.roomGame.get(nbRoom).state();
 
 			//If state is not 0, the game is not joinable
@@ -572,9 +571,6 @@ class Base extends ModuleBase {
 
 		trace("EMIT CONNECTED ROOM ", nbRoom, " TO : ", socket.id);
 		socket.emit("connectedRoom", {room: nbRoom, size: BOARD_SIZE, len: BOARD_LEN});
-
-
-		//setTimeout(() => {this._ioTickLoop(nbRoom)}, 1000);
 
 
 	}
