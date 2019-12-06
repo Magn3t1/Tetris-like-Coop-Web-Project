@@ -1,13 +1,3 @@
-///NOTE:
-/*
-A ajouter :
-	Couleur,
-	Resize,
-	Clear de ligne,
-	Rotation,
-	Fast fall,
-*/
-
 
 
 const ModuleBase = load("com/base"); // import ModuleBase class
