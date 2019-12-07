@@ -120,8 +120,11 @@ class gameView extends View {
 			direction = 0;
 
 		}
-		else if(event.keyCode == 68) {
+		else if(event.keyCode == 68){
 			direction = 1;
+		}
+		else if(event.keyCode == 90){
+			direction = 3;
 		}
 		else{
 			trace("The pressed key is not one of the moving key");
@@ -250,7 +253,7 @@ class gameController extends Controller {
 
 	}
 
-	//0 = left, 1 = right
+	//0 = left, 1 = right, 3 = fastFall
 	movingKey(direction){
 		this.mvc.app.io.emit("movingKey", direction);
 	}
