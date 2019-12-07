@@ -251,10 +251,24 @@ class gameView extends View {
 	/*Segment the board's colors for each players*/
 	generateFreeSlotColor(){
 		/*Generate some pair color*/
+		let r  = Math.random() * (125 - 200) + 200;
+		let g  = Math.random() * (125 - 200) + 200;
+		let b  = Math.random() * (125 - 200) + 200;
 		let playerColors = new Array(NB_PLAYER).fill(0).map(() =>{
-			let r  = Math.random() * (200 - 130) + 130;
-			let g  = Math.random() * (200 - 130) + 130;
-			let b  = Math.random() * (200 - 130) + 130;
+			let rt  = b
+			let gt  = r
+			let bt  = g
+
+			/*retry while we don't have a colerful color*/
+			while(rt - gt < 50 && gt - bt <50 && bt - rt <50){
+				rt  = Math.random() * (125 - 200) + 200;
+				gt  = Math.random() * (125 - 200) + 200;
+				bt  = Math.random() * (125 - 200) + 200;
+			}
+
+			r = rt
+			b = bt
+			g = gt
 			return ["rgb("+ r +","+ g +"," + b + ")", "rgb("+(r+45)+","+(g+45)+"," + (b+45) +")"]
 		});
 
