@@ -8,7 +8,7 @@ const PIECE_COLOR =	[	"rgb(255, 255, 255)",
 						"rgb(7, 22, 186)",
 						"rgb(242, 126, 31)"	]
 
-
+const NB_PLAYER = 2
 
 class gameModel extends Model {
 
@@ -21,7 +21,7 @@ class gameModel extends Model {
 		
 
 		this.boardData 	= new Array(this.boardSize);		
-
+		
 	}
 
 	async initialize(mvc) {
@@ -70,6 +70,7 @@ class gameView extends View {
 		this.resize();
 		this.setProportinalPosition();
 		
+		this.generateFreeSlotColor()
 		//Do the first draw
 		this.draw();
 
@@ -208,7 +209,16 @@ class gameView extends View {
 			let x = index%this.mvc.model.boardLen;
 			let y = Math.trunc(index/this.mvc.model.boardLen);
 
-			canvas2dContext.fillStyle = PIECE_COLOR[element];
+			if(element == 0){
+				if(x%2 == 0){
+					canvas2dContext.fillStyle = this.freeSpaceColor[0 +2*Math.floor(x/(this.mvc.model.boardLen/NB_PLAYER))];
+				} else {
+					canvas2dContext.fillStyle = this.freeSpaceColor[1 +2*Math.floor(x/(this.mvc.model.boardLen/NB_PLAYER))];
+				}
+			}
+			else{
+				canvas2dContext.fillStyle = PIECE_COLOR[element];
+			}
 			canvas2dContext.fillRect(x * this.slotWidth + this.slotSpace,
 						y * this.slotHeight + this.slotSpace,
 						this.slotWidth - this.slotSpace*2,
@@ -219,9 +229,7 @@ class gameView extends View {
 	}
 
 
-	/*
-		Keep the board at a central position
-	*/
+	/*Keep the board at a central position*/
 	setProportinalPosition(){
 
 		let freeBlankSpace = window.innerWidth - this.boardCanvas.width;
@@ -237,6 +245,21 @@ class gameView extends View {
 		offsetMargin = proportionOfFreeSpace * (2/3);
 
 		this.boardCanvas.style.top = (offsetMargin * window.innerHeight) + "px";
+	}
+
+	/*Segment the board's colors for each players*/
+	generateFreeSlotColor(){
+
+		this.freeSpaceColor = new Array(NB_PLAYER).fill(0).map(() =>{
+			let r  = Math.random() * (200 - 100) + 100;
+			let g  = Math.random() * (200 - 100) + 100;
+			let b  = Math.random() * (200 - 100) + 100;
+			return ["rgb("+ r +","+ g +"," + b + ")", "rgb("+(r+75)+","+(g+75)+"," + (b+75) +")"]
+		});
+
+		this.freeSpaceColor = this.freeSpaceColor.reduce((acc, elem) => {
+			return acc.concat(elem);
+		});
 	}
 
 }
