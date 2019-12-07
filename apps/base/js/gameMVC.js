@@ -22,6 +22,7 @@ class gameModel extends Model {
 
 		this.boardData 	= new Array(this.boardSize);		
 		
+		this.freeSlotColor = [];
 	}
 
 	async initialize(mvc) {
@@ -65,12 +66,13 @@ class gameView extends View {
 				.attach(this.stage)
 				.getElement();
 
+		//Generate each color part for each players
+		this.generateFreeSlotColor()
 
 		//Set the good size
 		this.resize();
 		this.setProportinalPosition();
-		
-		this.generateFreeSlotColor()
+	
 		//Do the first draw
 		this.draw();
 
@@ -211,11 +213,7 @@ class gameView extends View {
 
 			/*Choosing the Slot color in fucntion of the number of players*/
 			if(element == 0){
-				if(x%2 == 0){
-					canvas2dContext.fillStyle = this.freeSpaceColor[0 +2*Math.floor(x/(this.mvc.model.boardLen/NB_PLAYER))];
-				} else {
-					canvas2dContext.fillStyle = this.freeSpaceColor[1 +2*Math.floor(x/(this.mvc.model.boardLen/NB_PLAYER))];
-				}
+				canvas2dContext.fillStyle = this.freeSlotColor[x];
 			}
 			else{
 				canvas2dContext.fillStyle = PIECE_COLOR[element];
@@ -252,17 +250,30 @@ class gameView extends View {
 
 	/*Segment the board's colors for each players*/
 	generateFreeSlotColor(){
-
-		this.freeSpaceColor = new Array(NB_PLAYER).fill(0).map(() =>{
-			let r  = Math.random() * (200 - 100) + 100;
-			let g  = Math.random() * (200 - 100) + 100;
-			let b  = Math.random() * (200 - 100) + 100;
-			return ["rgb("+ r +","+ g +"," + b + ")", "rgb("+(r+75)+","+(g+75)+"," + (b+75) +")"]
+		/*Generate some pair color*/
+		let playerColors = new Array(NB_PLAYER).fill(0).map(() =>{
+			let r  = Math.random() * (200 - 130) + 130;
+			let g  = Math.random() * (200 - 130) + 130;
+			let b  = Math.random() * (200 - 130) + 130;
+			return ["rgb("+ r +","+ g +"," + b + ")", "rgb("+(r+45)+","+(g+45)+"," + (b+45) +")"]
 		});
 
-		this.freeSpaceColor = this.freeSpaceColor.reduce((acc, elem) => {
+		/*Concat pairs in one tab*/
+		playerColors = playerColors.reduce((acc, elem) => {
 			return acc.concat(elem);
 		});
+
+		/*Filling a tab of every color a X can take, we will use it in the draw function for knowing which slot is colored with a color*/
+		this.freeSlotColor = new Array(this.mvc.model.boardLen).fill(0).map((element,x) =>{
+			if(element == 0){
+				if(x%2 == 0){
+					return playerColors[0 +2*Math.floor(x/(this.mvc.model.boardLen/NB_PLAYER))];
+				} else {
+					return playerColors[1 +2*Math.floor(x/(this.mvc.model.boardLen/NB_PLAYER))];
+				}
+			}
+		});
+
 	}
 
 }
