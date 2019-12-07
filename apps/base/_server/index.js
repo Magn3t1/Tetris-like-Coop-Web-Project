@@ -2,8 +2,8 @@
 
 const ModuleBase = load("com/base"); // import ModuleBase class
 
-const BOARD_SIZE = 800;
-const BOARD_LEN = 40;
+const BOARD_SIZE = 200;
+const BOARD_LEN = 10;
 
 
 const ALL_PIECE = [
@@ -198,13 +198,60 @@ class GameModel {
 		else if(direction == 2){
 			this.newPieceMoveRight();
 		}
-		//UP ???
-		else if(direction == 3){
+		//FastFall
+		else if(direction == 4){
 			
+			this.newPieceFastFall();
+
 		}
 		else{
 			trace("ERROR moving pos of new piece");
 		}
+
+	}
+
+	newPieceFastFall(){
+
+
+		let newPieceX = this.newPiecePosition[0];
+
+		let start = newPieceX;
+		let stop = start + 4;
+
+		if(start < 0) start = 0;
+		////this.boardLen - 1 ???
+		if(stop > this.boardLen) stop = this.boardLen;
+
+
+		let onWayLine = new Array(this.boardRow).fill(0)
+
+			.map((element, index) => {
+
+				return this.board.slice(index * this.boardLen + start, index * this.boardLen + stop);
+
+			});
+
+
+		//trace(onWayLine);
+
+
+		let indexFirstNotEmptyLine = onWayLine.findIndex(element => element.find(el => el != 0) != undefined);
+
+		this.newPiecePosition[1] = indexFirstNotEmptyLine - 4;
+
+		while(this.newPieceTryDown()){}
+
+		this.newPieceTouchDown();
+
+
+		// this.board = new Array(this.boardRow).fill(0)
+		// 	//Then we map on it every line of the board
+		// 	.map((element, index) => this.board.slice(index * this.boardLen, (index + 1) * this.boardLen))
+		// 	//Then we erase every line that contain no 0 (Note : we could delete the map and let only the reduce that would do the job of the map too)
+		// 	.filter(element => element.find(el => el == 0) != undefined)
+		// 	//Then concat every line to get a single array again
+		// 	.reduce((acc, element) => acc.concat(element), []);
+
 
 	}
 
@@ -258,11 +305,13 @@ class GameModel {
 
 	}
 
-	newPieceMoveDown(){
+	/*
+		Try to move down, do it and return true if there was no collision,
+		or return false if there is a collision
+	*/
+	newPieceTryDown(){
 
-		//Verif Collision
-
-		let isCollision = false;
+		let isNoCollision = true;
 		for (let [index, element] of this.newPiece.entries()) {
 		
 			let x = this.newPiecePosition[0] + index%4;
@@ -271,7 +320,7 @@ class GameModel {
 			if(element > 0){
 
 				if(this.board[x + y * this.boardLen] > 0 || y >= this.boardSize/this.boardLen){
-					isCollision = true;
+					isNoCollision = false;
 					break;
 				}
 
@@ -279,13 +328,17 @@ class GameModel {
 		
 		}
 
-		if(isCollision){
+		if(isNoCollision) this.newPiecePosition[1] += 1;
 
+		return isNoCollision;
+
+	}
+
+	newPieceMoveDown(){
+
+		//If it pass this test, it mean the piece has entered in collision
+		if(!this.newPieceTryDown()){
 			this.newPieceTouchDown();
-
-		}
-		else{
-			this.newPiecePosition[1] += 1;
 		}
 
 
@@ -298,7 +351,7 @@ class GameModel {
 	findAndCleaCompleteLine(){
 
 					//First we generate an array who has the size of the line number
-		this.board = new Array(this.boardRow).fill(0)
+		this.board = [...Array(this.boardRow)]
 					//Then we map on it every line of the board
 					.map((element, index) => this.board.slice(index * this.boardLen, (index + 1) * this.boardLen))
 					//Then we erase every line that contain no 0 (Note : we could delete the map and let only the reduce that would do the job of the map too)
@@ -396,7 +449,7 @@ class GameController {
 
 		///
 
-		//0 = left, 1 = right, so we put +1 to correpond to newPieceMove
+		//0 = left, 1 = right, 3 = fastFall, so we put +1 to correpond to newPieceMove
 		this.mvc.model.newPieceMove(direction+1);
 
 		this.mvc.model.mergeNewPiece();
