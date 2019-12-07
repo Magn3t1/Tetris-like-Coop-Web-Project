@@ -223,7 +223,7 @@ class GameModel {
 		if(stop > this.boardLen) stop = this.boardLen;
 
 
-		let onWayLine = new Array(this.boardRow).fill(0)
+		let onWayLine = [...Array(this.boardRow)]
 
 			.map((element, index) => {
 
@@ -237,7 +237,9 @@ class GameModel {
 
 		let indexFirstNotEmptyLine = onWayLine.findIndex(element => element.find(el => el != 0) != undefined);
 
-		this.newPiecePosition[1] = indexFirstNotEmptyLine - 4;
+		if(this.newPiecePosition[1] < indexFirstNotEmptyLine - 4){
+			this.newPiecePosition[1] = indexFirstNotEmptyLine - 4;
+		}
 
 		while(this.newPieceTryDown()){}
 
