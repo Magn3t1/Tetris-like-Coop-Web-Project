@@ -1,6 +1,6 @@
 
 A faire :
-	Server : Preparation future piece et prevenir client - G
+
 	Client : Prévisualisation future piece - E
 
 	
@@ -13,7 +13,12 @@ A faire :
 	Server : Separer le plateau en deux pour deux joueur
 			 (Du coup gérer les input seulement du joueur qui a la main)
 
- 	Server : Envoie la délimitation du tableau au client
+
+	( 
+		Server : Envoie la délimitation du tableau au client
+		// PAS BESOINS ? Vue que les délimitation sont par rapport au nombre de joueurs
+		// elles se calculs facilement non ?
+	)
 
 
  	Server : Ajouter un petit delais lorsqu'une ligne ou plus se brise
@@ -21,8 +26,14 @@ A faire :
 
 
 En cours :	
+	
+	Server : Preparation future piece et prevenir client - G
+	Client : Changer le type d'input pour recevoir les input en temps réelle - G
 
-Server : Rotation, Client : Input rotation - E
+
+	Server : Rotation, Client : Input rotation - E
+
+
 
 
 Fait :
