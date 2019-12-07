@@ -4,7 +4,6 @@ A faire :
 	Client : Prévisualisation future piece - E
 
 	
-	
 
 	Server : Calcul du score et envoie au client
 	Client : Recevoir Score et l'afficher
@@ -28,9 +27,8 @@ Server : Rotation, Client : Input rotation - E
 
 Fait :
 	Server : Clear de ligne - G
+	Server : Fast fall, Client : Input Fast fall - G
 
 	Client : Resize - E
 
 	Client : Couleur - E
-
-	Server : Fast fall, Client : Input Fast fall - G

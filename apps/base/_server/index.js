@@ -241,19 +241,9 @@ class GameModel {
 			this.newPiecePosition[1] = indexFirstNotEmptyLine - 4;
 		}
 
-		while(this.newPieceTryDown()){}
+		while(this.newPieceTryDown());
 
 		this.newPieceTouchDown();
-
-
-		// this.board = new Array(this.boardRow).fill(0)
-		// 	//Then we map on it every line of the board
-		// 	.map((element, index) => this.board.slice(index * this.boardLen, (index + 1) * this.boardLen))
-		// 	//Then we erase every line that contain no 0 (Note : we could delete the map and let only the reduce that would do the job of the map too)
-		// 	.filter(element => element.find(el => el == 0) != undefined)
-		// 	//Then concat every line to get a single array again
-		// 	.reduce((acc, element) => acc.concat(element), []);
-
 
 	}
 
