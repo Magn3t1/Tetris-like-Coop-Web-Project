@@ -3,7 +3,7 @@ A faire :
 	Server : Preparation future piece et prevenir client - G
 	Client : Prévisualisation future piece - E
 
-	Server : Rotation, Client : Input rotation - E
+	
 
 	Server : Calcul du score et envoie au client
 	Client : Recevoir Score et l'afficher
@@ -20,11 +20,9 @@ A faire :
 
 
 
-En cours :
-	
+En cours :	
 
-	Client : Couleur - G
-
+Server : Rotation, Client : Input rotation - E
 
 
 Fait :
@@ -32,3 +30,5 @@ Fait :
 	Server : Fast fall, Client : Input Fast fall - G
 
 	Client : Resize - E
+
+	Client : Couleur - E
