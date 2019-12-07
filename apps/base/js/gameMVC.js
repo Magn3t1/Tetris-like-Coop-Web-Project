@@ -17,14 +17,17 @@ class gameModel extends Model {
 
 		this.boardSize 	= size;
 		this.boardLen 	= len;
+		this.boardRow 	= size/len;
 		
 
-		this.boardData 	= new Array(this.boardSize).fill(0);		
+		this.boardData 	= new Array(this.boardSize);		
 
 	}
 
 	async initialize(mvc) {
 		super.initialize(mvc);
+
+		this.boardData.fill(0);
 
 	}
 
@@ -45,12 +48,12 @@ class gameView extends View {
 
 		this.slotWidth = 0;
 		this.slotHeight = 0;
+		this.slotSpace = 0;
+
 	}
 
 	async initialize(mvc) {
 		await super.initialize(mvc);
-
-		console.log("lol");
 
 		this.stage.style.backgroundColor = "rgb(120, 41, 54)";
 
@@ -63,6 +66,11 @@ class gameView extends View {
 				.getElement();
 
 
+		//Set the good size
+		this.resize();
+		this.setProportinalPosition();
+		
+		//Do the first draw
 		this.draw();
 
 	}
@@ -130,86 +138,102 @@ class gameView extends View {
 
 	}
 
-	/*Handle resize*/
+	/*
+		When receiving the window resize event
+	*/
 	onResize(){
-
-		this.boardCanvas.width  = window.innerWidth *0.75;
-		this.boardCanvas.height = window.innerHeight*0.75;
-		this.drawSquareField();		
-		this.setProportinalPosition();
-
-	}
-
-	/*Drawing part*/
-	draw(){
-		this.drawSquareField();
-		this.setProportinalPosition();
+		//We resize elements
 		this.resize();
+		//We set the good position to the canvas
+		this.setProportinalPosition();
+		//And we show the change
+		this.draw();
+
 	}
 
-	/*Drawing the play board, pieces, in function of the numbers of cases*/
-	drawSquareField(){
+	/*
+		Addapt the slot size and canvas size to the new window size
+	*/
+	resize(){
+
+		let maxWidth  = window.innerWidth *0.75;
+		let maxHeight = window.innerHeight*0.75;
+
+
+		let finalWidth = maxWidth;
+		let finalHeight = this.mvc.model.boardRow * finalWidth / this.mvc.model.boardLen;
+
+
+		if(finalHeight > maxHeight){
+
+			this.slotHeight = maxHeight/this.mvc.model.boardRow;
+			this.slotWidth = this.slotHeight;
+		
+			this.slotSpace = (this.slotWidth*0.5 + this.slotHeight*0.5)*0.03;
+			
+
+			this.boardCanvas.height = maxHeight;
+			this.boardCanvas.width = this.mvc.model.boardLen * this.slotWidth + this.slotSpace/2;
+
+		}
+		else{
+
+			this.slotWidth 	= maxWidth/this.mvc.model.boardLen;
+			this.slotHeight = this.slotWidth;
+			
+			this.slotSpace = (this.slotWidth*0.5 + this.slotHeight*0.5)*0.03;
+
+
+			this.boardCanvas.width = maxWidth;
+			this.boardCanvas.height = this.mvc.model.boardRow * this.slotHeight + this.slotSpace/2;
+
+		}
+
+	}
+
+	/*
+		Draw the board in the canvas
+	*/
+	draw(){
+
 		let canvas2dContext = this.boardCanvas.getContext("2d");
+		canvas2dContext.clearRect(0, 0, this.boardCanvas.width, this.boardCanvas.height);
 
-		let width  = this.boardCanvas.width;
-		let height = this.boardCanvas.height;		
 
-		this.slotWidth 	= width/this.mvc.model.boardLen;
-		this.slotHeight = height/(this.mvc.model.boardSize/this.mvc.model.boardLen);
-
-		/*Displaying correctly cases*/
-		if ((this.mvc.model.boardSize/this.mvc.model.boardLen) > this.mvc.model.boardLen){
-			this.slotWidth = this.slotHeight
-		}else if ((this.mvc.model.boardSize/this.mvc.model.boardLen) <= this.mvc.model.boardLen){
-			this.slotHeight=this.slotWidth
-		}
-
-		let slotSpace = (this.slotWidth*0.5 + this.slotHeight*0.5)*0.03;
-
-		/*Displaying correctly cases*/
-		/*BUG UNE DES PROP NEGATIVES WTF ?*/
-		if ((this.mvc.model.boardSize/this.mvc.model.boardLen) > this.mvc.model.boardLen){
-			this.boardCanvas.width = this.mvc.model.boardLen * this.slotWidth + slotSpace;
-
-		}else if ((this.mvc.model.boardSize/this.mvc.model.boardLen) <= this.mvc.model.boardLen){
-			this.boardCanvas.height = (this.mvc.model.boardSize/this.mvc.model.boardLen)* this.slotHeight + slotSpace
-		}
-
-		//We do all the board
 		this.mvc.model.boardData.forEach((element, index) => {
 			
 			let x = index%this.mvc.model.boardLen;
 			let y = Math.trunc(index/this.mvc.model.boardLen);
 
 			canvas2dContext.fillStyle = PIECE_COLOR[element];
-			canvas2dContext.fillRect(x * this.slotWidth + slotSpace,
-						y * this.slotHeight + slotSpace,
-						this.slotWidth - slotSpace*2,
-						this.slotHeight - slotSpace*2);
+			canvas2dContext.fillRect(x * this.slotWidth + this.slotSpace,
+						y * this.slotHeight + this.slotSpace,
+						this.slotWidth - this.slotSpace*2,
+						this.slotHeight - this.slotSpace*2);
 
 		});
+
 	}
 
 
-	/*Keep the board at a central position*/
-	/*BUG UNE DES PROP NEGATIVES WTF ?*/
+	/*
+		Keep the board at a central position
+	*/
 	setProportinalPosition(){
+
 		let freeBlankSpace = window.innerWidth - this.boardCanvas.width;
-		console.log("width " + freeBlankSpace)
-		let proportionOfFreeSpace = (freeBlankSpace * 100)/window.innerWidth;
+		let proportionOfFreeSpace = freeBlankSpace/window.innerWidth;
+		let offsetMargin = proportionOfFreeSpace * 0.5;
 
-		let offsetMargin = proportionOfFreeSpace/2;
+		this.boardCanvas.style.left = (offsetMargin * window.innerWidth) + "px";
 
-		this.boardCanvas.style.left = offsetMargin.toString() + "%";
+
 
 		freeBlankSpace = window.innerHeight - this.boardCanvas.height;
-		console.log("height " + freeBlankSpace)
+		proportionOfFreeSpace = freeBlankSpace/window.innerHeight;
+		offsetMargin = proportionOfFreeSpace * (2/3);
 
-		proportionOfFreeSpace = (freeBlankSpace * 100)/window.innerHeight;
-
-		offsetMargin = proportionOfFreeSpace/1.5;
-
-		this.boardCanvas.style.top = offsetMargin.toString() + "%";
+		this.boardCanvas.style.top = (offsetMargin * window.innerHeight) + "px";
 	}
 
 }
