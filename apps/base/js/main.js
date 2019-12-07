@@ -72,6 +72,7 @@ class Base {
 
 		this.io.on("connectedRoom", packet => this.onConnectedRoom(packet));
 		this.io.on("boardData", packet => this.onBoardData(packet));
+		this.io.on("nextPieceData", packet => this.onNextPieceData(packet));
 	}
 
 	/**
@@ -91,6 +92,11 @@ class Base {
 	onBoardData(packet){
 		this.mvc.model.ioBoardData(packet);
 	}
+
+	onNextPieceData(packet){
+		this.mvc.model.ioNextPieceData(packet);
+	}
+
 }
 
 

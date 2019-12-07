@@ -101,6 +101,7 @@ class GameModel {
 
 		this.name = undefined;
 		this.mvc = null;
+		
 		this.clients = new Set();
 
 
@@ -112,6 +113,8 @@ class GameModel {
 
 		this.board = new Array(this.boardSize);
 
+
+		this.nextNewPieceIndex = 0;
 
 		this.newPiece = new Array(4 * 4);
 		this.newPiecePosition = [0, 0];
@@ -173,15 +176,22 @@ class GameModel {
 		this.mvc.app._io.to(this.mvc.room).emit("boardData", this.mergedBoard);
 	}
 
+	ioNextPieceData(){
+		trace("emit nextPieceData to room :", this.mvc.room);
+		this.mvc.app._io.to(this.mvc.room).emit("nextPieceData", ALL_PIECE[this.nextNewPieceIndex]);
+	}
+
+
+	setNewPiece(index){
+		this.newPiece = ALL_PIECE[index];
+		this.newPiecePosition = [0, 0];
+	}
+
 
 	//Game function :
-	generateNewPiece(){
+	findNewPieceIndex(){
 		let maxIndex = ALL_PIECE.length;
-		let chosenIndex = Math.floor(Math.random() * (maxIndex));
-
-		this.newPiece = ALL_PIECE[chosenIndex];
-		this.newPiecePosition = [0, 0];
-
+		return Math.floor(Math.random() * (maxIndex));
 	}
 
 	newPieceMove(direction){
@@ -371,8 +381,15 @@ class GameModel {
 		//Then we clear every completed line
 		this.findAndCleaCompleteLine();
 
-		//And we generate a new piece
-		this.generateNewPiece();
+
+		this.setNewPiece(this.nextNewPieceIndex);
+
+		//We generate a new piece index
+		this.nextNewPieceIndex = this.findNewPieceIndex();
+
+		// And we dend the data of the next next new piece to the clients
+		this.ioNextPieceData();
+
 	}
 
 	/*
@@ -451,7 +468,14 @@ class GameController {
 
 	//STARTING
 	start(){
-		this.mvc.model.generateNewPiece();
+		this.mvc.model.setNewPiece(this.mvc.model.findNewPieceIndex());
+		this.mvc.model.nextNewPieceIndex = this.mvc.model.findNewPieceIndex();
+
+		//To send the first terrain before the loop start
+		this.mvc.model.mergeNewPiece();
+		this.mvc.model.ioBoardData();
+
+		this.mvc.model.ioNextPieceData();
 
 		this.timeoutTime = setTimeout(() => this.gameLoop(), 300);
 

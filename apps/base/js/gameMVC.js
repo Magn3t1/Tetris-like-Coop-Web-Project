@@ -20,16 +20,16 @@ class gameModel extends Model {
 		this.boardRow 	= size/len;
 		
 
-		this.boardData 	= new Array(this.boardSize);		
+		this.boardData 		= new Array(this.boardSize);
+		this.nextPieceData	= new Array(4 * 4);
 		
-		this.freeSlotColor = [];
 	}
 
 	async initialize(mvc) {
 		super.initialize(mvc);
 
 		this.boardData.fill(0);
-
+		this.nextPieceData.fill(0);
 	}
 
 
@@ -38,6 +38,16 @@ class gameModel extends Model {
 
 		this.mvc.view.draw();
 	}
+
+	ioNextPieceData(packet){
+
+		this.nextPieceData = packet;
+
+		///ICI FAIRE QUELQUE CHOSE POUR AFFICHER LA NOUVELLE PIECE RECU
+		trace("RECU NEXT PIECE : ", this.nextPieceData);
+
+	}
+
 
 }
 
@@ -50,6 +60,9 @@ class gameView extends View {
 		this.slotWidth = 0;
 		this.slotHeight = 0;
 		this.slotSpace = 0;
+
+
+		this.freeSlotColor = [];
 
 	}
 
