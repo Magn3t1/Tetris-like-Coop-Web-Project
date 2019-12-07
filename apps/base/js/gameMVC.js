@@ -1,4 +1,14 @@
 
+const PIECE_COLOR =	[	"rgb(255, 255, 255)",
+						"rgb(252, 232, 3)",
+						"rgb(3, 211, 252)",
+						"rgb(152, 3, 252)",
+						"rgb(28, 156, 45)",
+						"rgb(219, 41, 13)",
+						"rgb(7, 22, 186)",
+						"rgb(242, 126, 31)"	]
+
+
 
 class gameModel extends Model {
 
@@ -9,18 +19,7 @@ class gameModel extends Model {
 		this.boardLen 	= len;
 		
 
-		this.boardData 	= new Array(this.boardSize).fill(0);
-
-		this.numColor 	= new Map([[0, "rgb(255, 255, 255)"],
-									[1, "rgb(252, 232, 3)"],
-									[2, "rgb(3, 211, 252)"],
-									[3, "rgb(152, 3, 252)"],
-									[4, "rgb(28, 156, 45)"],
-									[5, "rgb(219, 41, 13)"],
-									[6, "rgb(7, 22, 186)"],
-									[7, "rgb(242, 126, 31)"]]);
-		
-
+		this.boardData 	= new Array(this.boardSize).fill(0);		
 
 	}
 
@@ -29,19 +28,10 @@ class gameModel extends Model {
 
 	}
 
-	moveNew(where){
-
-		if(where == 0){
-			this.newPiecePos[1] += 1;
-		}
-
-	}
-
 
 	ioBoardData(packet){
 		this.boardData = packet;
 
-		//this.mvc.model.moveNew(0);
 		this.mvc.view.draw();
 	}
 
@@ -52,6 +42,9 @@ class gameModel extends Model {
 class gameView extends View {
 	constructor() {
 		super();
+
+		this.slotWidth = 0;
+		this.slotHeight = 0;
 	}
 
 	async initialize(mvc) {
@@ -92,12 +85,20 @@ class gameView extends View {
 		document.addEventListener("keydown", this.stageInputHandler);
 		//this.stage.addEventListener("keydown", this.stageInputHandler);
 
+
+		//ICI RESIZE
+		this.windowResizeHandler = event => this.onResize(event);
+		window.addEventListener("resize", this.windowResizeHandler);
+
+
 	}
 
 	removeListeners() {
 
 		document.removeEventListener("keydown", this.stageInputHandler);
-		//this.stage.removeEventListener("keydown", this.stageInputHandler);
+
+		//ICI RESIZE
+		window.removeEventListener("resize", this.windowResizeHandler);
 
 	}
 
@@ -130,14 +131,13 @@ class gameView extends View {
 	}
 
 	/*Handle resize*/
-	resize(){
+	onResize(){
 
-		window.onresize = ()=>{
-			this.boardCanvas.width  = window.innerWidth *0.75;
-			this.boardCanvas.height = window.innerHeight*0.75;
-			this.drawSquareField();		
-			this.setProportinalPosition();	
-		};
+		this.boardCanvas.width  = window.innerWidth *0.75;
+		this.boardCanvas.height = window.innerHeight*0.75;
+		this.drawSquareField();		
+		this.setProportinalPosition();
+
 	}
 
 	/*Drawing part*/
@@ -154,25 +154,25 @@ class gameView extends View {
 		let width  = this.boardCanvas.width;
 		let height = this.boardCanvas.height;		
 
-		let slotWidth 	= width/this.mvc.model.boardLen;
-		let slotHeight 	= height/(this.mvc.model.boardSize/this.mvc.model.boardLen);
+		this.slotWidth 	= width/this.mvc.model.boardLen;
+		this.slotHeight = height/(this.mvc.model.boardSize/this.mvc.model.boardLen);
 
 		/*Displaying correctly cases*/
 		if ((this.mvc.model.boardSize/this.mvc.model.boardLen) > this.mvc.model.boardLen){
-			slotWidth = slotHeight
+			this.slotWidth = this.slotHeight
 		}else if ((this.mvc.model.boardSize/this.mvc.model.boardLen) <= this.mvc.model.boardLen){
-			slotHeight=slotWidth
+			this.slotHeight=this.slotWidth
 		}
 
-		let slotSpace = (slotWidth*0.5 + slotHeight*0.5)*0.03;
+		let slotSpace = (this.slotWidth*0.5 + this.slotHeight*0.5)*0.03;
 
 		/*Displaying correctly cases*/
 		/*BUG UNE DES PROP NEGATIVES WTF ?*/
 		if ((this.mvc.model.boardSize/this.mvc.model.boardLen) > this.mvc.model.boardLen){
-			this.boardCanvas.width = this.mvc.model.boardLen * slotWidth + slotSpace;
+			this.boardCanvas.width = this.mvc.model.boardLen * this.slotWidth + slotSpace;
 
 		}else if ((this.mvc.model.boardSize/this.mvc.model.boardLen) <= this.mvc.model.boardLen){
-			this.boardCanvas.height = (this.mvc.model.boardSize/this.mvc.model.boardLen)* slotHeight + slotSpace
+			this.boardCanvas.height = (this.mvc.model.boardSize/this.mvc.model.boardLen)* this.slotHeight + slotSpace
 		}
 
 		//We do all the board
@@ -181,11 +181,11 @@ class gameView extends View {
 			let x = index%this.mvc.model.boardLen;
 			let y = Math.trunc(index/this.mvc.model.boardLen);
 
-			canvas2dContext.fillStyle = this.mvc.model.numColor.get(element);
-			canvas2dContext.fillRect(x * slotWidth + slotSpace,
-						y * slotHeight + slotSpace,
-						slotWidth - slotSpace*2,
-						slotHeight - slotSpace*2);
+			canvas2dContext.fillStyle = PIECE_COLOR[element];
+			canvas2dContext.fillRect(x * this.slotWidth + slotSpace,
+						y * this.slotHeight + slotSpace,
+						this.slotWidth - slotSpace*2,
+						this.slotHeight - slotSpace*2);
 
 		});
 	}
