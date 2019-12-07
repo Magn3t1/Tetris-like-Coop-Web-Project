@@ -12,13 +12,13 @@ class gameModel extends Model {
 		this.boardData 	= new Array(this.boardSize).fill(0);
 
 		this.numColor 	= new Map([[0, "rgb(255, 255, 255)"],
-									[1, "rgb(255, 0, 0)"],
-									[2, "rgb(255, 255, 0)"],
-									[3, "rgb(255, 0, 0)"],
-									[4, "rgb(255, 0, 0)"],
-									[5, "rgb(255, 0, 255)"],
-									[6, "rgb(255, 0, 0)"],
-									[7, "rgb(0, 0, 255)"]]);
+									[1, "rgb(252, 232, 3)"],
+									[2, "rgb(3, 211, 252)"],
+									[3, "rgb(152, 3, 252)"],
+									[4, "rgb(28, 156, 45)"],
+									[5, "rgb(219, 41, 13)"],
+									[6, "rgb(7, 22, 186)"],
+									[7, "rgb(242, 126, 31)"]]);
 		
 
 
@@ -59,15 +59,13 @@ class gameView extends View {
 
 		console.log("lol");
 
-		this.stage.style.backgroundColor = "green";
+		this.stage.style.backgroundColor = "rgb(120, 41, 54)";
 
 		this.boardCanvas = new easyElement("canvas")
 				.setStyle({	position:"absolute",
-							backgroundColor:"black",
-							top:"10%",
-							left:"10%"})
-				.setAttribute({	width: window.innerWidth*0.8,
-								height: window.innerHeight*0.8})
+							backgroundColor:"black"})
+				.setAttribute({	width: window.innerWidth  *0.75,
+								height: window.innerHeight*0.75})
 				.attach(this.stage)
 				.getElement();
 
@@ -131,19 +129,51 @@ class gameView extends View {
 
 	}
 
-	draw(){
+	/*Handle resize*/
+	resize(){
 
+		window.onresize = ()=>{
+			this.boardCanvas.width  = window.innerWidth *0.75;
+			this.boardCanvas.height = window.innerHeight*0.75;
+			this.drawSquareField();		
+			this.setProportinalPosition();	
+		};
+	}
+
+	/*Drawing part*/
+	draw(){
+		this.drawSquareField();
+		this.setProportinalPosition();
+		this.resize();
+	}
+
+	/*Drawing the play board, pieces, in function of the numbers of cases*/
+	drawSquareField(){
 		let canvas2dContext = this.boardCanvas.getContext("2d");
 
-		let width 	= this.boardCanvas.width;
-		let height 	= this.boardCanvas.height
+		let width  = this.boardCanvas.width;
+		let height = this.boardCanvas.height;		
 
 		let slotWidth 	= width/this.mvc.model.boardLen;
 		let slotHeight 	= height/(this.mvc.model.boardSize/this.mvc.model.boardLen);
 
+		/*Displaying correctly cases*/
+		if ((this.mvc.model.boardSize/this.mvc.model.boardLen) > this.mvc.model.boardLen){
+			slotWidth = slotHeight
+		}else if ((this.mvc.model.boardSize/this.mvc.model.boardLen) <= this.mvc.model.boardLen){
+			slotHeight=slotWidth
+		}
+
 		let slotSpace = (slotWidth*0.5 + slotHeight*0.5)*0.03;
 
+		/*Displaying correctly cases*/
+		/*BUG UNE DES PROP NEGATIVES WTF ?*/
+		if ((this.mvc.model.boardSize/this.mvc.model.boardLen) > this.mvc.model.boardLen){
+			this.boardCanvas.width = this.mvc.model.boardLen * slotWidth + slotSpace;
 
+		}else if ((this.mvc.model.boardSize/this.mvc.model.boardLen) <= this.mvc.model.boardLen){
+			this.boardCanvas.height = (this.mvc.model.boardSize/this.mvc.model.boardLen)* slotHeight + slotSpace
+		}
 
 		//We do all the board
 		this.mvc.model.boardData.forEach((element, index) => {
@@ -158,7 +188,28 @@ class gameView extends View {
 						slotHeight - slotSpace*2);
 
 		});
+	}
 
+
+	/*Keep the board at a central position*/
+	/*BUG UNE DES PROP NEGATIVES WTF ?*/
+	setProportinalPosition(){
+		let freeBlankSpace = window.innerWidth - this.boardCanvas.width;
+		console.log("width " + freeBlankSpace)
+		let proportionOfFreeSpace = (freeBlankSpace * 100)/window.innerWidth;
+
+		let offsetMargin = proportionOfFreeSpace/2;
+
+		this.boardCanvas.style.left = offsetMargin.toString() + "%";
+
+		freeBlankSpace = window.innerHeight - this.boardCanvas.height;
+		console.log("height " + freeBlankSpace)
+
+		proportionOfFreeSpace = (freeBlankSpace * 100)/window.innerHeight;
+
+		offsetMargin = proportionOfFreeSpace/1.5;
+
+		this.boardCanvas.style.top = offsetMargin.toString() + "%";
 	}
 
 }
