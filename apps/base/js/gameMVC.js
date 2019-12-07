@@ -209,6 +209,7 @@ class gameView extends View {
 			let x = index%this.mvc.model.boardLen;
 			let y = Math.trunc(index/this.mvc.model.boardLen);
 
+			/*Choosing the Slot color in fucntion of the number of players*/
 			if(element == 0){
 				if(x%2 == 0){
 					canvas2dContext.fillStyle = this.freeSpaceColor[0 +2*Math.floor(x/(this.mvc.model.boardLen/NB_PLAYER))];
@@ -219,6 +220,8 @@ class gameView extends View {
 			else{
 				canvas2dContext.fillStyle = PIECE_COLOR[element];
 			}
+
+
 			canvas2dContext.fillRect(x * this.slotWidth + this.slotSpace,
 						y * this.slotHeight + this.slotSpace,
 						this.slotWidth - this.slotSpace*2,
