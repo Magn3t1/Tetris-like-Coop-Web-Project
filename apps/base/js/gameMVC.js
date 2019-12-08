@@ -8,16 +8,17 @@ const PIECE_COLOR =	[	"rgb(255, 255, 255)",
 						"rgb(7, 22, 186)",
 						"rgb(242, 126, 31)"	]
 
-const NB_PLAYER = 2
 
 class gameModel extends Model {
 
-	constructor(size, len) {
+	constructor() {
 		super();
 
-		this.boardSize 	= size;
-		this.boardLen 	= len;
-		this.boardRow 	= size/len;
+		this.playerNb = 1;
+
+		this.boardSize 	= 4;
+		this.boardLen 	= 2;
+		this.boardRow 	= 2;
 		
 
 		this.boardData 		= new Array(this.boardSize);
@@ -28,8 +29,27 @@ class gameModel extends Model {
 	async initialize(mvc) {
 		super.initialize(mvc);
 
-		this.boardData.fill(0);
-		this.nextPieceData.fill(0);
+		this.fillData(0);
+	}
+
+	fillData(value){
+		this.boardData.fill(value);
+		this.nextPieceData.fill(value);
+	}
+
+
+	ioStart(packet){
+
+		this.nbPlayer 	= packet.nbPlayer;
+
+		this.boardSize 	= packet.size;
+		this.boardLen 	= packet.len;
+		this.boardRow 	= this.boardSize / this.boardLen;
+
+		this.fillData(0);
+
+		this.mvc.view.generateBoard();
+
 	}
 
 
@@ -85,8 +105,15 @@ class gameView extends View {
 				.attach(this.stage)
 				.getElement();
 
+
+		this.generateBoard();
+
+	}
+
+	generateBoard(){
+
 		//Generate each color part for each players
-		this.generateFreeSlotColor()
+		this.generateFreeSlotColor(this.mvc.model.nbPlayer);
 
 		//Set the good size
 		this.resize();
@@ -297,18 +324,20 @@ class gameView extends View {
 		this.boardCanvas.style.top = (offsetMargin * window.innerHeight) + "px";
 	}
 
-	/*Segment the board's colors for each players*/
-	generateFreeSlotColor(){
+	/*
+		Segment the board's colors for each players
+	*/
+	generateFreeSlotColor(nbPlayer){
 		/*Generate some pair color*/
 		let r  = Math.random() * (125 - 200) + 200;
 		let g  = Math.random() * (125 - 200) + 200;
 		let b  = Math.random() * (125 - 200) + 200;
-		let playerColors = new Array(NB_PLAYER).fill(0).map(() =>{
+		let playerColors = new Array(nbPlayer).fill(0).map(() =>{
 			let rt  = b
 			let gt  = r
 			let bt  = g
 
-			/*retry while we don't have a colerful color*/
+			/*retry while we don't have a colourful color*/
 			while(rt - gt < 50 && gt - bt <50 && bt - rt <50){
 				rt  = Math.random() * (125 - 200) + 200;
 				gt  = Math.random() * (125 - 200) + 200;
@@ -330,9 +359,9 @@ class gameView extends View {
 		this.freeSlotColor = new Array(this.mvc.model.boardLen).fill(0).map((element,x) =>{
 			if(element == 0){
 				if(x%2 == 0){
-					return playerColors[0 +2*Math.floor(x/(this.mvc.model.boardLen/NB_PLAYER))];
+					return playerColors[0 +2*Math.floor(x/(this.mvc.model.boardLen/nbPlayer))];
 				} else {
-					return playerColors[1 +2*Math.floor(x/(this.mvc.model.boardLen/NB_PLAYER))];
+					return playerColors[1 +2*Math.floor(x/(this.mvc.model.boardLen/nbPlayer))];
 				}
 			}
 		});

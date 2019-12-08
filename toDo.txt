@@ -28,7 +28,7 @@ A faire :
 En cours :	
 	Server : Rotation, Client : Input rotation - E
 
-	Server et Client : emit le nombre de joueur dans la partie au lancement
+
 
 
 Fait :
@@ -36,6 +36,7 @@ Fait :
 	Server : Fast fall, Client : Input Fast fall - G
 	Server : Preparation future piece et prevenir client - G
 	Client : Changer le type d'input pour recevoir les input en temps réelle - G
+	Server et Client : emit l'evenement start au lancement de la partie (contiendra le nombre de joueur dans la partie, la taille et la longueur) - G
 
 
 	Client : Resize - E

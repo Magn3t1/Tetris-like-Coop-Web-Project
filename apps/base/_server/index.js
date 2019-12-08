@@ -181,6 +181,11 @@ class GameModel {
 		this.mvc.app._io.to(this.mvc.room).emit("nextPieceData", ALL_PIECE[this.nextNewPieceIndex]);
 	}
 
+	ioStart(){
+		trace("emit start to room :", this.mvc.room);
+		this.mvc.app._io.to(this.mvc.room).emit("start", {size: BOARD_SIZE, len: BOARD_LEN, nbPlayer: this.clients.size} );
+	}
+
 
 	setNewPiece(index){
 		this.newPiece = ALL_PIECE[index];
@@ -468,8 +473,13 @@ class GameController {
 
 	//STARTING
 	start(){
+		
 		this.mvc.model.setNewPiece(this.mvc.model.findNewPieceIndex());
 		this.mvc.model.nextNewPieceIndex = this.mvc.model.findNewPieceIndex();
+
+		//Send start and the number of player in the game
+		this.mvc.model.ioStart();
+
 
 		//To send the first terrain before the loop start
 		this.mvc.model.mergeNewPiece();
@@ -636,11 +646,12 @@ class Base extends ModuleBase {
 		socket.join(nbRoom);
 		this.socketRoom.set(socket.id, nbRoom);
 
-		this.roomGame.get(nbRoom).addClient(socket.id);
 
+		//Send connectedRoom before adding the client to the Game to prevent starting game before the client load the game.
 		trace("EMIT CONNECTED ROOM ", nbRoom, " TO : ", socket.id);
-		socket.emit("connectedRoom", {room: nbRoom, size: BOARD_SIZE, len: BOARD_LEN});
+		socket.emit("connectedRoom", {room: nbRoom});
 
+		this.roomGame.get(nbRoom).addClient(socket.id);
 
 	}
 

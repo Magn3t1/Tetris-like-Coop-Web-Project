@@ -71,8 +71,13 @@ class Base {
 		this.io.emit("dummy", {value: "dummy data from client"}) // send test message
 
 		this.io.on("connectedRoom", packet => this.onConnectedRoom(packet));
+		
+
+		this.io.on("start", packet => this.onStart(packet));
+
 		this.io.on("boardData", packet => this.onBoardData(packet));
 		this.io.on("nextPieceData", packet => this.onNextPieceData(packet));
+		
 	}
 
 	/**
@@ -86,7 +91,11 @@ class Base {
 
 	onConnectedRoom(packet){
 		trace("RECU CONNECTED ROOM :", packet);
-		this.mvc.controller.ioConnectedRoom(packet.room, packet.size, packet.len);
+		this.mvc.controller.ioConnectedRoom(packet);
+	}
+
+	onStart(packet){
+		this.mvc.model.ioStart(packet);
 	}
 
 	onBoardData(packet){
@@ -317,14 +326,14 @@ class MyController extends Controller {
 		this.mvc.view.updateIO(data.value); // io dummy data received from main app
 	}
 
-	async ioConnectedRoom(nbRoom, size, len){
-		console.log("CONNECTED TO ROOM :", nbRoom); //test
+	async ioConnectedRoom(packet){
+		console.log("CONNECTED TO ROOM :", packet.room); //test
 
 		///ON CHANGE DE CONTROLLER ET DE VIEW
 
 		this.mvc.destruct();
 
-		this.mvc.app.changeMVC(new gameModel(size, len), new gameView(), new gameController());
+		this.mvc.app.changeMVC(new gameModel(), new gameView(), new gameController());
 		//await this.mvc.changeView(new gameView());
 
 		//this.mvc.view.attach(document.body); // attach view
