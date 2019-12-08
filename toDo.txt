@@ -26,20 +26,17 @@ A faire :
 
 
 En cours :	
-	
-	Server : Preparation future piece et prevenir client - G
-	Client : Changer le type d'input pour recevoir les input en temps réelle - G
-
-
 	Server : Rotation, Client : Input rotation - E
 
-
+	Server et Client : emit le nombre de joueur dans la partie au lancement
 
 
 Fait :
 	Server : Clear de ligne - G
 	Server : Fast fall, Client : Input Fast fall - G
+	Server : Preparation future piece et prevenir client - G
+	Client : Changer le type d'input pour recevoir les input en temps réelle - G
+
 
 	Client : Resize - E
-
 	Client : Couleur - E

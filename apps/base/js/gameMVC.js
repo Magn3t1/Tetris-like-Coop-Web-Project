@@ -64,10 +64,16 @@ class gameView extends View {
 
 		this.freeSlotColor = [];
 
+		this.pressedKeyToLoopId = null;
+
+		this.inputLoopId = 0;
+
 	}
 
 	async initialize(mvc) {
 		await super.initialize(mvc);
+
+		this.pressedKeyToLoopId = new Map();
 
 		this.stage.style.backgroundColor = "rgb(120, 41, 54)";
 
@@ -105,51 +111,81 @@ class gameView extends View {
 
 	addListeners() {
 
-		this.stageInputHandler = event => this.keyboardInput(event);
-		document.addEventListener("keydown", this.stageInputHandler);
-		//this.stage.addEventListener("keydown", this.stageInputHandler);
-
-
-		//ICI RESIZE
 		this.windowResizeHandler = event => this.onResize(event);
 		window.addEventListener("resize", this.windowResizeHandler);
 
 
+		//Input Event
+		this.documentKeyDownHandler = event => this.onKeyDown(event);
+		document.addEventListener("keydown", this.documentKeyDownHandler);
+
+		this.documentKeyUpHandler = event => this.onKeyUp(event);
+		document.addEventListener("keyup", this.documentKeyUpHandler);
+
+
+
 	}
+
 
 	removeListeners() {
 
-		document.removeEventListener("keydown", this.stageInputHandler);
+		//document.removeEventListener("keydown", this.stageInputHandler);
 
 		//ICI RESIZE
 		window.removeEventListener("resize", this.windowResizeHandler);
 
+		document.removeEventListener("keydown", this.documentKeyDownHandler);
+
+		document.removeEventListener("keyup", this.documentKeyUpHandler);
+
+
+		///RAJOUTER ENLEVER EVENEMENT INPUT
+
 	}
 
-	keyboardInput(event){
+	onKeyDown(event){
+
+		//Small verif
+		if(this.pressedKeyToLoopId.has(event.keyCode)) return;
 
 
+		this.moveInput(event.keyCode);
+		this.pressedKeyToLoopId.set(event.keyCode, setTimeout(() => this.inputLoop(event.keyCode), 100));
+		//this.inputLoopId = setTimeout(() => this.inputLoop(), 100);
 
-		//0 = left, 1 = right
-		let direction;
-		if(event.keyCode == 81) {
-			direction = 0;
+		//this.pressedKey.add(event.keyCode);
+	}
 
+	onKeyUp(event){
+
+		clearTimeout(this.pressedKeyToLoopId.get(event.keyCode));
+
+		this.pressedKeyToLoopId.delete(event.keyCode);
+	}
+
+	moveInput(value){
+		switch(value){
+			case 81:
+				this.mvc.controller.movingKey(0);
+				break;
+			
+			case 68:
+				this.mvc.controller.movingKey(1);
+				break;
+			
+			case 90:
+				this.mvc.controller.movingKey(3);
+				break;
+
+			default:
+				trace("Input :", value, " is not a game key.");
 		}
-		else if(event.keyCode == 68){
-			direction = 1;
-		}
-		else if(event.keyCode == 90){
-			direction = 3;
-		}
-		else{
-			trace("The pressed key is not one of the moving key");
-			return;
-		}
+	}
 
-		trace("move to :", direction);
+	inputLoop(value){
 
-		this.mvc.controller.movingKey(direction);
+		this.pressedKeyToLoopId.set(value, setTimeout(() => this.inputLoop(value), 100));
+		this.moveInput(value);
 
 	}
 
