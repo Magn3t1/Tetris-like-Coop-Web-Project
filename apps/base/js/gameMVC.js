@@ -113,6 +113,7 @@ class gameView extends View {
 	generateBoard(){
 
 		//Generate each color part for each players
+		this.mvc.model.nbPlayer = 2;
 		this.generateFreeSlotColor(this.mvc.model.nbPlayer);
 
 		//Set the good size
@@ -175,9 +176,11 @@ class gameView extends View {
 		//Small verif
 		if(this.pressedKeyToLoopId.has(event.keyCode)) return;
 
+		let time = 100
+		if(event.keyCode == 90) time = 300;
 
 		this.moveInput(event.keyCode);
-		this.pressedKeyToLoopId.set(event.keyCode, setTimeout(() => this.inputLoop(event.keyCode), 100));
+		this.pressedKeyToLoopId.set(event.keyCode, setTimeout(() => this.inputLoop(event.keyCode), time));
 		//this.inputLoopId = setTimeout(() => this.inputLoop(), 100);
 
 		//this.pressedKey.add(event.keyCode);
@@ -211,7 +214,10 @@ class gameView extends View {
 
 	inputLoop(value){
 
-		this.pressedKeyToLoopId.set(value, setTimeout(() => this.inputLoop(value), 100));
+		let time = 100
+		if(value == 90) time = 300;
+
+		this.pressedKeyToLoopId.set(value, setTimeout(() => this.inputLoop(value), time));
 		this.moveInput(value);
 
 	}

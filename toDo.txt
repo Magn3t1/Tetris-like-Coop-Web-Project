@@ -1,10 +1,6 @@
 
 A faire :
 
-	Client : Prévisualisation future piece - E
-
-	
-
 	Server : Calcul du score et envoie au client
 	Client : Recevoir Score et l'afficher
 
@@ -27,7 +23,7 @@ A faire :
 
 En cours :	
 	Server : Rotation, Client : Input rotation - E
-
+	Client : Prévisualisation future piece - E
 
 
 
