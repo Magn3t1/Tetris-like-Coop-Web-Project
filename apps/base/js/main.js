@@ -191,10 +191,10 @@ class MyView extends View {
 									zIndex:"0",
 									textAlign:"center"})
 						.setAttribute({	type:"text",
-										pattern:"^[0-9]+$"})
+										pattern:"^[0-9]+$",
+										autoFocus:"autofocus"})
 						.attach(this.stage)
 						.getElement();
-
 
 		this.connectTextField.pattern = "[A-Za-z]{3}";
 
@@ -244,6 +244,14 @@ class MyView extends View {
 			event.target.value = event.target.value.replace(/[^0-9]/, "");
 		}
 		this.connectTextField.addEventListener("input", this.connectTextFieldInputHandler);
+
+		/*Handling the enter button to the text input*/
+		this.connectTextFieldKeyHandler = event => {
+			if(event.keyCode == 13)
+				this.connectButton.click()
+		};
+
+		this.connectTextField.addEventListener("keydown",this.connectTextFieldKeyHandler);
 	}
 
 	removeListeners() {
@@ -251,6 +259,7 @@ class MyView extends View {
 		this.iobtn.removeEventListener("click", this.ioBtnHandler);
 		this.connectButton.removeEventListener("click", this.connectButtonHandler); 
 		this.connectTextField.removeEventListener("input", this.connectTextFieldInputHandler);
+		this.connectTextField.removeEventListener("keydown",this.connectTextFieldKeyHandler);
 	}
 
 	btnClick(event) {
