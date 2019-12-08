@@ -84,9 +84,11 @@ class GameMVC {
 	}
 
 	onMovingKey(cliendId, direction){
-
 		this.controller.onMovingKey(cliendId, direction);
+	}
 
+	onRotateKey(cliendId, direction){
+		this.controller.onRotateKey(cliendId, direction);
 	}
 
 	state(){
@@ -189,6 +191,7 @@ class GameModel {
 
 	setNewPiece(index){
 		this.newPiece = ALL_PIECE[index];
+
 		this.newPiecePosition = [0, 0];
 	}
 
@@ -221,6 +224,23 @@ class GameModel {
 		}
 		else{
 			trace("ERROR moving pos of new piece");
+		}
+
+	}
+
+	newPieceRotate(direction){
+
+		//anticlockwise
+		if(direction == 0){
+			this.rotateAntiClockWise()
+		}
+		//clockwise
+		else if(direction == 1){
+			this.rotateClockWise()
+		}
+
+		else{
+			trace("ERROR rotating piece");
 		}
 
 	}
@@ -351,6 +371,40 @@ class GameModel {
 
 	}
 
+	rotateClockWise(){
+		this.newPiece = this.newPiece.map((element, index) =>{
+			//recovering 2D indexs as x & y
+			//4 is our dimension
+			let dimension = 4;
+			let x = index%dimension; 
+			let y = Math.trunc(index/dimension);
+
+			//calculate the right index
+			let rotateX = dimension - y - 1;
+			let rotateY = x;
+
+			//returning a 1D index
+			return this.newPiece[rotateY * dimension + rotateX];
+		});
+	}
+
+	rotateAntiClockWise(){
+		this.newPiece = this.newPiece.map((element, index) =>{
+			//recovering 2D indexs as x & y
+			//4 is our dimension
+			let dimension = 4;
+			let x = index%dimension; 
+			let y = Math.trunc(index/dimension);
+
+			//calculate the right index
+			let rotateX = y
+			let rotateY = dimension - x - 1;
+
+			//returning a 1D index
+			return this.newPiece[rotateY * dimension + rotateX];
+		});
+	}
+
 	/*	
 	*	This methode find and clear every completed line of the board.
 	*	A line is considered as completed when it contain no more 0.
@@ -470,6 +524,13 @@ class GameController {
 		this.mvc.model.ioBoardData();
 	}
 
+	onRotateKey(cliendId, direction){
+		this.mvc.model.newPieceRotate(direction);
+
+		this.mvc.model.mergeNewPiece();
+		this.mvc.model.ioBoardData();
+	}
+
 
 	//STARTING
 	start(){
@@ -578,6 +639,7 @@ class Base extends ModuleBase {
 		socket.on("dummy", packet => this._onDummyData(socket, packet)); // listen to "dummy" messages
 		socket.on("connectRoom", packet => this._onConnectRoom(socket, packet));
 		socket.on("movingKey", packet => this._onMovingKey(socket, packet));
+		socket.on("rotateKey", packet => this._onRotateKey(socket, packet));
 	}
 
 	/*
@@ -668,6 +730,18 @@ class Base extends ModuleBase {
 
 
 		this.roomGame.get(this.socketRoom.get(socket.id)).onMovingKey(socket.id, packet);
+
+
+	}
+
+	_onRotateKey(socket, packet){
+
+		if(!this.socketRoom.has(socket.id)){
+			return;
+		}
+
+
+		this.roomGame.get(this.socketRoom.get(socket.id)).onRotateKey(socket.id, packet);
 
 
 	}

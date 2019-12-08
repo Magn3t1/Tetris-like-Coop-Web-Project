@@ -1,7 +1,7 @@
 
 const PIECE_COLOR =	[	"rgb(255, 255, 255)",
 						"rgb(252, 232, 3)",
-						"rgb(3, 200, 255)",
+						"rgb(0, 150, 255)",
 						"rgb(152, 3, 252)",
 						"rgb(28, 156, 45)",
 						"rgb(219, 41, 13)",
@@ -207,6 +207,20 @@ class gameView extends View {
 				this.mvc.controller.movingKey(3);
 				break;
 
+			case 37:
+				this.mvc.controller.rotateKey(1);
+				break;
+			case 40:
+				this.mvc.controller.rotateKey(1);
+				break;
+
+			case 39:
+				this.mvc.controller.rotateKey(0);
+				break;
+			case 38:
+				this.mvc.controller.rotateKey(0);
+				break;
+
 			default:
 				trace("Input :", value, " is not a game key.");
 		}
@@ -393,5 +407,8 @@ class gameController extends Controller {
 		this.mvc.app.io.emit("movingKey", direction);
 	}
 
+	rotateKey(direction){
+		this.mvc.app.io.emit("rotateKey", direction);
+	}
 
 }
