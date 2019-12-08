@@ -187,12 +187,12 @@ class GameModel {
 		trace("emit start to room :", this.mvc.room);
 		this.mvc.app._io.to(this.mvc.room).emit("start", {size: BOARD_SIZE, len: BOARD_LEN, nbPlayer: this.clients.size} );
 	}
-
+ 
 
 	setNewPiece(index){
 		this.newPiece = ALL_PIECE[index];
 
-		this.newPiecePosition = [0, 0];
+		this.newPiecePosition = [0, -1];
 	}
 
 
@@ -372,7 +372,7 @@ class GameModel {
 	}
 
 	rotateClockWise(){
-		this.newPiece = this.newPiece.map((element, index) =>{
+		/*this.newPiece = this.newPiece.map((element, index) =>{
 			//recovering 2D indexs as x & y
 			//4 is our dimension
 			let dimension = 4;
@@ -385,10 +385,13 @@ class GameModel {
 
 			//returning a 1D index
 			return this.newPiece[rotateY * dimension + rotateX];
-		});
+		});*/
+		
+		this.newPiece = this.newPiece.map((element, index) => this.newPiece[(index%4) * 4 + (4 - Math.trunc(index/4) - 1)]);
 	}
 
 	rotateAntiClockWise(){
+		/*
 		this.newPiece = this.newPiece.map((element, index) =>{
 			//recovering 2D indexs as x & y
 			//4 is our dimension
@@ -402,7 +405,9 @@ class GameModel {
 
 			//returning a 1D index
 			return this.newPiece[rotateY * dimension + rotateX];
-		});
+		});*/
+		this.newPiece = this.newPiece.map((element, index) => this.newPiece[(4 - (index%4) - 1) * 4 + (Math.trunc(index/4))]);
+
 	}
 
 	/*	
