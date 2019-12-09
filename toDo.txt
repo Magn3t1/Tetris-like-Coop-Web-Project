@@ -22,7 +22,6 @@ A faire :
 
 
 En cours :	
-	Client : Prévisualisation future piece - E
 
 	Server : Rotation collision - G
 
@@ -38,3 +37,4 @@ Fait :
 	Server : Rotation, Client : Input rotation - E
 	Client : Resize - E
 	Client : Couleur - E
+	Client : Prévisualisation future piece - E
