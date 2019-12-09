@@ -12,10 +12,10 @@ const ALL_PIECE = [
 						0, 1, 1, 0,
 						0, 0, 0, 0],
 
-					[	0, 2, 0, 0,
-						0, 2, 0, 0,
-						0, 2, 0, 0,
-						0, 2, 0, 0],
+					[	0, 0, 0, 0,
+						0, 0, 0, 0,
+						2, 2, 2, 2,
+						0, 0, 0, 0],
 
 					[	0, 0, 0, 0,
 						0, 3, 0, 0,
@@ -28,19 +28,19 @@ const ALL_PIECE = [
 						0, 0, 0, 0],
 
 					[	0, 0, 0, 0,
+						5, 5, 0, 0,
 						0, 5, 5, 0,
-						0, 0, 5, 5,
 						0, 0, 0, 0],
 
 					[	0, 0, 0, 0,
-						0, 6, 6, 0,
-						0, 6, 0, 0,
-						0, 6, 0, 0],
+						6, 0, 0, 0,
+						6, 6, 6, 0,
+						0, 0, 0, 0],
 
 					[	0, 0, 0, 0,
-						0, 7, 7, 0,
 						0, 0, 7, 0,
-						0, 0, 7, 0]
+						7, 7, 7, 0,
+						0, 0, 0, 0]
 
 ];
 
@@ -238,9 +238,9 @@ class GameModel {
 		else if(direction == 1){
 			this.rotateClockWise();
 		}
-
 		else{
 			trace("Error in the client packet from rotateKey");
+			return;
 		}
 
 	}
@@ -276,12 +276,17 @@ class GameModel {
 			this.newPiecePosition[1] = indexFirstNotEmptyLine - 4;
 		}
 
-		while(this.newPieceTryDown());
+		while(!this.newPieceTryDown());
 
 		this.newPieceTouchDown();
 
 	}
 
+
+	/*
+		There is a dedicated methode for each moving direction,
+		this was we can optimis each version to check the good collision on side.
+	*/	
 	newPieceMoveLeft(){
 
 		let isCollision = false;
@@ -333,12 +338,76 @@ class GameModel {
 	}
 
 	/*
-		Try to move down, do it and return true if there was no collision,
-		or return false if there is a collision
+		This method check the collision from the board and also from each side.
+		return false if there is no collision, and from 1 to 4 if there is a collision depending of the what cause it
+	*/
+	newPieceCheckCollision(){
+		
+		let down = false;
+		let left = false;
+		let right = false;
+
+		//We don't use Array.map method because we want to break if we find any collision
+		for (let [index, element] of this.newPiece.entries()) {
+			
+			let localX = index%4;
+			let localY = Math.trunc(index/4);
+
+			let x = this.newPiecePosition[0] + localX;
+			let y = this.newPiecePosition[1] + localY;
+
+			if(element > 0){
+
+				//Board
+				if(this.board[x + y * this.boardLen] > 0){
+					
+					if(localY > 2){
+						down = true;
+					}
+					
+					if(localX <= 1){
+						left = true;
+					}
+					else if(localX >= 2){
+						right = true;
+					}
+
+				}
+				//Down
+				if(y >= this.boardSize/this.boardLen){
+					down = true;
+				}
+				//Right
+				if(x >= this.boardLen){
+					right = true;
+				}
+				//left
+				else if(x < 0){
+					left = true;
+				}
+
+			}
+		
+		}
+
+		let where = 0;
+		
+		if(down) where += 1;
+		if(right) where += 2;
+		if(left) where += 4;
+
+		return where;
+	}
+
+
+
+	/*
+		Try to move down, do it and return false if there was no collision,
+		or return true if there is a collision
 	*/
 	newPieceTryDown(){
 
-		let isNoCollision = true;
+		let isCollision = false;
 		for (let [index, element] of this.newPiece.entries()) {
 		
 			let x = this.newPiecePosition[0] + index%4;
@@ -347,7 +416,7 @@ class GameModel {
 			if(element > 0){
 
 				if(this.board[x + y * this.boardLen] > 0 || y >= this.boardSize/this.boardLen){
-					isNoCollision = false;
+					isCollision = true;
 					break;
 				}
 
@@ -355,19 +424,93 @@ class GameModel {
 		
 		}
 
-		if(isNoCollision) this.newPiecePosition[1] += 1;
+		if(!isCollision) this.newPiecePosition[1] += 1;
 
-		return isNoCollision;
+		return isCollision;
 
 	}
 
 	newPieceMoveDown(){
 
 		//If it pass this test, it mean the piece has entered in collision
-		if(!this.newPieceTryDown()){
+		if(this.newPieceTryDown()){
 			this.newPieceTouchDown();
 		}
 
+
+	}
+
+
+	/*
+		This method will try to push the piece to the surface if it's in collision.
+		Return true if it succeeds and false otherwise.
+	*/
+	sendToSurface(){
+
+		let success = false;
+
+		let everTouchedLeft = false;
+		let everTouchedRight = false;
+		let everTouchedDown = false;
+
+		while(1){
+
+			let whereColli = this.newPieceCheckCollision();
+
+			
+			let touchedLeft = false;
+			let touchedRight = false;
+			let touchedDown = false;
+
+			if(whereColli == 0){
+				success = true;
+				break;
+			}
+			else{
+
+				if(1 & whereColli){
+					touchedDown = true;
+				}
+				if(2 & whereColli){
+					touchedRight = true;
+				}
+				if(4 & whereColli){
+					touchedLeft = true;
+				}
+
+			}
+
+
+			//Right and left
+			if(touchedRight && touchedLeft){
+				break;
+			}
+			
+			//Down
+			
+
+			//Right or Left
+			if(touchedRight){
+				everTouchedRight = true;
+				this.newPiecePosition[0] -= 1;
+			}
+			else if(touchedLeft){
+				everTouchedLeft = true;
+				this.newPiecePosition[0] += 1;
+			}
+			else if(touchedDown){
+				everTouchedDown = true;
+				this.newPiecePosition[1] -= 1;
+			}
+
+			//ever Right and ever left
+			if(everTouchedRight && everTouchedLeft){
+				break;
+			}
+
+		}
+
+		return success;
 
 	}
 
@@ -387,8 +530,20 @@ class GameModel {
 			return this.newPiece[rotateY * dimension + rotateX];
 		});*/
 		
+		let oldPiece = this.newPiece;
+		let oldPosition = this.newPiecePosition;
+
 		//The same but in one line
 		this.newPiece = this.newPiece.map((element, index) => this.newPiece[(index%4) * 4 + (4 - Math.trunc(index/4) - 1)]);
+
+
+		//If we can't send the piece to the surface, let the older version of the piece
+		if(!this.sendToSurface()){
+			this.newPiece = oldPiece;
+			this.newPiecePosition = oldPosition;
+		}
+
+
 	}
 
 	rotateAntiClockWise(){
@@ -408,9 +563,18 @@ class GameModel {
 			return this.newPiece[rotateY * dimension + rotateX];
 		});*/
 
+		let oldPiece = this.newPiece;
+		let oldPosition = this.newPiecePosition;
 
 		//The same but in one line
 		this.newPiece = this.newPiece.map((element, index) => this.newPiece[(4 - (index%4) - 1) * 4 + (Math.trunc(index/4))]);
+
+
+		//If we can't send the piece to the surface, let the older version of the piece
+		if(!this.sendToSurface()){
+			this.newPiece = oldPiece;
+			this.newPiecePosition = oldPosition;
+		}
 
 	}
 
@@ -557,7 +721,7 @@ class GameController {
 
 		this.mvc.model.ioNextPieceData();
 
-		this.timeoutTime = setTimeout(() => this.gameLoop(), 300);
+		this.timeoutTime = setTimeout(() => this.gameLoop(), 500);
 
 	}
 
@@ -571,7 +735,7 @@ class GameController {
 	//Main game loop
 	gameLoop(){
 		//Prepare next loop
-		this.timeoutTime = setTimeout(() => this.gameLoop(), 300);
+		this.timeoutTime = setTimeout(() => this.gameLoop(), 500);
 
 		//Update the falling piece
 		this.update();
