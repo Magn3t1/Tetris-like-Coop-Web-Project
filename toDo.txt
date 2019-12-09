@@ -6,7 +6,7 @@ A faire :
 
 
 
-	Server : Separer le plateau en deux pour deux joueur
+	Server : Separer le plateau en deux pour deux joueur - G
 			 (Du coup gérer les input seulement du joueur qui a la main)
 
 
@@ -22,9 +22,9 @@ A faire :
 
 
 En cours :	
-	Server : Rotation, Client : Input rotation - E
 	Client : Prévisualisation future piece - E
 
+	Server : Rotation collision - G
 
 
 Fait :
@@ -35,5 +35,6 @@ Fait :
 	Server et Client : emit l'evenement start au lancement de la partie (contiendra le nombre de joueur dans la partie, la taille et la longueur) - G
 
 
+	Server : Rotation, Client : Input rotation - E
 	Client : Resize - E
 	Client : Couleur - E

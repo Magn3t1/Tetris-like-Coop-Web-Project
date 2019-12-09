@@ -9,6 +9,9 @@ const PIECE_COLOR =	[	"rgb(255, 255, 255)",
 						"rgb(242, 126, 31)"	]
 
 
+const NO_LOOP_KEY = new Set([90, 37, 38, 39, 40]);
+
+
 class gameModel extends Model {
 
 	constructor() {
@@ -176,21 +179,24 @@ class gameView extends View {
 		//Small verif
 		if(this.pressedKeyToLoopId.has(event.keyCode)) return;
 
-		let time = 100
-		if(event.keyCode == 90) time = 300;
 
 		this.moveInput(event.keyCode);
-		this.pressedKeyToLoopId.set(event.keyCode, setTimeout(() => this.inputLoop(event.keyCode), time));
-		//this.inputLoopId = setTimeout(() => this.inputLoop(), 100);
 
-		//this.pressedKey.add(event.keyCode);
+		this.pressedKeyToLoopId.set(event.keyCode, setTimeout(() => this.inputLoop(event.keyCode), 100));
+
 	}
 
 	onKeyUp(event){
 
-		clearTimeout(this.pressedKeyToLoopId.get(event.keyCode));
-
-		this.pressedKeyToLoopId.delete(event.keyCode);
+		//Useless if
+		if(this.pressedKeyToLoopId.has(event.keyCode)){
+			clearTimeout(this.pressedKeyToLoopId.get(event.keyCode));
+			this.pressedKeyToLoopId.delete(event.keyCode);
+		}
+		else{
+			trace("Shoud never happen...");
+		}
+		
 	}
 
 	moveInput(value){
@@ -228,11 +234,11 @@ class gameView extends View {
 
 	inputLoop(value){
 
-		let time = 100
-		if(value == 90) time = 300;
+		this.pressedKeyToLoopId.set(value, setTimeout(() => this.inputLoop(value), 100));
 
-		this.pressedKeyToLoopId.set(value, setTimeout(() => this.inputLoop(value), time));
-		this.moveInput(value);
+		if(!NO_LOOP_KEY.has(value)){
+			this.moveInput(value);
+		}
 
 	}
 

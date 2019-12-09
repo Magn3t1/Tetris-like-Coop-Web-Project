@@ -232,15 +232,15 @@ class GameModel {
 
 		//anticlockwise
 		if(direction == 0){
-			this.rotateAntiClockWise()
+			this.rotateAntiClockWise();
 		}
 		//clockwise
 		else if(direction == 1){
-			this.rotateClockWise()
+			this.rotateClockWise();
 		}
 
 		else{
-			trace("ERROR rotating piece");
+			trace("Error in the client packet from rotateKey");
 		}
 
 	}
@@ -387,6 +387,7 @@ class GameModel {
 			return this.newPiece[rotateY * dimension + rotateX];
 		});*/
 		
+		//The same but in one line
 		this.newPiece = this.newPiece.map((element, index) => this.newPiece[(index%4) * 4 + (4 - Math.trunc(index/4) - 1)]);
 	}
 
@@ -406,6 +407,9 @@ class GameModel {
 			//returning a 1D index
 			return this.newPiece[rotateY * dimension + rotateX];
 		});*/
+
+
+		//The same but in one line
 		this.newPiece = this.newPiece.map((element, index) => this.newPiece[(4 - (index%4) - 1) * 4 + (Math.trunc(index/4))]);
 
 	}

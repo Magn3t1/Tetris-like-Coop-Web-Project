@@ -248,7 +248,7 @@ class MyView extends View {
 		/*Handling the enter button to the text input*/
 		this.connectTextFieldKeyHandler = event => {
 			if(event.keyCode == 13)
-				this.connectButton.click()
+				this.connectButtonClick();
 		};
 
 		this.connectTextField.addEventListener("keydown",this.connectTextFieldKeyHandler);
