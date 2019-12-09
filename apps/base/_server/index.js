@@ -2,7 +2,7 @@
 
 const ModuleBase = load("com/base"); // import ModuleBase class
 
-const BOARD_SIZE = 200;
+const BOARD_SIZE = 20;
 const BOARD_LEN = 10;
 
 
