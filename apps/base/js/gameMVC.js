@@ -236,6 +236,7 @@ class gameView extends View {
 
 		this.pressedKeyToLoopId.set(value, setTimeout(() => this.inputLoop(value), 100));
 
+		//If this key is not in the NO_LOOP_KEY execute the input
 		if(!NO_LOOP_KEY.has(value)){
 			this.moveInput(value);
 		}
