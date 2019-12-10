@@ -4,10 +4,19 @@ A faire :
 	Server : Calcul du score et envoie au client
 	Client : Recevoir Score et l'afficher
 
+	Server : Fonctionnalité pour envoyer d'un coup la piece dans le terrain de l'autre (fast share)
+					aussi gérer l'evenement recu par le client
+	
+	Client : ajout de la touche pour fast share
+					et envoyer l'evenement au server
 
 
-	Server : Separer le plateau en deux pour deux joueur - G
-			 (Du coup gérer les input seulement du joueur qui a la main)
+	Server : Fonctionnalité pour descendre rapidement (trouver un nom car fast fall est pris)
+					et gérer l'evenement recu
+
+	Client : ajouter la touche pour descendre rapidement (sur S)
+					et envoyer l'evenement au server
+
 
 
 	( 
@@ -23,7 +32,18 @@ A faire :
 
 En cours :	
 
+
+
+
+Fait mais a debug :
 	Server : Rotation collision - G
+				Bug : certaine fois la collision n'est pas véirifié
+				Pattern de reproduction : Non trouvé
+
+
+	Client : Prévisualisation future piece - E
+				Bug : bug sur petit tableau
+				Pattern de reproduction : Reduire la taille du tableau et sa longueur
 
 
 Fait :
@@ -32,9 +52,9 @@ Fait :
 	Server : Preparation future piece et prevenir client - G
 	Client : Changer le type d'input pour recevoir les input en temps réelle - G
 	Server et Client : emit l'evenement start au lancement de la partie (contiendra le nombre de joueur dans la partie, la taille et la longueur) - G
+	Server : Separer le plateau en deux pour deux joueur et gérer les input seulement du joueur qui a la main - G
 
 
 	Server : Rotation, Client : Input rotation - E
 	Client : Resize - E
 	Client : Couleur - E
-	Client : Prévisualisation future piece - E

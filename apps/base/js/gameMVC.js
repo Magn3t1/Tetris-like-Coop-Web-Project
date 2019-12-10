@@ -17,7 +17,7 @@ class gameModel extends Model {
 	constructor() {
 		super();
 
-		this.playerNb = 1;
+		this.nbPlayer = 1;
 
 		this.boardSize 	= 4;
 		this.boardLen 	= 2;
@@ -27,7 +27,7 @@ class gameModel extends Model {
 		this.boardData 		= new Array(this.boardSize);
 		this.nextPieceData	= new Array(4 * 4);
 
-		this.playerTurn = -1;
+		this.nextPiecePlayer = 0;
 
 		
 	}
@@ -66,12 +66,14 @@ class gameModel extends Model {
 	}
 
 	ioNextPieceData(packet){
+		//This packet contain the next piece data in the first index,
+		//and the player who get it in the second index
 
-		this.nextPieceData = packet;
+		this.nextPieceData = packet[0];
 
 		///ICI FAIRE QUELQUE CHOSE POUR AFFICHER LA NOUVELLE PIECE RECU
 		trace("RECU NEXT PIECE : ", this.nextPieceData);
-		this.playerTurn++;
+		this.nextPiecePlayer = packet[1];
 
 	}
 
@@ -130,7 +132,11 @@ class gameView extends View {
 	generateBoard(){
 
 		//Generate each color part for each players
-		this.mvc.model.nbPlayer = 2;
+		
+		///TEST
+		//this.mvc.model.nbPlayer = 2;
+		///TEST
+
 		this.generateFreeSlotColor(this.mvc.model.nbPlayer);
 
 		//Set the good size
@@ -360,9 +366,9 @@ class gameView extends View {
 
 			if(element == 0){
 				if(x%2 == 0){
-					canvas2dContextNextPiece.fillStyle = this.playerColors[(this.mvc.model.playerTurn*2)%(this.mvc.model.nbPlayer*2)];
+					canvas2dContextNextPiece.fillStyle = this.playerColors[(this.mvc.model.nextPiecePlayer*2)];
 				} else {
-					canvas2dContextNextPiece.fillStyle = this.playerColors[((this.mvc.model.playerTurn*2)+1)%(this.mvc.model.nbPlayer*2)];
+					canvas2dContextNextPiece.fillStyle = this.playerColors[((this.mvc.model.nextPiecePlayer*2)+1)];
 				}
 			} else {
 				canvas2dContextNextPiece.fillStyle = PIECE_COLOR[element];
@@ -444,9 +450,9 @@ class gameView extends View {
 		this.freeSlotColor = new Array(this.mvc.model.boardLen).fill(0).map((element,x) =>{
 			if(element == 0){
 				if(x%2 == 0){
-					return this.playerColors[0 +2*Math.floor(x/(this.mvc.model.boardLen/nbPlayer))];
+					return this.playerColors[0 + 2 *Math.floor(x/(this.mvc.model.boardLen/nbPlayer))];
 				} else {
-					return this.playerColors[1 +2*Math.floor(x/(this.mvc.model.boardLen/nbPlayer))];
+					return this.playerColors[1 + 2 *Math.floor(x/(this.mvc.model.boardLen/nbPlayer))];
 				}
 			}
 		});

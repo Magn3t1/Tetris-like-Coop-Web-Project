@@ -5,6 +5,7 @@ const ModuleBase = load("com/base"); // import ModuleBase class
 const BOARD_SIZE = 400;
 const BOARD_LEN = 20;
 
+const NB_PLAYER_MAX = 2;
 
 const ALL_PIECE = [
 					[	0, 0, 0, 0,
@@ -104,7 +105,8 @@ class GameModel {
 		this.name = undefined;
 		this.mvc = null;
 		
-		this.clients = new Set();
+		//This Map contain the player id linked to his Player index (1 to N)
+		this.clients = new Map();
 
 
 		this.boardSize 	= BOARD_SIZE;
@@ -117,9 +119,13 @@ class GameModel {
 
 
 		this.nextNewPieceIndex = 0;
+		//This variable contain the index of the next player who will get a piece
+		this.nextNewPiecePlayer = 0;
 
 		this.newPiece = new Array(4 * 4);
 		this.newPiecePosition = [0, 0];
+		//Player who got the hand on the actual new Piece
+		this.handlingPlayer = 0;
 
 		//Board and New piece merged
 		this.mergedBoard = new Array(this.boardSize);
@@ -141,14 +147,20 @@ class GameModel {
 		//Nothing to do
 	}
 
+	/*
+		This method add a client depending of his socket id.
+		Also start the game if the number of client rise to the NB_PLAYER_MAX constant.
+	*/
 	addClient(id){
 
 		//This should never arrive
-		if(this.clients.size == 1) return;
+		if(this.clients.size == NB_PLAYER_MAX) return;
 
-		this.clients.add(id);
+		let oldSize = this.clients.size;
 
-		if(this.clients.size == 1){
+		this.clients.set(id, oldSize);
+
+		if(this.clients.size == NB_PLAYER_MAX){
 			this.mvc.state = 1;
 
 			this.mvc.controller.start();
@@ -157,11 +169,18 @@ class GameModel {
 
 	}
 
+	/*
+		This method remove a client depending of his is socked id,
+		It also destruct the Game if the number of client fall to 0.
+		Return true if it get destructed (To handle the dead object) and false if not.
+	*/
 	removeClient(id){
 
 		this.clients.delete(id);
 
-		//If there is no more client in the room, kill it.
+		//Reorganiser les numéro des autres joueurs
+
+		//If there is no more client in the room, KILL IT.
 		if(this.clients.size == 0){
 
 			this.mvc.destruct();
@@ -180,7 +199,7 @@ class GameModel {
 
 	ioNextPieceData(){
 		trace("emit nextPieceData to room :", this.mvc.room);
-		this.mvc.app._io.to(this.mvc.room).emit("nextPieceData", ALL_PIECE[this.nextNewPieceIndex]);
+		this.mvc.app._io.to(this.mvc.room).emit("nextPieceData", [ALL_PIECE[this.nextNewPieceIndex], this.nextNewPiecePlayer]);
 	}
 
 	ioStart(){
@@ -188,18 +207,75 @@ class GameModel {
 		this.mvc.app._io.to(this.mvc.room).emit("start", {size: BOARD_SIZE, len: BOARD_LEN, nbPlayer: this.clients.size} );
 	}
  
-
+	/*
+		This method se the newPiece depending of the index is argument.
+		It also set the newPiece position and the actual handling Player.
+	*/
 	setNewPiece(index){
+		
 		this.newPiece = ALL_PIECE[index];
 
-		this.newPiecePosition = [0, -1];
+
+		let playerBoardLen = Math.trunc(this.boardLen / this.clients.size);
+		//We kick 2 because it give us the position of the up left anglen, and the piece is 4 slot len
+		let startPosX = Math.trunc(playerBoardLen * 0.5) - 2;
+
+		//We use the num of the next player piece to set the position of the newPiece
+		this.newPiecePosition = [playerBoardLen * this.nextNewPiecePlayer + startPosX, -1];
+
+
+		//And we set the handling player to the owner of the new piece.
+		this.handlingPlayer = this.nextNewPiecePlayer;
 	}
 
-
-	//Game function :
+	/*
+		This method return one random index that is part of the piece list.
+	*/	
 	findNewPieceIndex(){
 		let maxIndex = ALL_PIECE.length;
 		return Math.floor(Math.random() * (maxIndex));
+	}
+
+	/*
+		This method verify if the actual newPiece is still in the handling player board
+		or if it's totally in another player board.
+	*/
+	verifyHand(){
+
+		let playerBoardLen = Math.trunc(this.boardLen / this.clients.size);
+		let newPlayerBoardIndex = 0;
+
+		let isIn = false;
+
+		//We should not use a forEach because we want to break when we encounter a case isIn become true.
+		this.newPiece.forEach((element, index) => {
+
+			if(element > 0){
+
+				let x = this.newPiecePosition[0] + index%4;
+
+				let playerBoardIndex = Math.trunc(x / playerBoardLen);
+
+				if(playerBoardIndex == this.handlingPlayer){
+					isIn = true;
+					//We want to break here.
+				}
+				else{
+					newPlayerBoardIndex = playerBoardIndex;
+				}
+
+			}
+
+		});
+
+		/*
+			If this test pass it mean no part of the actual newPiece
+			is in the handling Player side so we change the handling player
+		*/
+		if(!isIn){
+			this.handlingPlayer = newPlayerBoardIndex;
+		}
+
 	}
 
 	newPieceMove(direction){
@@ -211,10 +287,12 @@ class GameModel {
 		//LEFT
 		else if(direction == 1){
 			this.newPieceMoveLeft();
+			this.verifyHand();
 		}
 		//RIGHT
 		else if(direction == 2){
 			this.newPieceMoveRight();
+			this.verifyHand();
 		}
 		//FastFall
 		else if(direction == 4){
@@ -603,6 +681,8 @@ class GameModel {
 
 	}
 
+
+
 	/*
 		This methode is called when a piece hit the ground
 	*/
@@ -618,6 +698,7 @@ class GameModel {
 
 		//We generate a new piece index
 		this.nextNewPieceIndex = this.findNewPieceIndex();
+		this.nextNewPiecePlayer = (this.nextNewPiecePlayer + 1)%this.clients.size;
 
 		// And we dend the data of the next next new piece to the clients
 		this.ioNextPieceData();
@@ -659,6 +740,23 @@ class GameModel {
 		}, array);
 
 	}
+
+
+	/*
+		This method verify if the clientId correspond to the player who got
+		the hand on the actual new piece.
+	*/
+	playerVerification(clientId){
+		
+		let clientIndex = this.clients.get(clientId);
+
+		if(clientIndex == this.handlingPlayer){
+			return true;
+		}
+		
+		return false;
+
+	}
 	
 
 }
@@ -683,12 +781,14 @@ class GameController {
 
 	}
 
+
+
 	//Input
-	onMovingKey(cliendId, direction){
+	onMovingKey(clientId, direction){
 
-		///Verifier si c'est le joueur "clientId" qui a la main
+		//If we pass this test it mean that the client who send the moving request do not have the hand.
+		if(!this.mvc.model.playerVerification(clientId)) return;
 
-		///
 
 		//0 = left, 1 = right, 3 = fastFall, so we put +1 to correpond to newPieceMove
 		this.mvc.model.newPieceMove(direction+1);
@@ -697,7 +797,12 @@ class GameController {
 		this.mvc.model.ioBoardData();
 	}
 
-	onRotateKey(cliendId, direction){
+	onRotateKey(clientId, direction){
+
+		//If we pass this test it mean that the client who send the rotate request do not have the hand.
+		if(!this.playerVerification(clientId)) return;
+
+
 		this.mvc.model.newPieceRotate(direction);
 
 		this.mvc.model.mergeNewPiece();
@@ -710,6 +815,8 @@ class GameController {
 		
 		this.mvc.model.setNewPiece(this.mvc.model.findNewPieceIndex());
 		this.mvc.model.nextNewPieceIndex = this.mvc.model.findNewPieceIndex();
+		this.mvc.model.nextNewPiecePlayer = (this.mvc.model.nextNewPiecePlayer + 1)%this.mvc.model.clients.size;
+
 
 		//Send start and the number of player in the game
 		this.mvc.model.ioStart();
