@@ -29,6 +29,8 @@ A faire :
  	Server : Ajouter un petit delais lorsqu'une ligne ou plus se brise
 
 
+ 	Client : Gérer l'affichage des nouvelle piece en fonction de la dimension de leur matrice
+
 
 En cours :	
 
@@ -53,6 +55,8 @@ Fait :
 	Client : Changer le type d'input pour recevoir les input en temps réelle - G
 	Server et Client : emit l'evenement start au lancement de la partie (contiendra le nombre de joueur dans la partie, la taille et la longueur) - G
 	Server : Separer le plateau en deux pour deux joueur et gérer les input seulement du joueur qui a la main - G
+	Server : Changer le system de newpiece, maintenant chaque piece a une dimension adapté - G
+
 
 
 	Server : Rotation, Client : Input rotation - E

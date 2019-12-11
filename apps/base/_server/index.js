@@ -5,43 +5,38 @@ const ModuleBase = load("com/base"); // import ModuleBase class
 const BOARD_SIZE = 400;
 const BOARD_LEN = 20;
 
-const NB_PLAYER_MAX = 2;
+const NB_PLAYER_MAX = 1;
 
-const ALL_PIECE = [
-					[	0, 0, 0, 0,
-						0, 1, 1, 0,
-						0, 1, 1, 0,
-						0, 0, 0, 0],
+const ALL_PIECE_AND_LEN = [
+					[	1, 1,
+						1, 1	], 2,
+
+
 
 					[	0, 0, 0, 0,
-						0, 0, 0, 0,
 						2, 2, 2, 2,
-						0, 0, 0, 0],
+						0, 0, 0, 0,
+						0, 0, 0, 0], 4,
 
-					[	0, 0, 0, 0,
-						0, 3, 0, 0,
-						3, 3, 3, 0,
-						0, 0, 0, 0],
+					[	0, 3, 0,
+						3, 3, 3,
+						0, 0, 0	], 3,
 
-					[	0, 0, 0, 0,
-						0, 4, 4, 0,
-						4, 4, 0, 0,
-						0, 0, 0, 0],
+					[	0, 4, 4,
+						4, 4, 0,
+						0, 0, 0	], 3,
 
-					[	0, 0, 0, 0,
-						5, 5, 0, 0,
-						0, 5, 5, 0,
-						0, 0, 0, 0],
+					[	5, 5, 0,
+						0, 5, 5,
+						0, 0, 0	], 3,
 
-					[	0, 0, 0, 0,
-						6, 0, 0, 0,
-						6, 6, 6, 0,
-						0, 0, 0, 0],
+					[	6, 0, 0,
+						6, 6, 6,
+						0, 0, 0	], 3,
 
-					[	0, 0, 0, 0,
-						0, 0, 7, 0,
-						7, 7, 7, 0,
-						0, 0, 0, 0]
+					[	0, 0, 7,
+						7, 7, 7,
+						0, 0, 0	], 3
 
 ];
 
@@ -123,6 +118,7 @@ class GameModel {
 		this.nextNewPiecePlayer = 0;
 
 		this.newPiece = new Array(4 * 4);
+		this.newPieceLen = 4;
 		this.newPiecePosition = [0, 0];
 		//Player who got the hand on the actual new Piece
 		this.handlingPlayer = 0;
@@ -199,7 +195,7 @@ class GameModel {
 
 	ioNextPieceData(){
 		trace("emit nextPieceData to room :", this.mvc.room);
-		this.mvc.app._io.to(this.mvc.room).emit("nextPieceData", [ALL_PIECE[this.nextNewPieceIndex], this.nextNewPiecePlayer]);
+		this.mvc.app._io.to(this.mvc.room).emit("nextPieceData", [ALL_PIECE_AND_LEN[this.nextNewPieceIndex*2], ALL_PIECE_AND_LEN[this.nextNewPieceIndex*2 + 1], this.nextNewPiecePlayer]);
 	}
 
 	ioStart(){
@@ -213,12 +209,12 @@ class GameModel {
 	*/
 	setNewPiece(index){
 		
-		this.newPiece = ALL_PIECE[index];
+		this.newPiece = ALL_PIECE_AND_LEN[index * 2];
+		this.newPieceLen = ALL_PIECE_AND_LEN[index * 2 + 1];
 
 
 		let playerBoardLen = Math.trunc(this.boardLen / this.clients.size);
-		//We kick 2 because it give us the position of the up left anglen, and the piece is 4 slot len
-		let startPosX = Math.trunc(playerBoardLen * 0.5) - 2;
+		let startPosX = Math.trunc(playerBoardLen * 0.5 - this.newPieceLen/2);
 
 		//We use the num of the next player piece to set the position of the newPiece
 		this.newPiecePosition = [playerBoardLen * this.nextNewPiecePlayer + startPosX, -1];
@@ -232,7 +228,7 @@ class GameModel {
 		This method return one random index that is part of the piece list.
 	*/	
 	findNewPieceIndex(){
-		let maxIndex = ALL_PIECE.length;
+		let maxIndex = ALL_PIECE_AND_LEN.length/2;
 		return Math.floor(Math.random() * (maxIndex));
 	}
 
@@ -252,7 +248,7 @@ class GameModel {
 
 			if(element > 0){
 
-				let x = this.newPiecePosition[0] + index%4;
+				let x = this.newPiecePosition[0] + index%this.newPieceLen;
 
 				let playerBoardIndex = Math.trunc(x / playerBoardLen);
 
@@ -370,8 +366,8 @@ class GameModel {
 		let isCollision = false;
 		for (let [index, element] of this.newPiece.entries()) {
 		
-			let x = this.newPiecePosition[0]-1 	+ index%4;
-			let y = this.newPiecePosition[1] 	+ Math.trunc(index/4);
+			let x = this.newPiecePosition[0]-1 	+ index%this.newPieceLen;
+			let y = this.newPiecePosition[1] 	+ Math.trunc(index/this.newPieceLen);
 
 			if(element > 0){
 
@@ -395,8 +391,8 @@ class GameModel {
 		let isCollision = false;
 		for (let [index, element] of this.newPiece.entries()) {
 		
-			let x = this.newPiecePosition[0]+1 	+ index%4;
-			let y = this.newPiecePosition[1] 	+ Math.trunc(index/4);
+			let x = this.newPiecePosition[0]+1 	+ index%this.newPieceLen;
+			let y = this.newPiecePosition[1] 	+ Math.trunc(index/this.newPieceLen);
 
 			if(element > 0){
 
@@ -428,8 +424,8 @@ class GameModel {
 		//We don't use Array.map method because we want to break if we find any collision
 		for (let [index, element] of this.newPiece.entries()) {
 			
-			let localX = index%4;
-			let localY = Math.trunc(index/4);
+			let localX = index%this.newPieceLen;
+			let localY = Math.trunc(index/this.newPieceLen);
 
 			let x = this.newPiecePosition[0] + localX;
 			let y = this.newPiecePosition[1] + localY;
@@ -488,8 +484,8 @@ class GameModel {
 		let isCollision = false;
 		for (let [index, element] of this.newPiece.entries()) {
 		
-			let x = this.newPiecePosition[0] + index%4;
-			let y = this.newPiecePosition[1]+1 + Math.trunc(index/4);
+			let x = this.newPiecePosition[0] + index%this.newPieceLen;
+			let y = this.newPiecePosition[1]+1 + Math.trunc(index/this.newPieceLen);
 
 			if(element > 0){
 
@@ -612,7 +608,7 @@ class GameModel {
 		let oldPosition = this.newPiecePosition;
 
 		//The same but in one line
-		this.newPiece = this.newPiece.map((element, index) => this.newPiece[(index%4) * 4 + (4 - Math.trunc(index/4) - 1)]);
+		this.newPiece = this.newPiece.map((element, index) => this.newPiece[(index%this.newPieceLen) * this.newPieceLen + (this.newPieceLen - Math.trunc(index/this.newPieceLen) - 1)]);
 
 
 		//If we can't send the piece to the surface, let the older version of the piece
@@ -645,7 +641,7 @@ class GameModel {
 		let oldPosition = this.newPiecePosition;
 
 		//The same but in one line
-		this.newPiece = this.newPiece.map((element, index) => this.newPiece[(4 - (index%4) - 1) * 4 + (Math.trunc(index/4))]);
+		this.newPiece = this.newPiece.map((element, index) => this.newPiece[(this.newPieceLen - (index%this.newPieceLen) - 1) * this.newPieceLen + (Math.trunc(index/this.newPieceLen))]);
 
 
 		//If we can't send the piece to the surface, let the older version of the piece
@@ -725,8 +721,8 @@ class GameModel {
 
 		this.newPiece.reduce((acc, element, index) => {
 
-			let x = this.newPiecePosition[0] + index%4;
-			let y = this.newPiecePosition[1] + Math.trunc(index/4);
+			let x = this.newPiecePosition[0] + index%this.newPieceLen;
+			let y = this.newPiecePosition[1] + Math.trunc(index/this.newPieceLen);
 
 
 
@@ -800,7 +796,7 @@ class GameController {
 	onRotateKey(clientId, direction){
 
 		//If we pass this test it mean that the client who send the rotate request do not have the hand.
-		if(!this.playerVerification(clientId)) return;
+		if(!this.mvc.model.playerVerification(clientId)) return;
 
 
 		this.mvc.model.newPieceRotate(direction);

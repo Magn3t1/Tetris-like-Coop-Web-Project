@@ -26,6 +26,7 @@ class gameModel extends Model {
 
 		this.boardData 		= new Array(this.boardSize);
 		this.nextPieceData	= new Array(4 * 4);
+		this.nextPieceLen = 4;
 
 		this.nextPiecePlayer = 0;
 
@@ -71,9 +72,11 @@ class gameModel extends Model {
 
 		this.nextPieceData = packet[0];
 
+		this.nextPieceLen = packet[1];
+
 		///ICI FAIRE QUELQUE CHOSE POUR AFFICHER LA NOUVELLE PIECE RECU
 		trace("RECU NEXT PIECE : ", this.nextPieceData);
-		this.nextPiecePlayer = packet[1];
+		this.nextPiecePlayer = packet[2];
 
 	}
 
@@ -319,7 +322,7 @@ class gameView extends View {
 		}
 
 		/*Resizing the next piece display in function of the board ;)*/
-		this.nextPieceCanvas.height = (this.boardCanvas.width/this.mvc.model.boardLen)*3;
+		this.nextPieceCanvas.height = this.slotWidth*3;
 		this.nextPieceCanvas.width  = this.nextPieceCanvas.height;
 	}
 
@@ -361,8 +364,8 @@ class gameView extends View {
 
 		this.mvc.model.nextPieceData.forEach((element, index) => {
 			
-			let x = index%4;
-			let y = Math.trunc(index/4);
+			let x = index%this.mvc.model.nextPieceLen;
+			let y = Math.trunc(index/this.mvc.model.nextPieceLen);
 
 			if(element == 0){
 				if(x%2 == 0){
@@ -374,10 +377,10 @@ class gameView extends View {
 				canvas2dContextNextPiece.fillStyle = PIECE_COLOR[element];
 			}
 
-			canvas2dContextNextPiece.fillRect(x * this.slotWidth/1.3333 + this.slotSpace/1.3333,
-						                      y * this.slotHeight/1.3333 + this.slotSpace/1.3333,
-						                      this.slotWidth/1.3333 - this.slotSpace*1.5,
-						                      this.slotHeight/1.3333 - this.slotSpace*1.5);
+			canvas2dContextNextPiece.fillRect(x * this.slotWidth + this.slotSpace,
+						                      y * this.slotHeight + this.slotSpace,
+						                      this.slotWidth - this.slotSpace,
+						                      this.slotHeight - this.slotSpace);
 
 		});
 
