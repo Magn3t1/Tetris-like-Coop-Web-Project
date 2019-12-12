@@ -25,11 +25,21 @@ A faire :
 		// elles se calculs facilement non ?
 	)
 
-
  	Server : Ajouter un petit delais lorsqu'une ligne ou plus se brise
 
-
  	Client : Gérer l'affichage des nouvelle piece en fonction de la dimension de leur matrice
+
+
+ 	///CHAT
+	Client : Gerer l'affichage de nouveaux message dans le chat
+	Client : Gerer un evenement pour recevoir de nouveaux messages
+	Client : Gerer l'ecriture et l'envoie de message au serveur
+
+	Server : Gerer un evenement  pour recevoir les messages des clients
+	Server : Ajouter l'envoie de message aux clients
+	Server : Envoyer des messages pour les connexion de nouveaux clients dans le salon, le debut de partie, etc...
+
+
 
 
 En cours :	
@@ -56,7 +66,7 @@ Fait :
 	Server et Client : emit l'evenement start au lancement de la partie (contiendra le nombre de joueur dans la partie, la taille et la longueur) - G
 	Server : Separer le plateau en deux pour deux joueur et gérer les input seulement du joueur qui a la main - G
 	Server : Changer le system de newpiece, maintenant chaque piece a une dimension adapté - G
-
+	Client : Ajout du debut du chat
 
 
 	Server : Rotation, Client : Input rotation - E

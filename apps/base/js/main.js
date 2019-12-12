@@ -26,6 +26,12 @@ class Base {
 	constructor() {
 		console.log("loaded");
 
+
+		this.chatDiv = null;
+		this.chatMvc = null;
+
+
+
 		this.initialize();
 	}
 
@@ -42,15 +48,37 @@ class Base {
 
 	}
 
-	async changeMVC(model, view, controller){
+	async changeToGameMVC(model, view, controller){
 
 		this.mvc = new MVC("game", this, model, view, controller); // init app MVC
 		await this.mvc.initialize(); // run init async tasks
-		
+
+		this.chatMvc = new MVC("gameChat", this, new ChatModel(), new ChatView(), new ChatController());
+		await this.chatMvc.initialize();
+
+		//Creating the chat element
+		this.chatDiv = new easyElement("div")
+						.setStyle({	position:"absolute",
+									left: (- window.innerWidth / 2) + "px",
+									top: "0px",
+									width: (window.innerWidth / 2) + "px",
+									height: window.innerHeight + "px",
+									zIndex: "100" })
+						.attach(document.body)
+						.getElement();
+
+
+		//Game
 		this.mvc.view.attach(document.body); // attach view
 		this.mvc.view.activate(); // activate user interface
 
+		//Game Chat
+		this.chatMvc.view.attach(this.chatDiv);
+		this.chatMvc.view.activate();
+
 	}
+
+
 
 	/**
 	 * @method test : test server GET fetch
@@ -342,7 +370,7 @@ class MyController extends Controller {
 
 		this.mvc.destruct();
 
-		this.mvc.app.changeMVC(new gameModel(), new gameView(), new gameController());
+		this.mvc.app.changeToGameMVC(new gameModel(), new gameView(), new gameController());
 		//await this.mvc.changeView(new gameView());
 
 		//this.mvc.view.attach(document.body); // attach view

@@ -12,6 +12,10 @@ const PIECE_COLOR =	[	"rgb(255, 255, 255)",
 const NO_LOOP_KEY = new Set([90, 37, 38, 39, 40]);
 
 
+
+
+
+
 class gameModel extends Model {
 
 	constructor() {
@@ -183,9 +187,6 @@ class gameView extends View {
 
 	removeListeners() {
 
-		//document.removeEventListener("keydown", this.stageInputHandler);
-
-		//ICI RESIZE
 		window.removeEventListener("resize", this.windowResizeHandler);
 
 		document.removeEventListener("keydown", this.documentKeyDownHandler);
