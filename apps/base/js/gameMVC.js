@@ -9,7 +9,7 @@ const PIECE_COLOR =	[	"rgb(255, 255, 255)",
 						"rgb(242, 126, 31)"	]
 
 
-const NO_LOOP_KEY = new Set([90, 37, 38, 39, 40]);
+const NO_LOOP_KEY = new Set([90, 37, 38, 39, 40, 32]);
 
 
 
@@ -249,6 +249,14 @@ class gameView extends View {
 				break;
 			case 38:
 				this.mvc.controller.rotateKey(0);
+				break;
+
+			case 69:
+				this.mvc.controller.movingKey(4);
+				break;
+
+			case 65:
+				this.mvc.controller.movingKey(5);
 				break;
 
 			default:
