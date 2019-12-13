@@ -39,7 +39,6 @@ class gameModel extends Model {
 
 	async initialize(mvc) {
 		super.initialize(mvc);
-
 		this.fillData(0);
 	}
 
@@ -78,12 +77,45 @@ class gameModel extends Model {
 
 		this.nextPieceLen = packet[1];
 
+		this.transformNextPieceMatrix();
+		
 		///ICI FAIRE QUELQUE CHOSE POUR AFFICHER LA NOUVELLE PIECE RECU
 		trace("RECU NEXT PIECE : ", this.nextPieceData);
 		this.nextPiecePlayer = packet[2];
 
+		
 	}
 
+			/*Transfoming 2*2 matrix in 4 * 4 for a more beautiful display of the next piece*/
+
+	transformNextPieceMatrix(){
+		if(this.nextPieceLen == 2){
+			this.nextPieceData = new Array(4 * 4).fill(0).map((element, index) =>{
+				switch(index){
+					case 5:
+						return this.nextPieceData[0];
+						break;
+					
+					case 6:
+						return this.nextPieceData[1];
+						break;
+					
+					case 9:
+						return this.nextPieceData[2];
+						break;
+
+					case 10:
+						return this.nextPieceData[3];
+						break;
+
+					default:
+					return 0;
+				}
+			});
+			trace(this.nextPieceData)
+			this.nextPieceLen  = 4
+		}
+	}
 
 }
 
@@ -331,7 +363,7 @@ class gameView extends View {
 		}
 
 		/*Resizing the next piece display in function of the board ;)*/
-		this.nextPieceCanvas.height = this.slotWidth*3;
+		this.nextPieceCanvas.height = this.slotWidth*this.mvc.model.nextPieceLen;
 		this.nextPieceCanvas.width  = this.nextPieceCanvas.height;
 	}
 
@@ -375,7 +407,7 @@ class gameView extends View {
 			
 			let x = index%this.mvc.model.nextPieceLen;
 			let y = Math.trunc(index/this.mvc.model.nextPieceLen);
-
+			let ratioInFunctionOfNextPieceLenght = 4/this.mvc.model.nextPieceLen;
 			if(element == 0){
 				if(x%2 == 0){
 					canvas2dContextNextPiece.fillStyle = this.playerColors[(this.mvc.model.nextPiecePlayer*2)];
@@ -386,10 +418,10 @@ class gameView extends View {
 				canvas2dContextNextPiece.fillStyle = PIECE_COLOR[element];
 			}
 
-			canvas2dContextNextPiece.fillRect(x * this.slotWidth + this.slotSpace,
-						                      y * this.slotHeight + this.slotSpace,
-						                      this.slotWidth - this.slotSpace,
-						                      this.slotHeight - this.slotSpace);
+			canvas2dContextNextPiece.fillRect(x * this.slotWidth * ratioInFunctionOfNextPieceLenght + this.slotSpace* ratioInFunctionOfNextPieceLenght,
+						                      y * this.slotHeight* ratioInFunctionOfNextPieceLenght + this.slotSpace* ratioInFunctionOfNextPieceLenght,
+						                      this.slotWidth* ratioInFunctionOfNextPieceLenght - this.slotSpace* ratioInFunctionOfNextPieceLenght,
+						                      this.slotHeight* ratioInFunctionOfNextPieceLenght - this.slotSpace* ratioInFunctionOfNextPieceLenght);
 
 		});
 
