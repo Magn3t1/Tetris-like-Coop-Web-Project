@@ -4,11 +4,6 @@ A faire :
 	Server : Calcul du score et envoie au client
 	Client : Recevoir Score et l'afficher
 
-	Server : Fonctionnalité pour envoyer d'un coup la piece dans le terrain de l'autre (fast share)
-					aussi gérer l'evenement recu par le client
-	
-	Client : ajout de la touche pour fast share
-					et envoyer l'evenement au server
 
 
 	Server : Fonctionnalité pour descendre rapidement (trouver un nom car fast fall est pris)
@@ -42,7 +37,7 @@ A faire :
 
 
 
-En cours :	
+En cours :
 
 
 
@@ -67,6 +62,8 @@ Fait :
 	Server : Separer le plateau en deux pour deux joueur et gérer les input seulement du joueur qui a la main - G
 	Server : Changer le system de newpiece, maintenant chaque piece a une dimension adapté - G
 	Client : Ajout du debut du chat
+	Server et Client : Envoie du fastShare, gestion de l'evnement fastShare - G
+
 
 
 	Server : Rotation, Client : Input rotation - E

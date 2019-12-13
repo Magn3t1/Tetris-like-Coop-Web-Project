@@ -1,11 +1,10 @@
 
-
 const ModuleBase = load("com/base"); // import ModuleBase class
 
 const BOARD_SIZE = 400;
 const BOARD_LEN = 20;
 
-const NB_PLAYER_MAX = 1;
+const NB_PLAYER_MAX = 2;
 
 const ALL_PIECE_AND_LEN = [
 					[	1, 1,
@@ -150,13 +149,13 @@ class GameModel {
 	addClient(id){
 
 		//This should never arrive
-		if(this.clients.size == NB_PLAYER_MAX) return;
+		if(this.clients.size === NB_PLAYER_MAX) return;
 
 		let oldSize = this.clients.size;
 
 		this.clients.set(id, oldSize);
 
-		if(this.clients.size == NB_PLAYER_MAX){
+		if(this.clients.size === NB_PLAYER_MAX){
 			this.mvc.state = 1;
 
 			this.mvc.controller.start();
@@ -177,7 +176,7 @@ class GameModel {
 		//Reorganiser les numéro des autres joueurs
 
 		//If there is no more client in the room, KILL IT.
-		if(this.clients.size == 0){
+		if(this.clients.size === 0){
 
 			this.mvc.destruct();
 			return true;
@@ -189,12 +188,12 @@ class GameModel {
 	}
 
 	ioBoardData(){
-		trace("emit boardData to room :", this.mvc.room);
+		//trace("emit boardData to room :", this.mvc.room);
 		this.mvc.app._io.to(this.mvc.room).emit("boardData", this.mergedBoard);
 	}
 
 	ioNextPieceData(){
-		trace("emit nextPieceData to room :", this.mvc.room);
+		//trace("emit nextPieceData to room :", this.mvc.room);
 		this.mvc.app._io.to(this.mvc.room).emit("nextPieceData", [ALL_PIECE_AND_LEN[this.nextNewPieceIndex*2], ALL_PIECE_AND_LEN[this.nextNewPieceIndex*2 + 1], this.nextNewPiecePlayer]);
 	}
 
@@ -233,11 +232,10 @@ class GameModel {
 	}
 
 	/*
-		This method verify if the actual newPiece is still in the handling player board
-		or if it's totally in another player board.
+		This method verify if the actual newPiece is still in the handling player board and return -1
+		or if it's totally in another player board and return the it's index.
 	*/
-	verifyHand(){
-
+	isInActualPlayerBoard(){
 		let playerBoardLen = Math.trunc(this.boardLen / this.clients.size);
 		let newPlayerBoardIndex = 0;
 
@@ -252,7 +250,7 @@ class GameModel {
 
 				let playerBoardIndex = Math.trunc(x / playerBoardLen);
 
-				if(playerBoardIndex == this.handlingPlayer){
+				if(playerBoardIndex === this.handlingPlayer){
 					isIn = true;
 					//We want to break here.
 				}
@@ -264,40 +262,77 @@ class GameModel {
 
 		});
 
+		if(isIn){
+			newPlayerBoardIndex = -1;
+		}
+		
+		return newPlayerBoardIndex;
+	}
+
+	/*
+		This method change the handlingPlayer or not depending of the return of isInActualPlayerBoard()
+	*/
+	verifyHand(){
+
+
+		let newBoard = this.isInActualPlayerBoard();
+
 		/*
 			If this test pass it mean no part of the actual newPiece
 			is in the handling Player side so we change the handling player
 		*/
-		if(!isIn){
-			this.handlingPlayer = newPlayerBoardIndex;
+		if(newBoard !== -1){
+			this.handlingPlayer = newBoard;
 		}
 
 	}
 
 	newPieceMove(direction){
 
-		//DOWN
-		if(direction == 0){
-			this.newPieceMoveDown();
-		}
-		//LEFT
-		else if(direction == 1){
-			this.newPieceMoveLeft();
-			this.verifyHand();
-		}
-		//RIGHT
-		else if(direction == 2){
-			this.newPieceMoveRight();
-			this.verifyHand();
-		}
-		//FastFall
-		else if(direction == 4){
-			
-			this.newPieceFastFall();
+		switch(direction){
 
-		}
-		else{
-			trace("ERROR moving pos of new piece");
+			//Down
+			case 0:
+				this.newPieceMoveDown();
+				break;
+
+			//Left
+			case 1:
+				this.newPieceMoveLeft();
+				this.verifyHand();
+				break;
+
+			//Right
+			case 2:
+				this.newPieceMoveRight();
+				this.verifyHand();
+				break;
+
+			//Fast Fall
+			case 4:
+				this.newPieceFastFall();
+				break;
+
+			//Fast Share Right
+			case 5:
+				if(this.handlingPlayer === this.clients.size - 1) break;
+				
+				this.newPieceFastShareToTheRight();
+				this.verifyHand();
+				break;
+
+			//Fast Share Left
+			case 6:
+				if(this.handlingPlayer === 0) break;
+
+				this.newPieceFastShareToTheLeft();
+				this.verifyHand();
+				break;
+
+			default:
+				trace("ERROR moving pos of new piece");
+				break;
+
 		}
 
 	}
@@ -305,11 +340,11 @@ class GameModel {
 	newPieceRotate(direction){
 
 		//anticlockwise
-		if(direction == 0){
+		if(direction === 0){
 			this.rotateAntiClockWise();
 		}
 		//clockwise
-		else if(direction == 1){
+		else if(direction === 1){
 			this.rotateClockWise();
 		}
 		else{
@@ -319,13 +354,169 @@ class GameModel {
 
 	}
 
+	/*
+		This method will put the newPiece in the nearest board on the left.
+		If there is collision on the path, newPice stay at the same place.
+	*/
+	newPieceFastShareToTheLeft(){
+
+		let playerBoardLen = Math.trunc(this.boardLen / this.clients.size);
+
+		let newPieceX = this.newPiecePosition[0];
+
+
+		let startBoardX = this.handlingPlayer * playerBoardLen - this.newPieceLen;
+		//We stop the board at newPieceX + this.newPieceLen
+
+		//Set up that start Y and stop Y of the piece
+		let start = this.newPiecePosition[1];
+		let stop = start + this.newPieceLen;
+
+		if(start < 0) start = 0;
+		if(stop > this.boardRow) stop = this.boardRow;
+
+		//Return the last index that is not empty (or -1 if they are all empty)
+		let indexLastNotEmptySlot = [...Array(stop - start)]
+					//Take the lines that can cause collision only
+					.map((element, index) => this.board.slice((start + index) * this.boardLen + startBoardX, (start + index) * this.boardLen + newPieceX + this.newPieceLen))
+					//Then find the last index where there is a possible collision (return -1 if there is not)
+					.reduce((acc, element) => {
+											let newIndex = element.lastIndexOf(el => el !== 0);
+											if(newIndex !== -1){
+												if(acc === -1) acc = newIndex;
+												else if(newIndex < acc) acc = newIndex;
+											}
+											return acc;
+										}, -1);
+
+		/*
+			This optimistion allow us to skip the first slot that are empty
+		*/
+		//If there was only empty slot, put the piece near the left side of the board
+		if(indexLastNotEmptySlot === -1) this.newPiecePosition[0] = startBoardX + Math.trunc(this.newPieceLen*1.5) + 1;
+		//Or put it near the not empty slot
+		else this.newPiecePosition[0] = (startBoardX + indexLastNotEmptySlot) + this.newPieceLen;
+
+		//If the piece X position is already further in the board
+		if(this.newPiecePosition[0] > newPieceX) this.newPiecePosition[0] = newPieceX;
+
+
+		/*
+			Note : This method would work the same if you comment all the code above
+			But the instructions above remove a lot of work for the collision checking we do below
+			and when checking the exection time, with the instruction aboce we get up to 4 time faster than without
+		*/
+		let test = () => true;
+
+		do{
+
+			//If there is a collision, put the old X position and return
+			if(this.newPieceTryLeft()){
+				this.newPiecePosition[0] = newPieceX;
+				return;
+			}
+
+			//There is no collision on the left so we move on
+			--this.newPiecePosition[0];
+
+			/*
+				This optimisation allow the programm to only do the big verification
+				when it's realy needed, we know that the piece wont be in
+				the next player board before it get at least to the len of a board minus it's len divided by 2.	
+			*/
+			if(this.newPiecePosition[0] <= startBoardX + Math.trunc(this.newPieceLen*1.5)){
+				test = () => this.isInActualPlayerBoard() === -1;
+			}
+
+		}
+		while(test());
+
+	}
+
+	/*
+		Same as newPieceFastShareToTheLeft() but for the right.
+		All the comment in it will be nearly the same
+	*/
+	newPieceFastShareToTheRight(){
+
+		let playerBoardLen = Math.trunc(this.boardLen / this.clients.size);
+
+		let newPieceX = this.newPiecePosition[0];
+
+
+		//We start the board at newPieceX
+		let stopBoardX = this.handlingPlayer * playerBoardLen + playerBoardLen + this.newPieceLen;
+
+		//Set up that start Y and stop Y of the piece
+		let start = this.newPiecePosition[1];
+		let stop = start + this.newPieceLen;
+
+		if(start < 0) start = 0;
+		if(stop > this.boardRow) stop = this.boardRow;
+
+		//Return the first index that is not empty (or -1 if they are all empty)
+		let indexFirstNotEmptySlot = [...Array(stop - start)]
+					//Take the lines that can cause collision only
+					.map((element, index) => this.board.slice((start + index) * this.boardLen + newPieceX, (start + index) * this.boardLen + stopBoardX))
+					//Then find the first index where there is a possible collision (return -1 if there is not)
+					.reduce((acc, element) => {
+										let newIndex = element.findIndex(el => el !== 0);
+										if(newIndex !== -1){
+											if(acc === -1) acc = newIndex;
+											else if(newIndex < acc) acc = newIndex;
+										}
+										return acc;
+									}, -1);
+
+		/*
+			This optimistion allow us to skip the first slot that are empty
+		*/
+		//If there was only empty slot, put the piece near the right side of the board
+		if(indexFirstNotEmptySlot === -1) this.newPiecePosition[0] = stopBoardX - Math.trunc(this.newPieceLen*1.5) - 1;
+		//Or put it near the not empty slot
+		else this.newPiecePosition[0] = (newPieceX + indexFirstNotEmptySlot) - this.newPieceLen;
+		//If the piece X position is already further in the board
+		if(this.newPiecePosition[0] < newPieceX) this.newPiecePosition[0] = newPieceX;
+		
+		/*
+			Note : This method would work the same if you comment all the code above
+			But the instructions above remove a lot of work for the collision checking we do below
+			and when checking the exection time, with the instruction aboce we get up to 4 time faster than without
+		*/
+		let test = () => true;
+
+		do{
+			
+			//If there is a collision, put the old X position and return
+			if(this.newPieceTryRight()){
+				this.newPiecePosition[0] = newPieceX;
+				return;
+			}
+			
+			//There is no collision on the right so we move on
+			++this.newPiecePosition[0];
+
+			/*
+				This optimisation allow the programm to only do the big verification
+				when it's realy needed, we know that the piece wont be in
+				the next player board before it get to the len of a board minus it's len divided by 2.	
+			*/
+			if(this.newPiecePosition[0] >= stopBoardX - Math.trunc(this.newPieceLen*1.5)){
+				test = () => this.isInActualPlayerBoard() === -1;
+			}
+
+		}
+		while(test());
+
+	}
+
 	newPieceFastFall(){
 
 
 		let newPieceX = this.newPiecePosition[0];
 
 		let start = newPieceX;
-		let stop = start + 4;
+		let stop = start + this.newPieceLen;
 
 		if(start < 0) start = 0;
 		////this.boardLen - 1 ???
@@ -344,15 +535,38 @@ class GameModel {
 		//trace(onWayLine);
 
 
-		let indexFirstNotEmptyLine = onWayLine.findIndex(element => element.find(el => el != 0) != undefined);
+		let indexFirstNotEmptyLine = onWayLine.findIndex(element => element.find(el => el !== 0) !== undefined);
 
-		if(this.newPiecePosition[1] < indexFirstNotEmptyLine - 4){
-			this.newPiecePosition[1] = indexFirstNotEmptyLine - 4;
+		if(this.newPiecePosition[1] < indexFirstNotEmptyLine - this.newPieceLen){
+			this.newPiecePosition[1] = indexFirstNotEmptyLine - this.newPieceLen;
 		}
 
 		while(!this.newPieceTryDown());
 
 		this.newPieceTouchDown();
+
+	}
+
+	newPieceTryLeft(){
+
+		let isCollision = false;
+		for (let [index, element] of this.newPiece.entries()) {
+		
+			let x = this.newPiecePosition[0]-1 	+ index%this.newPieceLen;
+			let y = this.newPiecePosition[1] 	+ Math.trunc(index/this.newPieceLen);
+
+			if(element > 0){
+
+				if(this.board[x + y * this.boardLen] > 0 || x < 0){
+					isCollision = true;
+					break;
+				}
+
+			}
+		
+		}
+
+		return isCollision;
 
 	}
 
@@ -384,6 +598,27 @@ class GameModel {
 			this.newPiecePosition[0] -= 1;
 		}
 
+	}
+
+	newPieceTryRight(){
+		let isCollision = false;
+		for (let [index, element] of this.newPiece.entries()) {
+		
+			let x = this.newPiecePosition[0]+1 	+ index%this.newPieceLen;
+			let y = this.newPiecePosition[1] 	+ Math.trunc(index/this.newPieceLen);
+
+			if(element > 0){
+
+				if(this.board[x + y * this.boardLen] > 0 || x >= this.boardLen){
+					isCollision = true;
+					break;
+				}
+
+			}
+		
+		}
+
+		return isCollision;
 	}
 
 	newPieceMoveRight(){
@@ -1001,7 +1236,7 @@ class Base extends ModuleBase {
 
 			//Send error message ? (Not in room)
 
-			return
+			return;
 		}
 
 

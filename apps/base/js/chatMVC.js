@@ -62,8 +62,8 @@ class ChatView extends View {
 
 	onKeyDown(event){
 
-							//e
-		if(event.keyCode == 69){
+							//c
+		if(event.keyCode == 67){
 			this.changeChat();
 		}
 
