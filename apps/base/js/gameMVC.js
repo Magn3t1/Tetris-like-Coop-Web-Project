@@ -78,7 +78,7 @@ class gameModel extends Model {
 		this.nextPieceLen = packet[1];
 
 		this.transformNextPieceMatrix();
-		
+
 		///ICI FAIRE QUELQUE CHOSE POUR AFFICHER LA NOUVELLE PIECE RECU
 		trace("RECU NEXT PIECE : ", this.nextPieceData);
 		this.nextPiecePlayer = packet[2];
@@ -90,7 +90,7 @@ class gameModel extends Model {
 
 	transformNextPieceMatrix(){
 		if(this.nextPieceLen == 2){
-			this.nextPieceData = new Array(4 * 4).fill(0).map((element, index) =>{
+			this.nextPieceData = [...Array(4 * 4)].map((_, index) =>{
 				switch(index){
 					case 5:
 						return this.nextPieceData[0];
