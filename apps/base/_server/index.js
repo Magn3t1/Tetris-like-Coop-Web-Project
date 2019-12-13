@@ -381,7 +381,8 @@ class GameModel {
 					.map((element, index) => this.board.slice((start + index) * this.boardLen + startBoardX, (start + index) * this.boardLen + newPieceX + this.newPieceLen))
 					//Then find the last index where there is a possible collision (return -1 if there is not)
 					.reduce((acc, element) => {
-											let newIndex = element.lastIndexOf(el => el !== 0);
+											//We reverse before findIndex to get the last one that match (then we reverse the index result)
+											let newIndex = (element.length - 1) - element.reverse().findIndex(el => el !== 0);
 											if(newIndex !== -1){
 												if(acc === -1) acc = newIndex;
 												else if(newIndex < acc) acc = newIndex;
