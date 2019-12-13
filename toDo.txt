@@ -34,6 +34,7 @@ A faire :
 	Client : Gerer l'affichage de nouveaux message dans le chat
 	Client : Gerer un evenement pour recevoir de nouveaux messages
 	Client : Gerer l'ecriture et l'envoie de message au serveur
+	Client : ReSiZe ミ●﹏☉ミ 
 
 	Server : Gerer un evenement  pour recevoir les messages des clients
 	Server : Ajouter l'envoie de message aux clients
