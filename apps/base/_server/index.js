@@ -125,6 +125,9 @@ class GameModel {
 		//Board and New piece merged
 		this.mergedBoard = new Array(this.boardSize);
 
+
+		this.score = 0;
+
 	}
 
 	async initialize(mvc) {
@@ -195,6 +198,10 @@ class GameModel {
 	ioNextPieceData(){
 		//trace("emit nextPieceData to room :", this.mvc.room);
 		this.mvc.app._io.to(this.mvc.room).emit("nextPieceData", [ALL_PIECE_AND_LEN[this.nextNewPieceIndex*2], ALL_PIECE_AND_LEN[this.nextNewPieceIndex*2 + 1], this.nextNewPiecePlayer]);
+	}
+
+	ioSendScore(){
+		this.mvc.app._io.to(this.mvc.room).emit("score", this.score);
 	}
 
 	ioStart(){
@@ -899,7 +906,7 @@ class GameModel {
 					//Then we map on it every line of the board
 					.map((element, index) => this.board.slice(index * this.boardLen, (index + 1) * this.boardLen))
 					//Then we erase every line that contain no 0 (Note : we could delete the map and let only the reduce that would do the job of the map too)
-					.filter(element => element.find(el => el == 0) != undefined)
+					.filter(element => element.find(el => el === 0) !== undefined)
 					//Then concat every line to get a single array again
 					.reduce((acc, element) => acc.concat(element), []);
 
@@ -909,7 +916,28 @@ class GameModel {
 		//Then we add as many empty slots as there as deleted slot
 		this.board = new Array(numberOfSlot).fill(0).concat(this.board);
 
-		/// Use the numberOfSlot deleted to increment the score ?? ///
+		this.incrementScore(numberOfSlot/this.boardLen);
+
+
+	}
+
+	/*
+		This Method actualise the current score with the number of breaked line
+	*/
+	incrementScore(breakedLineNumber){
+			
+		if(breakedLineNumber === 0) return;
+
+		//Score magic
+		let tempoScore = Math.trunc(4 * Math.exp(Math.pow((breakedLineNumber - 1), 1.1143)));
+		let score = tempoScore - tempoScore%10;
+		if(score < 5) score = 4;
+
+		score *= 10;
+
+		this.score += score;
+
+		trace("New score :", this.score);
 
 	}
 
@@ -932,8 +960,11 @@ class GameModel {
 		this.nextNewPieceIndex = this.findNewPieceIndex();
 		this.nextNewPiecePlayer = (this.nextNewPiecePlayer + 1)%this.clients.size;
 
-		// And we dend the data of the next next new piece to the clients
+		//We send the data of the next new piece to the clients
 		this.ioNextPieceData();
+
+		//And we send the score to the client
+		this.ioSendScore();
 
 	}
 

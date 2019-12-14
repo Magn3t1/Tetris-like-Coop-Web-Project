@@ -6,7 +6,7 @@ const PIECE_COLOR =	[	"rgb(255, 255, 255)",
 						"rgb(28, 156, 45)",
 						"rgb(219, 41, 13)",
 						"rgb(7, 22, 186)",
-						"rgb(242, 126, 31)"	]
+						"rgb(242, 126, 31)"	];
 
 
 const NO_LOOP_KEY = new Set([90, 37, 38, 39, 40, 32]);
@@ -86,34 +86,51 @@ class gameModel extends Model {
 		
 	}
 
-			/*Transfoming 2*2 matrix in 4 * 4 for a more beautiful display of the next piece*/
+	//We receive the new score
+	ioScore(packet){
 
+		this.score = packet;
+
+		trace("SCORE :", this.score);
+
+	}
+
+	/*
+		Transfoming 2*2 matrix in 4 * 4 to see the next player background color
+	*/
 	transformNextPieceMatrix(){
-		if(this.nextPieceLen == 2){
+
+		/* Do the same as the code below */
+		// if(this.nextPieceLen === 2){
+		// 	this.nextPieceData = this.nextPieceData.reduce((acc, elem, index) => {
+		// 					acc[index%2 + 1 + (Math.trunc(index / 2)+1)*4] = elem;
+		// 					return acc;
+		// 				}, new Array(4*4).fill(0));
+
+		// 	this.nextPieceLen = 4;
+		// }
+
+
+		if(this.nextPieceLen === 2){
 			this.nextPieceData = [...Array(4 * 4)].map((_, index) =>{
 				switch(index){
 					case 5:
 						return this.nextPieceData[0];
-						break;
 					
 					case 6:
 						return this.nextPieceData[1];
-						break;
 					
 					case 9:
 						return this.nextPieceData[2];
-						break;
 
 					case 10:
 						return this.nextPieceData[3];
-						break;
 
 					default:
-					return 0;
+						return 0;
 				}
 			});
-			trace(this.nextPieceData)
-			this.nextPieceLen  = 4
+			this.nextPieceLen  = 4;
 		}
 	}
 

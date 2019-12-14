@@ -105,7 +105,7 @@ class Base {
 
 		this.io.on("boardData", packet => this.onBoardData(packet));
 		this.io.on("nextPieceData", packet => this.onNextPieceData(packet));
-		
+		this.io.on("score", packet => this.onScore(packet));
 	}
 
 	/**
@@ -132,6 +132,10 @@ class Base {
 
 	onNextPieceData(packet){
 		this.mvc.model.ioNextPieceData(packet);
+	}
+
+	onScore(packet){
+		this.mvc.model.ioScore(packet);
 	}
 
 }

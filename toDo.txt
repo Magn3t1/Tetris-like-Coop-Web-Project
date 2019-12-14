@@ -1,8 +1,15 @@
 
 A faire :
 
-	Server : Calcul du score et envoie au client
-	Client : Recevoir Score et l'afficher
+	Client : ajouter champ pseudo
+
+	Server : stoquer les pseudo et les meilleurs score en local
+
+	Client : Afficher le score
+
+	Server : Detecter la fin d'une partie
+
+	Client : Gerer la fin de partie
 
 
 
@@ -43,6 +50,7 @@ En cours :
 
 
 
+
 Fait mais a debug :
 	Server : Rotation collision - G
 				Bug : certaine fois la collision n'est pas véirifié
@@ -64,6 +72,7 @@ Fait :
 	Server : Changer le system de newpiece, maintenant chaque piece a une dimension adapté - G
 	Client : Ajout du debut du chat
 	Server et Client : Envoie du fastShare, gestion de l'evnement fastShare - G
+	Server : Calcul du score et envoie au client - G
 
 
 
