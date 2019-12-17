@@ -12,13 +12,7 @@ A faire :
 	Client : Gerer la fin de partie
 
 
-
-	Server : Fonctionnalité pour descendre rapidement (trouver un nom car fast fall est pris)
-					et gérer l'evenement recu
-
-	Client : ajouter la touche pour descendre rapidement (sur S)
-					et envoyer l'evenement au server
-
+	Server : Empecher la rotation infini en bas de terrain pour ne jamais poser une piece
 
 
 	( 
@@ -73,6 +67,7 @@ Fait :
 	Client : Ajout du debut du chat
 	Server et Client : Envoie du fastShare, gestion de l'evnement fastShare - G
 	Server : Calcul du score et envoie au client - G
+	Server et client : envoi et gestion de la descente rapide sur S
 
 
 

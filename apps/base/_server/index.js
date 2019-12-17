@@ -1,10 +1,10 @@
 
 const ModuleBase = load("com/base"); // import ModuleBase class
 
-const BOARD_SIZE = 400;
-const BOARD_LEN = 20;
+const BOARD_SIZE = 70;
+const BOARD_LEN = 7;
 
-const NB_PLAYER_MAX = 2;
+const NB_PLAYER_MAX = 1;
 
 const ALL_PIECE_AND_LEN = [
 					[	1, 1,
@@ -315,6 +315,13 @@ class GameModel {
 				this.verifyHand();
 				break;
 
+			//Down
+			case 3:
+				this.newPieceMoveDown();
+				//After moving down, reset the timer
+				this.mvc.controller.resetTimeout();
+				break;
+
 			//Fast Fall
 			case 4:
 				this.newPieceFastFall();
@@ -338,21 +345,34 @@ class GameModel {
 
 			default:
 				trace("ERROR moving pos of new piece");
-				break;
+				return;
 
 		}
 
 	}
+
 
 	newPieceRotate(direction){
 
 		//anticlockwise
 		if(direction === 0){
 			this.rotateAntiClockWise();
+			/*
+				If this test pass, it mean that with the rotation,
+				the piece is now 1 move from a collision,
+				so we give 1 more tick to the player to think
+			*/
+			if(!this.newPieceCanDown()){
+				this.mvc.controller.resetTimeout();
+			}
 		}
 		//clockwise
 		else if(direction === 1){
 			this.rotateClockWise();
+			//Same comment as above
+			if(!this.newPieceCanDown()){
+				this.mvc.controller.resetTimeout();
+			}
 		}
 		else{
 			trace("Error in the client packet from rotateKey");
@@ -549,7 +569,7 @@ class GameModel {
 			this.newPiecePosition[1] = indexFirstNotEmptyLine - this.newPieceLen;
 		}
 
-		while(!this.newPieceTryDown());
+		while(this.newPieceTryDown());
 
 		this.newPieceTouchDown();
 
@@ -719,12 +739,12 @@ class GameModel {
 
 
 	/*
-		Try to move down, do it and return false if there was no collision,
-		or return true if there is a collision
+		Try to move down, return true if it can,
+		or return false if cant
 	*/
-	newPieceTryDown(){
+	newPieceCanDown(){
 
-		let isCollision = false;
+		let isNoCollision = true;
 		for (let [index, element] of this.newPiece.entries()) {
 		
 			let x = this.newPiecePosition[0] + index%this.newPieceLen;
@@ -733,7 +753,7 @@ class GameModel {
 			if(element > 0){
 
 				if(this.board[x + y * this.boardLen] > 0 || y >= this.boardSize/this.boardLen){
-					isCollision = true;
+					isNoCollision = false;
 					break;
 				}
 
@@ -741,16 +761,30 @@ class GameModel {
 		
 		}
 
-		if(!isCollision) this.newPiecePosition[1] += 1;
+		return isNoCollision;
 
-		return isCollision;
+	}
+
+
+
+	/*
+		Try to move down, do it and return true if there was no collision,
+		or return false if there is a collision
+	*/
+	newPieceTryDown(){
+
+		if(this.newPieceCanDown()){
+			this.newPiecePosition[1] += 1;
+			return true;
+		}
+		else return false;
 
 	}
 
 	newPieceMoveDown(){
 
 		//If it pass this test, it mean the piece has entered in collision
-		if(this.newPieceTryDown()){
+		if(!this.newPieceTryDown()){
 			this.newPieceTouchDown();
 		}
 
@@ -1030,11 +1064,15 @@ class GameController {
 		this.mvc = null;
 
 		this.timeoutTime = 0;
+		this.tick = 0;
 	}
 	
 	async initialize(mvc) {
 		this.mvc = mvc;
 		this.name = this.mvc.name + "-controller";
+	
+		this.tick = 500;
+
 	}
 
 	destruct(){
@@ -1072,6 +1110,22 @@ class GameController {
 		this.mvc.model.ioBoardData();
 	}
 
+	/*
+		This method reset the timeout of the game loop
+	*/
+	resetTimeout(){
+		
+		if(this.timeoutTime){
+
+			clearTimeout(this.timeoutTime);
+
+			this.timeoutTime = setTimeout(() => this.gameLoop(), this.tick);
+
+
+		}
+
+	}
+
 
 	//STARTING
 	start(){
@@ -1091,7 +1145,7 @@ class GameController {
 
 		this.mvc.model.ioNextPieceData();
 
-		this.timeoutTime = setTimeout(() => this.gameLoop(), 500);
+		this.timeoutTime = setTimeout(() => this.gameLoop(), this.tick);
 
 	}
 
@@ -1104,8 +1158,9 @@ class GameController {
 
 	//Main game loop
 	gameLoop(){
+
 		//Prepare next loop
-		this.timeoutTime = setTimeout(() => this.gameLoop(), 500);
+		this.timeoutTime = setTimeout(() => this.gameLoop(), this.tick);
 
 		//Update the falling piece
 		this.update();

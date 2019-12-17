@@ -274,18 +274,27 @@ class gameView extends View {
 
 	moveInput(value){
 		switch(value){
+			//Left Q
 			case 81:
 				this.mvc.controller.movingKey(0);
 				break;
 			
+			//Right D
 			case 68:
 				this.mvc.controller.movingKey(1);
 				break;
+
+			//Down S
+			case 83:
+				this.mvc.controller.movingKey(2);
+				break;
 			
+			//Fast Fall Z
 			case 90:
 				this.mvc.controller.movingKey(3);
 				break;
 
+			//Rotate Left, left and down arrow
 			case 37:
 				this.mvc.controller.rotateKey(1);
 				break;
@@ -293,6 +302,7 @@ class gameView extends View {
 				this.mvc.controller.rotateKey(1);
 				break;
 
+			//Rotate Right, right and up arrow
 			case 39:
 				this.mvc.controller.rotateKey(0);
 				break;
@@ -300,10 +310,12 @@ class gameView extends View {
 				this.mvc.controller.rotateKey(0);
 				break;
 
+			//Fast Share left, E
 			case 69:
 				this.mvc.controller.movingKey(4);
 				break;
 
+			//Fast Share right, A
 			case 65:
 				this.mvc.controller.movingKey(5);
 				break;
