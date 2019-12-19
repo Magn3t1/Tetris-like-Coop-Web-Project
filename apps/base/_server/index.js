@@ -1310,11 +1310,12 @@ class Base extends ModuleBase {
 			return;
 		}
 
-		if(!/^[^A-Za-z0-9]+$/.test(nickname)){
+		trace(nickname, "is my nickname");
+		/*if(!/^[^A-Za-z0-9]+$/.test(nickname)){
 			trace(nickname, "is not a correct nickname");
 			///Envoyer (emit) erreur ?
 			return;
-		}
+		}*/
 
 
 		//Check if the room exist

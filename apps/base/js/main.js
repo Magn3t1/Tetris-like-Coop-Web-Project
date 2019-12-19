@@ -399,8 +399,7 @@ class MyController extends Controller {
 			return;
 		}
 
-		this.mvc.app.io.emit("connectRoom", {value: roomNb});
-		this.mvc.app.io.emit("nickname", {nickname: nickname});
+		this.mvc.app.io.emit("connectRoom", {value: roomNb, nickname: nickname});
 	}
 
 	ioDummy(data) {
