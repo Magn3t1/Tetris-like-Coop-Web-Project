@@ -1,13 +1,14 @@
 
 A faire :
 
+	Server : Lancer les procédure de fin de partie quand elle est détécté comme fini
+
 	Client : ajouter champ pseudo
 
 	Server : stoquer les pseudo et les meilleurs score en local
 
 	Client : Afficher le score
 
-	Server : Detecter la fin d'une partie
 
 	Client : Gerer la fin de partie
 
@@ -67,7 +68,8 @@ Fait :
 	Client : Ajout du debut du chat
 	Server et Client : Envoie du fastShare, gestion de l'evnement fastShare - G
 	Server : Calcul du score et envoie au client - G
-	Server et client : envoi et gestion de la descente rapide sur S
+	Server et client : envoi et gestion de la descente rapide sur S - G
+	Server : Detecter la fin d'une partie - G
 
 
 
