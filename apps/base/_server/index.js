@@ -6,6 +6,8 @@ const BOARD_LEN = 7;
 
 const NB_PLAYER_MAX = 1;
 
+const MAX_RESET_TIMEOUT = 5;
+
 const ALL_PIECE_AND_LEN = [
 					[	1, 1,
 						1, 1	], 2,
@@ -124,6 +126,8 @@ class GameModel {
 
 		//Board and New piece merged
 		this.mergedBoard = new Array(this.boardSize);
+
+		this.resetTimeoutCounter = 0;
 
 
 		this.score = 0;
@@ -362,16 +366,18 @@ class GameModel {
 				the piece is now 1 move from a collision,
 				so we give 1 more tick to the player to think
 			*/
-			if(!this.newPieceCanDown()){
+			if(!this.newPieceCanDown() && this.resetTimeoutCounter < MAX_RESET_TIMEOUT){
 				this.mvc.controller.resetTimeout();
+				++this.resetTimeoutCounter;
 			}
 		}
 		//clockwise
 		else if(direction === 1){
 			this.rotateClockWise();
 			//Same comment as above
-			if(!this.newPieceCanDown()){
+			if(!this.newPieceCanDown() && this.resetTimeoutCounter < MAX_RESET_TIMEOUT){
 				this.mvc.controller.resetTimeout();
+				++this.resetTimeoutCounter;
 			}
 		}
 		else{
@@ -788,6 +794,9 @@ class GameModel {
 			this.newPieceTouchDown();
 		}
 
+		//Reset this variable every time the piece move down
+		this.mvc.model.resetTimeoutCounter = 0;
+
 
 	}
 
@@ -1191,9 +1200,8 @@ class GameController {
 
 	update(){
 		
-		///MAKE THE PIECE FALL
+		//The new piece fall from 1 slot
 		this.mvc.model.newPieceMove(0);
-		///
 
 		//Merge the board with the moving piece
 		this.mvc.model.mergeNewPiece();

@@ -13,7 +13,6 @@ A faire :
 	Client : Gerer la fin de partie
 
 
-	Server : Empecher la rotation infini en bas de terrain pour ne jamais poser une piece
 
 
 	( 
@@ -70,6 +69,7 @@ Fait :
 	Server : Calcul du score et envoie au client - G
 	Server et client : envoi et gestion de la descente rapide sur S - G
 	Server : Detecter la fin d'une partie - G
+	Server : Empecher la rotation infini en bas de terrain pour ne jamais poser une piece - G
 
 
 
