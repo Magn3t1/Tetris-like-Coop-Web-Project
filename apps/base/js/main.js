@@ -394,7 +394,7 @@ class MyController extends Controller {
 			return;
 		}
 
-		if(!/[^A-Za-z0-9]/.test(nickname)){
+		if(!/^[A-Za-z0-9]+$/.test(nickname)){
 			console.log(nickname, "is an invalid nickname.");
 			return;
 		}
