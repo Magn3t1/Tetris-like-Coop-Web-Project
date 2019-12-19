@@ -1273,9 +1273,16 @@ class Base extends ModuleBase {
 	async _onConnectRoom(socket, packet){
 
 		let nbRoom = packet.value;
+		let nickname = packet.nickname;
 
 		if(!/^[0-9]+$/.test(nbRoom)){
 			trace(nbRoom, "is not a room number");
+			///Envoyer (emit) erreur ?
+			return;
+		}
+
+		if(!/^[^A-Za-z0-9]+$/.test(nickname)){
+			trace(nickname, "is not a correct nickname");
 			///Envoyer (emit) erreur ?
 			return;
 		}

@@ -205,14 +205,31 @@ class MyView extends View {
 		this.connectDiv = new easyElement("div")
 						.setStyle({	position:"absolute",
 									backgroundColor:"blue",
-									top:"40%",
+									top:"30%",
 									left:"0",
 									width:"100%",
-									height:"20%"})
+									height:"30%"})
 						.attach(this.stage)
 						.getElement();
 
-		this.connectTextField = new easyElement("input")
+
+		this.nicknameTextField = new easyElement("input")
+						.setStyle({	position:"absolute",
+									fontSize:"4vh",
+									top:"33%",
+									left:"20%",
+									width:"60%",
+									height:"7%",
+									zIndex:"0",
+									textAlign:"center"})
+						.setAttribute({	type:"text",
+										pattern:"^[A-Za-z0-9]+$",
+										autoFocus:"autofocus"})
+						.attach(this.stage)
+						.getElement();
+
+
+		this.roomIDTextField = new easyElement("input")
 						.setStyle({	position:"absolute",
 									//backgroundColor:"red",
 									fontSize:"4vh",
@@ -223,14 +240,12 @@ class MyView extends View {
 									zIndex:"0",
 									textAlign:"center"})
 						.setAttribute({	type:"text",
-										pattern:"^[0-9]+$",
-										autoFocus:"autofocus"})
+										pattern:"^[0-9]+$"})
 						.attach(this.stage)
 						.getElement();
 
-		this.connectTextField.pattern = "[A-Za-z]{3}";
 
-		console.log("ici : ",this.connectTextField.pattern);
+		//console.log("ici : ",this.roomIDTextField.pattern);
 
 
 		this.connectButton = new easyElement("button")
@@ -271,27 +286,47 @@ class MyView extends View {
 		this.connectButton.addEventListener("click", this.connectButtonHandler);
 
 
-		this.connectTextFieldInputHandler = event => {
+		this.roomIDTextFieldInputHandler = event => {
 			//trace(event.target.value);
 			event.target.value = event.target.value.replace(/[^0-9]/, "");
 		}
-		this.connectTextField.addEventListener("input", this.connectTextFieldInputHandler);
+		this.roomIDTextField.addEventListener("input", this.roomIDTextFieldInputHandler);
+
 
 		/*Handling the enter button to the text input*/
-		this.connectTextFieldKeyHandler = event => {
+		this.roomIDTextFieldKeyHandler = event => {
 			if(event.keyCode == 13)
 				this.connectButtonClick();
 		};
 
-		this.connectTextField.addEventListener("keydown",this.connectTextFieldKeyHandler);
+		this.roomIDTextField.addEventListener("keydown",this.roomIDTextFieldKeyHandler);
+
+
+
+
+
+		this.nicknameTextFieldInputHandler = event => {
+			//trace(event.target.value);
+			event.target.value = event.target.value.replace(/[^A-Za-z0-9]/, "");
+		}
+		this.nicknameTextField.addEventListener("input", this.nicknameTextFieldInputHandler);
+
+		
+		/*Handling the enter button to the text input*/
+		this.nicknameTextFieldKeyHandler = event => {
+			if(event.keyCode == 13)
+				this.roomIDTextField.focus();
+		};
+
+		this.nicknameTextField.addEventListener("keydown",this.nicknameTextFieldKeyHandler);
 	}
 
 	removeListeners() {
 		this.btn.removeEventListener("click", this.getBtnHandler);
 		this.iobtn.removeEventListener("click", this.ioBtnHandler);
 		this.connectButton.removeEventListener("click", this.connectButtonHandler); 
-		this.connectTextField.removeEventListener("input", this.connectTextFieldInputHandler);
-		this.connectTextField.removeEventListener("keydown",this.connectTextFieldKeyHandler);
+		this.roomIDTextField.removeEventListener("input", this.roomIDTextFieldInputHandler);
+		this.roomIDTextField.removeEventListener("keydown",this.roomIDTextFieldKeyHandler);
 	}
 
 	btnClick(event) {
@@ -303,7 +338,7 @@ class MyView extends View {
 	}
 
 	connectButtonClick(event){
-		this.mvc.controller.connectButtonWasClicked(this.connectTextField.value);
+		this.mvc.controller.connectButtonWasClicked(this.roomIDTextField.value,this.nicknameTextField.value);
 	}
 
 
@@ -351,7 +386,7 @@ class MyController extends Controller {
 		this.mvc.app.io.emit("dummy", {message: "dummy io click"}); // send socket.io packet
 	}
 
-	async connectButtonWasClicked(roomNb){
+	async connectButtonWasClicked(roomNb, nickname){
 
 
 		if(!/^[0-9]+$/.test(roomNb)){//J'ai écris ca parceque ca marche 
@@ -359,8 +394,13 @@ class MyController extends Controller {
 			return;
 		}
 
-		this.mvc.app.io.emit("connectRoom", {value: roomNb})
-		//let result = await Comm.get("connectRoom/100");
+		if(!/[^A-Za-z0-9]/.test(nickname)){
+			console.log(nickname, "is an invalid nickname.");
+			return;
+		}
+
+		this.mvc.app.io.emit("connectRoom", {value: roomNb});
+		this.mvc.app.io.emit("nickname", {nickname: nickname});
 	}
 
 	ioDummy(data) {

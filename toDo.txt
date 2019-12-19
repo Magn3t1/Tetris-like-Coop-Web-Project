@@ -1,8 +1,6 @@
 
 A faire :
 
-	Client : ajouter champ pseudo
-
 	Server : stoquer les pseudo et les meilleurs score en local
 
 	Client : Afficher le score
@@ -40,9 +38,6 @@ A faire :
 
 
 En cours :
-
-
-
 
 
 Fait mais a debug :
