@@ -6,6 +6,8 @@ const BOARD_LEN = 7;
 
 const NB_PLAYER_MAX = 1;
 
+const MAX_RESET_TIMEOUT = 5;
+
 const ALL_PIECE_AND_LEN = [
 					[	1, 1,
 						1, 1	], 2,
@@ -124,6 +126,8 @@ class GameModel {
 
 		//Board and New piece merged
 		this.mergedBoard = new Array(this.boardSize);
+
+		this.resetTimeoutCounter = 0;
 
 
 		this.score = 0;
@@ -362,16 +366,18 @@ class GameModel {
 				the piece is now 1 move from a collision,
 				so we give 1 more tick to the player to think
 			*/
-			if(!this.newPieceCanDown()){
+			if(!this.newPieceCanDown() && this.resetTimeoutCounter < MAX_RESET_TIMEOUT){
 				this.mvc.controller.resetTimeout();
+				++this.resetTimeoutCounter;
 			}
 		}
 		//clockwise
 		else if(direction === 1){
 			this.rotateClockWise();
 			//Same comment as above
-			if(!this.newPieceCanDown()){
+			if(!this.newPieceCanDown() && this.resetTimeoutCounter < MAX_RESET_TIMEOUT){
 				this.mvc.controller.resetTimeout();
+				++this.resetTimeoutCounter;
 			}
 		}
 		else{
@@ -676,7 +682,7 @@ class GameModel {
 
 	/*
 		This method check the collision from the board and also from each side.
-		return false if there is no collision, and from 1 to 4 if there is a collision depending of the what cause it
+		return 0 if there is no collision, and from 1 to 4 if there is a collision depending of the what cause it
 	*/
 	newPieceCheckCollision(){
 		
@@ -787,6 +793,9 @@ class GameModel {
 		if(!this.newPieceTryDown()){
 			this.newPieceTouchDown();
 		}
+
+		//Reset this variable every time the piece move down
+		this.mvc.model.resetTimeoutCounter = 0;
 
 
 	}
@@ -976,6 +985,24 @@ class GameModel {
 	}
 
 
+	/*
+		This method change the actual new piece to the piece
+		that corresponds with the next new piece index that was selected before.
+		Also prepare a next new piece.
+	*/
+	changeNewPiece(){
+
+		//We set the actual new piece to the piece which corresponds to the index which had been chosen
+		this.setNewPiece(this.nextNewPieceIndex);
+
+		//We generate a new piece index for the next new piece
+		this.nextNewPieceIndex = this.findNewPieceIndex();
+
+		//We select the player that will get the next new piece
+		this.nextNewPiecePlayer = (this.nextNewPiecePlayer + 1)%this.clients.size;
+
+	}
+
 
 	/*
 		This methode is called when a piece hit the ground
@@ -987,12 +1014,15 @@ class GameModel {
 		//Then we clear every completed line
 		this.findAndCleaCompleteLine();
 
+		//We change sur actual piece that is now in the board to the new piece that was choosen before
+		this.changeNewPiece();
 
-		this.setNewPiece(this.nextNewPieceIndex);
+		//Verif if the new piece enter in collision :
+		if(this.newPieceCheckCollision() > 0){
 
-		//We generate a new piece index
-		this.nextNewPieceIndex = this.findNewPieceIndex();
-		this.nextNewPiecePlayer = (this.nextNewPiecePlayer + 1)%this.clients.size;
+			////FIN DE PARTIE detecté, gerer la fin de partie ICI
+
+		}
 
 		//We send the data of the next new piece to the clients
 		this.ioNextPieceData();
@@ -1047,7 +1077,7 @@ class GameModel {
 		
 		let clientIndex = this.clients.get(clientId);
 
-		if(clientIndex == this.handlingPlayer){
+		if(clientIndex === this.handlingPlayer){
 			return true;
 		}
 		
@@ -1129,10 +1159,10 @@ class GameController {
 
 	//STARTING
 	start(){
-		
-		this.mvc.model.setNewPiece(this.mvc.model.findNewPieceIndex());
+
 		this.mvc.model.nextNewPieceIndex = this.mvc.model.findNewPieceIndex();
-		this.mvc.model.nextNewPiecePlayer = (this.mvc.model.nextNewPiecePlayer + 1)%this.mvc.model.clients.size;
+		
+		this.mvc.model.changeNewPiece();
 
 
 		//Send start and the number of player in the game
@@ -1170,9 +1200,8 @@ class GameController {
 
 	update(){
 		
-		///MAKE THE PIECE FALL
+		//The new piece fall from 1 slot
 		this.mvc.model.newPieceMove(0);
-		///
 
 		//Merge the board with the moving piece
 		this.mvc.model.mergeNewPiece();
