@@ -37,8 +37,10 @@ class Base {
 
 	async initialize() {
 
+		let address = window.location.href;
+
 		this.iospace = "baseapp"; // IO namespace for this app
-		this.io = io.connect("http://localhost/" + this.iospace); // connect socket.io
+		this.io = io.connect(address + this.iospace); // connect socket.io
 		this.io.on("connect", () => this.onIOConnect()); // listen connect event
 
 		this.mvc = new MVC("connection", this, new MyModel(), new MyView(), new MyController()); // init app MVC
