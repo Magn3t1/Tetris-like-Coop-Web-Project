@@ -88,6 +88,10 @@ class GameMVC {
 		this.controller.onRotateKey(cliendId, direction);
 	}
 
+	onMessage(clientId, message){
+		this.controller.onMessage(clientId, message);
+	}
+
 	state(){
 		return this.gameState;
 	}
@@ -192,6 +196,10 @@ class GameModel {
 		
 		return false;
 
+	}
+
+	ioSendMessage(sender, message){
+		this.mvc.app._io.to(this.mvc.room).emit("message", {from: sender, message: message});
 	}
 
 	ioBoardData(){
@@ -1126,6 +1134,7 @@ class GameController {
 
 		this.mvc.model.mergeNewPiece();
 		this.mvc.model.ioBoardData();
+
 	}
 
 	onRotateKey(clientId, direction){
@@ -1138,6 +1147,11 @@ class GameController {
 
 		this.mvc.model.mergeNewPiece();
 		this.mvc.model.ioBoardData();
+	}
+
+	onMessage(clientId, message){
+		///RAJOUTER LE PSEUDO DU CLIENT QUAND ON L'AURA SAUVEGARDE
+		this.mvc.model.ioSendMessage("CLIENT_NAME", message);
 	}
 
 	/*
@@ -1267,6 +1281,7 @@ class Base extends ModuleBase {
 		socket.on("connectRoom", packet => this._onConnectRoom(socket, packet));
 		socket.on("movingKey", packet => this._onMovingKey(socket, packet));
 		socket.on("rotateKey", packet => this._onRotateKey(socket, packet));
+		socket.on("message", packet => this._onMessage(socket, packet));
 	}
 
 	/*
@@ -1366,7 +1381,6 @@ class Base extends ModuleBase {
 
 		this.roomGame.get(this.socketRoom.get(socket.id)).onMovingKey(socket.id, packet);
 
-
 	}
 
 	_onRotateKey(socket, packet){
@@ -1378,6 +1392,15 @@ class Base extends ModuleBase {
 
 		this.roomGame.get(this.socketRoom.get(socket.id)).onRotateKey(socket.id, packet);
 
+	}
+
+	_onMessage(socket, packet){
+
+		if(!this.socketRoom.has(socket.id)){
+			return;
+		}
+
+		this.roomGame.get(this.socketRoom.get(socket.id)).onMessage(socket.id, packet);
 
 	}
 

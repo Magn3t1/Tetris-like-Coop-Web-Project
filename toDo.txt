@@ -1,13 +1,10 @@
 
 A faire :
 
-<<<<<<< HEAD
-=======
 	Server : Lancer les procédure de fin de partie quand elle est détécté comme fini
 
 	Client : ajouter champ pseudo
 
->>>>>>> 8fb038429b44a12997bf86949421b89d4279160d
 	Server : stoquer les pseudo et les meilleurs score en local
 
 	Client : Afficher le score
@@ -30,13 +27,6 @@ A faire :
 
 
  	///CHAT
-	Client : Gerer l'affichage de nouveaux message dans le chat
-	Client : Gerer un evenement pour recevoir de nouveaux messages
-	Client : Gerer l'ecriture et l'envoie de message au serveur
-	Client : ReSiZe ミ●﹏☉ミ 
-
-	Server : Gerer un evenement  pour recevoir les messages des clients
-	Server : Ajouter l'envoie de message aux clients
 	Server : Envoyer des messages pour les connexion de nouveaux clients dans le salon, le debut de partie, etc...
 
 
@@ -78,3 +68,15 @@ Fait :
 	Client : Couleur - E
 	Client : Prévisualisation future piece - E
 		Pattern de reproduction : Reduire la taille du tableau et sa longueur
+
+
+
+	///CHAT
+	Client : Gerer l'affichage de nouveaux message dans le chat
+	Client : Gerer un evenement pour recevoir de nouveaux messages
+	Client : Gerer l'ecriture et l'envoie de message au serveur
+	Client : ReSiZe ミ●﹏☉ミ 
+
+	Server : Gerer un evenement  pour recevoir les messages des clients
+	Server : Ajouter l'envoie de message aux clients
+

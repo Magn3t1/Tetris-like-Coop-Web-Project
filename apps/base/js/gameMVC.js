@@ -243,7 +243,14 @@ class gameView extends View {
 		document.removeEventListener("keyup", this.documentKeyUpHandler);
 
 
-		///RAJOUTER ENLEVER EVENEMENT INPUT
+		//We also clear the timeout of the input
+		this.pressedKeyToLoopId.forEach((value, key) => {
+			trace("CLEAR DE ", key, "value", value);
+			clearTimeout(value);
+		});
+		this.pressedKeyToLoopId.clear();
+
+
 
 	}
 

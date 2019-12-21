@@ -1,3 +1,7 @@
+
+* { box-sizing: border-box; }
+
+
 html {
 
 	margin: 0;
@@ -28,3 +32,46 @@ body {
 	font-family: helvetica;
 	font-size: 10pt;
 }
+
+#inputDiv {
+	position: fixed;
+	top: 94%;
+	height: 6%;
+	width: 50%;
+}
+#inputDiv input {
+	font-size: 15pt;
+	width: 80%;
+	height: 100%;
+}
+#inputDiv button {
+	font-size: 15pt;
+	width: 20%;
+	height: 100%;
+	background: rgb(120, 209, 230);
+}
+
+#chat {
+	overflow: scroll;
+	position: relative;
+	height: 94%;
+	width: 100%;
+}
+
+#chat ul {
+	list-style-type: none;
+	margin: 0;
+	padding: 0;
+
+}
+
+#chat ul li {
+	padding: 5px 10px;
+}
+#chat ul li:nth-child(odd) {
+	background: rgba(255, 255, 255, 0.1);
+}
+#chat {
+	margin-bottom: 40px
+}
+

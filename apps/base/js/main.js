@@ -61,9 +61,9 @@ class Base {
 		//Creating the chat element
 		this.chatDiv = new easyElement("div")
 						.setStyle({	position:"absolute",
-									left: (- window.innerWidth / 2) + "px",
+									left: (- window.innerWidth * 0.5) + "px",
 									top: "0px",
-									width: (window.innerWidth / 2) + "px",
+									width: (window.innerWidth * 0.5) + "px",
 									height: window.innerHeight + "px",
 									zIndex: "100" })
 						.attach(document.body)
@@ -81,6 +81,13 @@ class Base {
 	}
 
 
+	focusChat(){
+		this.mvc.view.deactivate();
+	}
+
+	stopFocusChat(){
+		this.mvc.view.activate();
+	}
 
 	/**
 	 * @method test : test server GET fetch
@@ -108,6 +115,8 @@ class Base {
 		this.io.on("boardData", packet => this.onBoardData(packet));
 		this.io.on("nextPieceData", packet => this.onNextPieceData(packet));
 		this.io.on("score", packet => this.onScore(packet));
+
+		this.io.on("message", packet => this.onMessage(packet));
 	}
 
 	/**
@@ -138,6 +147,10 @@ class Base {
 
 	onScore(packet){
 		this.mvc.model.ioScore(packet);
+	}
+
+	onMessage(packet){
+		this.chatMvc.model.ioMessage(packet);
 	}
 
 }
@@ -340,7 +353,7 @@ class MyView extends View {
 	}
 
 	connectButtonClick(event){
-		this.mvc.controller.connectButtonWasClicked(this.roomIDTextField.value,this.nicknameTextField.value);
+		this.mvc.controller.connectButtonWasClicked(this.roomIDTextField.value, this.nicknameTextField.value);
 	}
 
 
