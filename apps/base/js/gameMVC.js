@@ -9,7 +9,7 @@ const PIECE_COLOR =	[	"rgb(255, 255, 255)",
 						"rgb(242, 126, 31)"	];
 
 
-const NO_LOOP_KEY = new Set([90, 37, 38, 39, 40, 32]);
+const NO_LOOP_KEY = new Set([90, 37, 38, 39, 40, 32, 77]);
 
 
 
@@ -20,6 +20,8 @@ class gameModel extends Model {
 
 	constructor() {
 		super();
+
+		this.score = 0;
 
 		this.nbPlayer = 1;
 
@@ -89,7 +91,7 @@ class gameModel extends Model {
 	//We receive the new score
 	ioScore(packet){
 
-		this.score = packet;
+		//////this.score = packet;
 
 		trace("SCORE :", this.score);
 
@@ -154,6 +156,13 @@ class gameView extends View {
 
 		this.inputLoopId = 0;
 
+		//Elements
+		this.boardCanvas = undefined;
+		this.nextPieceCanvas = undefined;
+		this.endScreenDiv = undefined;
+
+		this.endScreenDivOpacity = undefined;
+
 	}
 
 	async initialize(mvc) {
@@ -180,8 +189,94 @@ class gameView extends View {
 				.getElement();
 
 
+		this.endScreenDiv = new easyElement("div")
+				.setStyle({	position:"absolute",
+							opacity:"0.0",
+							width:"100%",
+							height:"100%"})
+				.getElement();
+
+		this.endScreenDivOpacity = 0.0;
+
+
+		this.endScreenScoreDiv = new easyElement("div")
+				.setStyle({	position:"absolute",
+							opacity:"0.0",
+							width:"100%",
+							top:"50%",
+							color:"white",
+							textAlign:"center",
+							fontSize:"10em"})
+				.setText("Mdr bite")
+				.getElement();
+
+		this.endScreenScoreDivOpacity = 0.0;
 
 		this.generateBoard();
+
+	}
+
+	startEndScreen(){
+
+		///TESTTT
+
+		this.mvc.model.score = 210238900;
+
+		this.tempoScore = 0;
+
+		///
+
+		this.stage.appendChild(this.endScreenDiv);
+
+		this.endScreenDiv.style.backgroundColor = "rgb(0, 0, 0)";
+
+		setTimeout(() => this.endAnimationLoop(), 16);
+	
+	}
+
+	endAnimationLoop(){
+
+		this.endScreenDivOpacity = Math.min(1, this.endScreenDivOpacity + 1 * 0.016);
+
+
+		let cosDelta = (1- Math.cos(this.endScreenDivOpacity * Math.PI))/2;
+
+
+		this.endScreenDiv.style.opacity = 0.7 * cosDelta;
+
+		if(this.endScreenDivOpacity === 1) this.startShowScore();
+		else setTimeout(() => this.endAnimationLoop(), 16);
+
+
+	}
+
+	startShowScore(){
+		
+		this.stage.appendChild(this.endScreenScoreDiv);
+
+		setTimeout(() => this.showEndScoreAnimation(), 16);
+
+	}
+
+	showEndScoreAnimation(){
+
+		this.endScreenScoreDivOpacity = Math.min(100, this.endScreenScoreDivOpacity + 30 * 0.016);
+
+		let cosDelta = Math.log(this.endScreenScoreDivOpacity + 1) / Math.log(100 + 1);
+
+		let interpolatedValue = Math.trunc(this.mvc.model.score * cosDelta);
+
+
+		this.endScreenScoreDiv.style.opacity = 1 * cosDelta;
+
+		if((interpolatedValue - this.tempoScore) > 0.005 * this.mvc.model.score || this.endScreenScoreDivOpacity === 100){
+			this.tempoScore = interpolatedValue;
+			this.endScreenScoreDiv.innerHTML = this.tempoScore + "";
+		}
+
+		if(this.endScreenScoreDivOpacity === 100) trace("FINIII");
+		else setTimeout(() => this.showEndScoreAnimation(), 16);
+
 
 	}
 
@@ -325,6 +420,11 @@ class gameView extends View {
 			//Fast Share right, A
 			case 65:
 				this.mvc.controller.movingKey(5);
+				break;
+
+			////TEST A ENLEVER
+			case 77:
+				this.startEndScreen();
 				break;
 
 			default:
