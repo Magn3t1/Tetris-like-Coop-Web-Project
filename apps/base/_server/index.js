@@ -106,24 +106,24 @@ class GameModel {
 		this.mvc = null;
 		
 		//This Map contain the player id linked to his Player index (1 to N)
-		this.clients = new Map();
+		this.clients = undefined;
 
 
-		this.boardSize 	= BOARD_SIZE;
-		this.boardLen 	= BOARD_LEN;
+		this.boardSize 	= undefined;
+		this.boardLen 	= undefined;
 
-		this.boardRow 	= this.boardSize / this.boardLen;
+		this.boardRow 	= undefined;
 
 
 		this.board = new Array(this.boardSize);
 
 
-		this.nextNewPieceIndex = 0;
+		this.nextNewPieceIndex = undefined;
 		//This variable contain the index of the next player who will get a piece
-		this.nextNewPiecePlayer = 0;
+		this.nextNewPiecePlayer = undefined;
 
-		this.newPiece = new Array(4 * 4);
-		this.newPieceLen = 4;
+		this.newPiece = undefined;
+		this.newPieceLen = undefined;
 		this.newPiecePosition = [0, 0];
 		//Player who got the hand on the actual new Piece
 		this.handlingPlayer = 0;
@@ -131,10 +131,10 @@ class GameModel {
 		//Board and New piece merged
 		this.mergedBoard = new Array(this.boardSize);
 
-		this.resetTimeoutCounter = 0;
+		this.resetTimeoutCounter = undefined;
 
 
-		this.score = 0;
+		this.score = undefined;
 
 	}
 
@@ -143,9 +143,40 @@ class GameModel {
 		this.mvc = mvc;
 		this.name = this.mvc.name + "-model";
 
+		this.clients = new Map();
+
+		this.boardSize 	= BOARD_SIZE;
+		this.boardLen 	= BOARD_LEN;
+		this.boardRow 	= this.boardSize / this.boardLen;
+
+
+		this.board = new Array(this.boardSize);
+		this.mergedBoard = new Array(this.boardSize);
+
+
+		this.setDefaultVariable();
+
+		
+
+	}
+
+	setDefaultVariable(){
+
+		this.nextNewPieceIndex = 0;
+		this.nextNewPiecePlayer = 0;
+
+
+		this.resetTimeoutCounter = 0;
+		this.score = 0;
+
 		this.board.fill(0);
-		this.newPiece.fill(0);
 		this.mergedBoard.fill(0);
+
+	}
+
+	reset(){
+
+		this.setDefaultVariable();
 
 	}
 
@@ -1029,6 +1060,8 @@ class GameModel {
 		if(this.newPieceCheckCollision() > 0){
 
 			////FIN DE PARTIE detecté, gerer la fin de partie ICI
+			this.mvc.controller.gameOver();
+
 
 		}
 
@@ -1170,6 +1203,17 @@ class GameController {
 
 	}
 
+	/*
+		Start a game after the end of another game
+	*/
+	restart(){
+
+		this.mvc.model.reset();
+
+		this.start();
+
+	}
+
 
 	//STARTING
 	start(){
@@ -1193,11 +1237,26 @@ class GameController {
 
 	}
 
+	/*
+		Stop the game loop
+	*/
 	stop(){
 		if(this.timeoutTime){
 			clearTimeout(this.timeoutTime);
 			this.timeoutTime = 0;
 		}
+	}
+
+	/*
+		Do the procedure of game over.
+	*/
+	gameOver(){
+
+		this.stop();
+
+		///DO SOMETHING ELSE THAN RESTARTING
+		this.restart();
+
 	}
 
 	//Main game loop
@@ -1208,6 +1267,7 @@ class GameController {
 
 		//Update the falling piece
 		this.update();
+
 		//Send data to clients
 		this.mvc.model.ioBoardData();
 	}
