@@ -12,6 +12,7 @@ A faire :
 
 	Client : Gerer la fin de partie
 
+	Server : changer le system de rotation et de collision
 
 
 

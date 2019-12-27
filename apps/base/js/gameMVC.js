@@ -9,7 +9,7 @@ const PIECE_COLOR =	[	"rgb(255, 255, 255)",
 						"rgb(242, 126, 31)"	];
 
 
-const NO_LOOP_KEY = new Set([90, 37, 38, 39, 40, 32, 77]);
+const NO_LOOP_KEY = new Set([90, 37, 38, 39, 40, 32]);
 
 
 
@@ -49,7 +49,9 @@ class gameModel extends Model {
 		this.nextPieceData.fill(value);
 	}
 
-
+	/*
+		When receiving start
+	*/
 	ioStart(packet){
 
 		this.nbPlayer 	= packet.nbPlayer;
@@ -61,6 +63,15 @@ class gameModel extends Model {
 		this.fillData(0);
 
 		this.mvc.view.generateBoard();
+
+	}
+
+	/*
+		When receiving end
+	*/
+	ioEnd(){
+
+		this.mvc.view.startEndScreen();
 
 	}
 
@@ -91,7 +102,7 @@ class gameModel extends Model {
 	//We receive the new score
 	ioScore(packet){
 
-		//////this.score = packet;
+		this.score = packet;
 
 		trace("SCORE :", this.score);
 
@@ -163,6 +174,9 @@ class gameView extends View {
 
 		this.endScreenDivOpacity = undefined;
 
+		//This variable store the animated score
+		this.tempoScore = 0;
+
 	}
 
 	async initialize(mvc) {
@@ -207,7 +221,7 @@ class gameView extends View {
 							color:"white",
 							textAlign:"center",
 							fontSize:"10em"})
-				.setText("Mdr bite")
+				.setText("0")
 				.getElement();
 
 		this.endScreenScoreDivOpacity = 0.0;
@@ -220,9 +234,8 @@ class gameView extends View {
 
 		///TESTTT
 
-		this.mvc.model.score = 210238900;
+		//this.mvc.model.score = 210238900;
 
-		this.tempoScore = 0;
 
 		///
 
@@ -420,11 +433,6 @@ class gameView extends View {
 			//Fast Share right, A
 			case 65:
 				this.mvc.controller.movingKey(5);
-				break;
-
-			////TEST A ENLEVER
-			case 77:
-				this.startEndScreen();
 				break;
 
 			default:

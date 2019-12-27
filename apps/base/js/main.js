@@ -111,6 +111,7 @@ class Base {
 		
 
 		this.io.on("start", packet => this.onStart(packet));
+		this.io.on("end", () => this.onEnd());
 
 		this.io.on("boardData", packet => this.onBoardData(packet));
 		this.io.on("nextPieceData", packet => this.onNextPieceData(packet));
@@ -135,6 +136,10 @@ class Base {
 
 	onStart(packet){
 		this.mvc.model.ioStart(packet);
+	}
+
+	onEnd(){
+		this.mvc.model.ioEnd();
 	}
 
 	onBoardData(packet){

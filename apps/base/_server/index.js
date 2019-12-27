@@ -81,11 +81,15 @@ class GameMVC {
 	}
 
 	onMovingKey(cliendId, direction){
-		this.controller.onMovingKey(cliendId, direction);
+		if(this.gameState !== 0){
+			this.controller.onMovingKey(cliendId, direction);
+		}
 	}
 
 	onRotateKey(cliendId, direction){
-		this.controller.onRotateKey(cliendId, direction);
+		if(this.gameState !== 0){
+			this.controller.onRotateKey(cliendId, direction);
+		}
 	}
 
 	onMessage(clientId, message){
@@ -115,7 +119,7 @@ class GameModel {
 		this.boardRow 	= undefined;
 
 
-		this.board = new Array(this.boardSize);
+		this.board = undefined;
 
 
 		this.nextNewPieceIndex = undefined;
@@ -124,12 +128,12 @@ class GameModel {
 
 		this.newPiece = undefined;
 		this.newPieceLen = undefined;
-		this.newPiecePosition = [0, 0];
+		this.newPiecePosition = undefined;
 		//Player who got the hand on the actual new Piece
-		this.handlingPlayer = 0;
+		this.handlingPlayer = undefined;
 
 		//Board and New piece merged
-		this.mergedBoard = new Array(this.boardSize);
+		this.mergedBoard = undefined;
 
 		this.resetTimeoutCounter = undefined;
 
@@ -161,6 +165,9 @@ class GameModel {
 	}
 
 	setDefaultVariable(){
+
+		this.newPiecePosition = [0, 0];
+		this.handlingPlayer = 0;
 
 		this.nextNewPieceIndex = 0;
 		this.nextNewPiecePlayer = 0;
@@ -198,8 +205,8 @@ class GameModel {
 		this.clients.set(id, oldSize);
 
 		if(this.clients.size === NB_PLAYER_MAX){
-			this.mvc.state = 1;
-
+			
+			/////Do something else than starting when the number of player is MAX
 			this.mvc.controller.start();
 
 		}
@@ -248,8 +255,13 @@ class GameModel {
 	}
 
 	ioStart(){
-		trace("emit start to room :", this.mvc.room);
+		trace("emit START to room :", this.mvc.room);
 		this.mvc.app._io.to(this.mvc.room).emit("start", {size: BOARD_SIZE, len: BOARD_LEN, nbPlayer: this.clients.size} );
+	}
+
+	ioSendEnd(){
+		trace("emit END to room :", this.mvc.room);
+		this.mvc.app._io.to(this.mvc.room).emit("end");
 	}
  
 	/*
@@ -1053,23 +1065,25 @@ class GameModel {
 		//Then we clear every completed line
 		this.findAndCleaCompleteLine();
 
+		//We send the updated score to the client
+		this.ioSendScore();
+
 		//We change sur actual piece that is now in the board to the new piece that was choosen before
 		this.changeNewPiece();
 
+		//We send the data of the next new piece to the clients
+		this.ioNextPieceData();
+
 		//Verif if the new piece enter in collision :
 		if(this.newPieceCheckCollision() > 0){
+
+			this.ioSendEnd();
 
 			////FIN DE PARTIE detecté, gerer la fin de partie ICI
 			this.mvc.controller.gameOver();
 
 
 		}
-
-		//We send the data of the next new piece to the clients
-		this.ioNextPieceData();
-
-		//And we send the score to the client
-		this.ioSendScore();
 
 	}
 
@@ -1183,6 +1197,9 @@ class GameController {
 	}
 
 	onMessage(clientId, message){
+
+		trace("MESSAGE RECU :", message);
+
 		///RAJOUTER LE PSEUDO DU CLIENT QUAND ON L'AURA SAUVEGARDE
 		this.mvc.model.ioSendMessage("CLIENT_NAME", message);
 	}
@@ -1218,6 +1235,8 @@ class GameController {
 	//STARTING
 	start(){
 
+		this.mvc.gameState = 1;
+
 		this.mvc.model.nextNewPieceIndex = this.mvc.model.findNewPieceIndex();
 		
 		this.mvc.model.changeNewPiece();
@@ -1241,6 +1260,7 @@ class GameController {
 		Stop the game loop
 	*/
 	stop(){
+
 		if(this.timeoutTime){
 			clearTimeout(this.timeoutTime);
 			this.timeoutTime = 0;
@@ -1252,10 +1272,12 @@ class GameController {
 	*/
 	gameOver(){
 
+		this.mvc.gameState = 0;
+
 		this.stop();
 
 		///DO SOMETHING ELSE THAN RESTARTING
-		this.restart();
+		//this.restart();
 
 	}
 
@@ -1398,7 +1420,7 @@ class Base extends ModuleBase {
 			let state = this.roomGame.get(nbRoom).state();
 
 			//If state is not 0, the game is not joinable
-			if(state != 0){
+			if(state !== 0){
 				///Envoyer erreur (emit) salle occupé.
 
 				return;
