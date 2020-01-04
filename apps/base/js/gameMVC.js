@@ -339,6 +339,19 @@ class gameView extends View {
 
 
 
+		this.documentTouchStartHandler = event => this.onTouchStart(event);
+		document.addEventListener("touchstart", this.documentTouchStartHandler);
+
+		this.documentTouchMoveHandler = event => this.onTouchMove(event);
+		document.addEventListener("touchmove", this.documentTouchMoveHandler);
+
+		this.documentTouchEndHandler = event => this.onTouchEnd(event);
+		document.addEventListener("touchend", this.documentTouchEndHandler);
+
+		this.documentClickHandler = event => this.onClick(event);
+		document.addEventListener("click", this.documentClickHandler);
+
+
 	}
 
 
@@ -352,8 +365,7 @@ class gameView extends View {
 
 
 		//We also clear the timeout of the input
-		this.pressedKeyToLoopId.forEach((value, key) => {
-			trace("CLEAR DE ", key, "value", value);
+		this.pressedKeyToLoopId.forEach((value) => {
 			clearTimeout(value);
 		});
 		this.pressedKeyToLoopId.clear();
@@ -362,29 +374,131 @@ class gameView extends View {
 
 	}
 
+	onTouchStart(event){
+
+		///A AJOUTER A LINITIALISATION
+		this.touchStartPos = [event.touches[0].pageX, event.touches[0].pageY];
+
+		this.untilNextTouch = false;
+		///
+
+	}
+
+	/*
+		This method will convert a touchmove event into a key event
+	*/
+	onTouchMove(event){
+
+		let newTouchPos = [event.touches[0].pageX, event.touches[0].pageY];
+
+
+		if(this.touchStartPos[0] < (newTouchPos[0] - window.innerWidth*0.01)){
+
+			trace("DROITE");
+			this.setInputLoop(68);
+
+		}
+				
+		else if(this.touchStartPos[0] > (newTouchPos[0] + window.innerWidth*0.01)){
+
+			this.cleanInputLoop(68);
+
+
+			trace("GAUCHE");
+			this.setInputLoop(81);
+
+		}
+		else{
+
+			this.cleanInputLoop(68);
+			this.cleanInputLoop(81);
+
+
+
+
+			if(this.touchStartPos[1] < (newTouchPos[1] - window.innerHeight*0.01)){
+
+				trace("BAS");
+				this.setInputLoop(83);
+
+			}
+			else if(this.touchStartPos[1] > (newTouchPos[1] + window.innerHeight*0.01) && !this.untilNextTouch){
+				
+				this.cleanInputLoop(83);
+
+				this.untilNextTouch = true;
+
+
+				trace("HAUT");
+				this.setInputLoop(90);
+
+			}
+			else{
+
+				this.cleanInputLoop(83);
+				this.cleanInputLoop(90);
+
+			}
+
+		}
+
+		this.touchStartPos = newTouchPos;
+
+
+	}
+
+	onTouchEnd(event){
+
+		this.pressedKeyToLoopId.forEach((value) => {
+			clearTimeout(value);
+		});
+		this.pressedKeyToLoopId.clear();
+
+	}
+
+	/*
+		Especially for tactile devices
+	*/
+	onClick(event){
+		this.moveInput(39);
+	}
+
 	onKeyDown(event){
 
+
+		this.setInputLoop(event.keyCode);
+
+
+	}
+
+
+	setInputLoop(key){
+
 		//Small verif
-		if(this.pressedKeyToLoopId.has(event.keyCode)) return;
+		if(this.pressedKeyToLoopId.has(key)) return;
 
+		this.moveInput(key);
 
-		this.moveInput(event.keyCode);
-
-		this.pressedKeyToLoopId.set(event.keyCode, setTimeout(() => this.inputLoop(event.keyCode), 100));
+		this.pressedKeyToLoopId.set(key, setTimeout(() => this.inputLoop(key), 100));
 
 	}
 
 	onKeyUp(event){
 
-		//Useless if
-		if(this.pressedKeyToLoopId.has(event.keyCode)){
-			clearTimeout(this.pressedKeyToLoopId.get(event.keyCode));
-			this.pressedKeyToLoopId.delete(event.keyCode);
-		}
-		else{
-			trace("Shoud never happen...");
-		}
+		this.cleanInputLoop(event.keyCode);
+
+
+
 		
+	}
+
+	cleanInputLoop(key){
+		
+		if(this.pressedKeyToLoopId.has(key)){
+			clearTimeout(this.pressedKeyToLoopId.get(key));
+			this.pressedKeyToLoopId.delete(key);
+		}
+
 	}
 
 	moveInput(value){

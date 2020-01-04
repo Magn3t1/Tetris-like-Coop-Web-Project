@@ -31,6 +31,9 @@ A faire :
 	Server : Envoyer des messages pour les connexion de nouveaux clients dans le salon, le debut de partie, etc...
 
 
+	Server : Incrémenter la difficulté plus les lignes se casses
+
+
 
 
 En cours :
@@ -62,6 +65,7 @@ Fait :
 	Server : Detecter la fin d'une partie - G
 	Server : Empecher la rotation infini en bas de terrain pour ne jamais poser une piece - G
 	Client : Debut d'animation de fin de partie - G
+	Client : Ajouter des input pour smartphone - G
 
 
 	Server : Rotation, Client : Input rotation - E
