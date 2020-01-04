@@ -621,7 +621,7 @@ class gameView extends View {
 		}
 
 		/*Resizing the next piece display in function of the board ;)*/
-		this.nextPieceCanvas.height = this.slotWidth*this.mvc.model.nextPieceLen;
+		this.nextPieceCanvas.height = this.slotWidth*this.mvc.model.nextPieceLen / 2;
 		this.nextPieceCanvas.width  = this.nextPieceCanvas.height;
 	}
 
@@ -665,7 +665,7 @@ class gameView extends View {
 			
 			let x = index%this.mvc.model.nextPieceLen;
 			let y = Math.trunc(index/this.mvc.model.nextPieceLen);
-			let ratioInFunctionOfNextPieceLenght = 4/this.mvc.model.nextPieceLen;
+			let ratioInFunctionOfNextPieceLenght = 2/this.mvc.model.nextPieceLen;
 			if(element == 0){
 				if(x%2 == 0){
 					canvas2dContextNextPiece.fillStyle = this.playerColors[(this.mvc.model.nextPiecePlayer*2)];
@@ -713,7 +713,7 @@ class gameView extends View {
 		proportionOfFreeSpace = freeBlankSpace/window.innerHeight;
 		offsetMargin = proportionOfFreeSpace * (3/4);
 
-		this.nextPieceCanvas.style.top = ((offsetMargin * window.innerHeight) - this.nextPieceCanvas.height*1.33) + "px";
+		this.nextPieceCanvas.style.top = ((offsetMargin * window.innerHeight) - this.nextPieceCanvas.height*1.20) + "px";
 	}
 
 	/*

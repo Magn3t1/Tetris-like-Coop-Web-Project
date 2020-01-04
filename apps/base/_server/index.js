@@ -68,9 +68,9 @@ class GameMVC {
 		this.controller.destruct();
 	}
 
-	addClient(id){
+	addClient(id, nickname){
 
-		this.model.addClient(id);
+		this.model.addClient(id, nickname);
 
 	}
 
@@ -111,6 +111,7 @@ class GameModel {
 		
 		//This Map contain the player id linked to his Player index (1 to N)
 		this.clients = undefined;
+		this.clientsNickname = undefined;
 
 
 		this.boardSize 	= undefined;
@@ -148,6 +149,8 @@ class GameModel {
 		this.name = this.mvc.name + "-model";
 
 		this.clients = new Map();
+
+		this.clientsNickname = new Map();
 
 		this.boardSize 	= BOARD_SIZE;
 		this.boardLen 	= BOARD_LEN;
@@ -195,7 +198,7 @@ class GameModel {
 		This method add a client depending of his socket id.
 		Also start the game if the number of client rise to the NB_PLAYER_MAX constant.
 	*/
-	addClient(id){
+	addClient(id, nickname){
 
 		//This should never arrive
 		if(this.clients.size === NB_PLAYER_MAX) return;
@@ -203,6 +206,8 @@ class GameModel {
 		let oldSize = this.clients.size;
 
 		this.clients.set(id, oldSize);
+
+		this.clientsNickname.set(id, nickname)
 
 		if(this.clients.size === NB_PLAYER_MAX){
 			
@@ -221,6 +226,7 @@ class GameModel {
 	removeClient(id){
 
 		this.clients.delete(id);
+		this.clientsNickname.delete(id);
 
 		//Reorganiser les numéro des autres joueurs
 
@@ -1408,11 +1414,11 @@ class Base extends ModuleBase {
 		}
 
 		trace(nickname, "is my nickname");
-		/*if(!/^[^A-Za-z0-9]+$/.test(nickname)){
+		if(/^[^A-Za-z0-9]+$/.test(nickname)){
 			trace(nickname, "is not a correct nickname");
 			///Envoyer (emit) erreur ?
 			return;
-		}*/
+		}
 
 
 		//Check if the room exist
@@ -1445,7 +1451,7 @@ class Base extends ModuleBase {
 		trace("EMIT CONNECTED ROOM ", nbRoom, " TO : ", socket.id);
 		socket.emit("connectedRoom", {room: nbRoom});
 
-		this.roomGame.get(nbRoom).addClient(socket.id);
+		this.roomGame.get(nbRoom).addClient(socket.id, nickname);
 
 	}
 

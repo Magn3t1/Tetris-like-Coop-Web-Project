@@ -3,8 +3,6 @@ A faire :
 
 	Server : Lancer les procédure de fin de partie quand elle est détécté comme fini
 
-	Client : ajouter champ pseudo
-
 	Server : stoquer les pseudo et les meilleurs score en local
 
 	Client : Afficher le score
@@ -45,11 +43,6 @@ Fait mais a debug :
 				Pattern de reproduction : Non trouvé
 
 
-	Client : Prévisualisation future piece - E
-				Bug : bug sur petit tableau
-				
-
-
 Fait :
 	Server : Clear de ligne - G
 	Server : Fast fall, Client : Input Fast fall - G
@@ -73,8 +66,10 @@ Fait :
 	Client : Couleur - E
 	Client : Prévisualisation future piece - E
 		Pattern de reproduction : Reduire la taille du tableau et sa longueur
-
-
+	Client : ajouter champ pseudo
+	Client : Prévisualisation future piece - E
+				Bug : bug sur petit tableau
+				
 
 	///CHAT
 	Client : Gerer l'affichage de nouveaux message dans le chat
