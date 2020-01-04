@@ -233,10 +233,9 @@ class gameView extends View {
 
 		this.actualScoreDiv = new easyElement("div")
 				.setStyle({	position:"absolute",
-							left:"55%",
-							top:"13%",
+							width:"100%",
 							color:"white",
-							fontSize:"4em"})
+							textAlign:"center"})
 				.setText("Score: 0")
 				.getElement();
 
@@ -645,10 +644,14 @@ class gameView extends View {
 
 		let result = (offsetMargin * window.innerHeight);
 
-		this.nextPieceCanvas.height = result * (3/4);
+		let finalSize = result * (3/4);
+		//limiting the next piece width to the boardsize
+		if(finalSize > this.boardCanvas.width*(2/3)) finalSize =  this.boardCanvas.width *(2/3);
+
+		this.nextPieceCanvas.height = finalSize;
 		this.nextPieceCanvas.width  = this.nextPieceCanvas.height;
 
-		this.slotHeightNextPiece = this.nextPieceCanvas.height/this.mvc.model.nextPieceLen;
+		this.slotHeightNextPiece = this.nextPieceCanvas.height/4;
 		this.slotWidthNextPiece = this.slotHeightNextPiece;
 	
 		this.slotSpaceNextPiece = (this.slotWidthNextPiece*0.5 + this.slotHeightNextPiece*0.5)*0.03;
@@ -753,6 +756,9 @@ class gameView extends View {
 
 		this.nextPieceCanvas.style.top = (boardStart - (result))/2  + "px";
 
+		//this.actualScoreDiv.style.left = window.innerWidth/2 + (result)/2 + 1 + "px";
+		this.actualScoreDiv.style.top = boardStart  + this.boardCanvas.height + "px";
+		this.actualScoreDiv.style.fontSize = this.boardCanvas.height/2 + "%";
 	}
 
 	/*

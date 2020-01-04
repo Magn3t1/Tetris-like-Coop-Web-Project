@@ -111,6 +111,7 @@ class GameModel {
 		
 		//This Map contain the player id linked to his Player index (1 to N)
 		this.clients = undefined;
+		//Player id to there nicknames
 		this.clientsNickname = undefined;
 
 
@@ -207,7 +208,7 @@ class GameModel {
 
 		this.clients.set(id, oldSize);
 
-		this.clientsNickname.set(id, nickname)
+		this.clientsNickname.set(id, nickname);
 
 		if(this.clients.size === NB_PLAYER_MAX){
 			
@@ -258,6 +259,10 @@ class GameModel {
 
 	ioSendScore(){
 		this.mvc.app._io.to(this.mvc.room).emit("score", this.score);
+	}
+
+	ioSendNicknames(){
+		//this.mvc.app._io.to(this.mvc.room).emit("nicknames", ...);
 	}
 
 	ioStart(){
@@ -1247,6 +1252,13 @@ class GameController {
 		
 		this.mvc.model.changeNewPiece();
 
+
+		this.mvc.model.clientsNickname.forEach((valeur, cle) => {
+		  console.log("iciiiiiii");
+		  console.log(cle + " = " + valeur);
+		});
+		//send nicknames of every players
+		this.mvc.model.ioSendNicknames();
 
 		//Send start and the number of player in the game
 		this.mvc.model.ioStart();
