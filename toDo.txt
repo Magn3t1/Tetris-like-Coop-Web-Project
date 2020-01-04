@@ -5,8 +5,6 @@ A faire :
 
 	Server : stoquer les pseudo et les meilleurs score en local
 
-	Client : Afficher le score
-
 
 	Client : Gerer la fin de partie
 
@@ -69,6 +67,7 @@ Fait :
 	Client : ajouter champ pseudo
 	Client : Prévisualisation future piece - E
 				Bug : bug sur petit tableau
+	Client : Afficher le score
 				
 
 	///CHAT

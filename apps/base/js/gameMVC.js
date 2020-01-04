@@ -106,6 +106,8 @@ class gameModel extends Model {
 
 		trace("SCORE :", this.score);
 
+		this.mvc.view.actualScoreDiv.innerHTML = "Score: " + this.score;
+
 	}
 
 	/*
@@ -229,6 +231,17 @@ class gameView extends View {
 
 		this.endScreenScoreDivOpacity = 0.0;
 
+		this.actualScoreDiv = new easyElement("div")
+				.setStyle({	position:"absolute",
+							left:"55%",
+							top:"13%",
+							color:"white",
+							fontSize:"4em"})
+				.setText("Score: 0")
+				.getElement();
+
+		this.stage.appendChild(this.actualScoreDiv);
+
 		this.generateBoard();
 
 	}
@@ -241,6 +254,7 @@ class gameView extends View {
 
 
 		///
+		this.mvc.view.actualScoreDiv.innerHTML = "";
 
 		this.stage.appendChild(this.endScreenDiv);
 
