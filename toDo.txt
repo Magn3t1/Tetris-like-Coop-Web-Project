@@ -3,7 +3,7 @@ A faire :
 
 	Server : Lancer les procédure de fin de partie quand elle est détécté comme fini
 
-	Server : stoquer les pseudo et les meilleurs score en local
+	Server : stoquer les meilleurs score en local
 
 
 	Client : Gerer la fin de partie
@@ -67,7 +67,9 @@ Fait :
 	Client : ajouter champ pseudo
 	Client : Prévisualisation future piece - E
 				Bug : bug sur petit tableau
-	Client : Afficher le score
+	Client : Afficher le score - E
+	Server : Stoquer les pseudos - E
+	Client : Affichages des pseudo IG - E
 				
 
 	///CHAT

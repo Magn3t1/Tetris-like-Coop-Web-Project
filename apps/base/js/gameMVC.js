@@ -252,17 +252,17 @@ class gameView extends View {
 
 		this.playerLeft= new easyElement("div")
 				.setStyle({	position:"absolute",
-							width:"100%",
 							color:"black",
-						   opacity:"0.7"})
+						   opacity:"0.7",
+						   overflow: "hidden"})
 				.setText("")
 				.getElement();
 
 		this.playerRight= new easyElement("div")
 		.setStyle({	position:"absolute",
-					width:"100%",
 					color:"black",
-				    opacity:"0.7",})
+				    opacity:"0.7",
+					overflow: "hidden"})
 		.setText("")
 		.getElement();
 
@@ -790,14 +790,18 @@ class gameView extends View {
 		this.actualScoreDiv.style.top = boardStartV  + this.boardCanvas.height + "px";
 		this.actualScoreDiv.style.fontSize = this.boardCanvas.height/2 + "%";
 
+
+		this.playerLeft.style.width = this.boardCanvas.width/2.2 + "px";
+		this.playerRight.style.width = this.playerLeft.style.width;
+
 		this.playerLeft.style.top = boardStartV + "px";
 		this.playerRight.style.top = this.playerLeft.style.top;
 
 		this.playerLeft.style.fontSize = this.boardCanvas.height/4 + "%";
 		this.playerRight.style.fontSize = this.boardCanvas.height/4 + "%";
 
-		this.playerLeft.style.left = boardStartH + "px";
-		this.playerRight.style.left = boardStartH + this.boardCanvas.width/2 + "px";
+		this.playerLeft.style.left = boardStartH + 5 + "px";
+		this.playerRight.style.left = boardStartH + this.boardCanvas.width/2 + 5 + "px";
 	}
 
 	/*
