@@ -1,10 +1,10 @@
 
 const ModuleBase = load("com/base"); // import ModuleBase class
 
-const BOARD_SIZE = 200;
+const BOARD_SIZE = 100;
 const BOARD_LEN = 10;
 
-const NB_PLAYER_MAX = 2;
+const NB_PLAYER_MAX = 1;
 
 const MAX_RESET_TIMEOUT = 5;
 
@@ -96,6 +96,10 @@ class GameMVC {
 		this.controller.onMessage(clientId, message);
 	}
 
+	onGo(clientId){
+		this.controller.onGo(clientId);
+	}
+
 	state(){
 		return this.gameState;
 	}
@@ -162,11 +166,6 @@ class GameModel {
 		this.board = new Array(this.boardSize);
 		this.mergedBoard = new Array(this.boardSize);
 
-
-		this.setDefaultVariable();
-
-		
-
 	}
 
 	setDefaultVariable(){
@@ -186,11 +185,6 @@ class GameModel {
 
 	}
 
-	reset(){
-
-		this.setDefaultVariable();
-
-	}
 
 	destruct(){
 		//Nothing to do
@@ -202,21 +196,15 @@ class GameModel {
 	*/
 	addClient(id, nickname){
 
-		//This should never arrive
-		if(this.clients.size === NB_PLAYER_MAX) return;
-
 		let oldSize = this.clients.size;
 
 		this.clients.set(id, oldSize);
 
 		this.clientsNickname.set(id, nickname);
 
-		if(this.clients.size === NB_PLAYER_MAX){
-			
-			/////Do something else than starting when the number of player is MAX
-			this.mvc.controller.start();
 
-		}
+		this.ioSendMessage("SERVER", nickname + " connected.");
+
 
 	}
 
@@ -227,10 +215,20 @@ class GameModel {
 	*/
 	removeClient(id){
 
+		let kickedIndex = this.clients.get(id);
+
 		this.clients.delete(id);
 		this.clientsNickname.delete(id);
 
-		//Reorganiser les numéro des autres joueurs
+		this.clients.forEach((index, id) => {
+
+			if(kickedIndex < index){
+				this.clients.set(id, index - 1);
+			}
+
+		});
+
+		trace("new client :", this.clients);
 
 		//If there is no more client in the room, KILL IT.
 		if(this.clients.size === 0){
@@ -241,6 +239,21 @@ class GameModel {
 		}
 		
 		return false;
+
+	}
+
+	startProcedure(){
+
+		this.boardSize 	= BOARD_SIZE * this.clients.size;
+		this.boardLen 	= BOARD_LEN * this.clients.size;
+		this.boardRow 	= this.boardSize / this.boardLen;
+
+
+		this.board = new Array(this.boardSize);
+		this.mergedBoard = new Array(this.boardSize);
+
+
+		this.setDefaultVariable();
 
 	}
 
@@ -263,14 +276,14 @@ class GameModel {
 	}
 
 	ioNicknames(){
-		this.mvc.model.createNicknamesArray();
-		trace("NICKNAMES ARE:",this.mvc.model.playerNicknames)
+		this.createNicknamesArray();
+		trace("NICKNAMES ARE:",this.playerNicknames);
 		this.mvc.app._io.to(this.mvc.room).emit("nicknames", {nicknames: this.playerNicknames});
 	}
 
 	ioStart(){
 		trace("emit START to room :", this.mvc.room);
-		this.mvc.app._io.to(this.mvc.room).emit("start", {size: BOARD_SIZE, len: BOARD_LEN, nbPlayer: this.clients.size} );
+		this.mvc.app._io.to(this.mvc.room).emit("start", {size: this.boardSize, len: this.boardLen, nbPlayer: this.clients.size} );
 	}
 
 	ioSendEnd(){
@@ -618,7 +631,6 @@ class GameModel {
 		let stop = start + this.newPieceLen;
 
 		if(start < 0) start = 0;
-		////this.boardLen - 1 ???
 		if(stop > this.boardLen) stop = this.boardLen;
 
 
@@ -1093,9 +1105,7 @@ class GameModel {
 
 			this.ioSendEnd();
 
-			////FIN DE PARTIE detecté, gerer la fin de partie ICI
 			this.mvc.controller.gameOver();
-
 
 		}
 
@@ -1154,11 +1164,17 @@ class GameModel {
 
 	}
 
+	/*
+		this method create an array of nickname
+	*/
 	createNicknamesArray(){
-		this.playerNicknames = []
-		this.mvc.model.clientsNickname.forEach((nickname, _) => {
-		  this.playerNicknames.push(nickname);
+		this.playerNicknames = [...Array(this.clients.size)];
+
+		this.clients.forEach((index, id) => {
+			this.playerNicknames[index] = this.clientsNickname.get(id);
 		});
+
+
 	}
 	
 
@@ -1221,8 +1237,16 @@ class GameController {
 
 		trace("MESSAGE RECU :", message);
 
-		///RAJOUTER LE PSEUDO DU CLIENT QUAND ON L'AURA SAUVEGARDE
-		this.mvc.model.ioSendMessage("CLIENT_NAME", message);
+		this.mvc.model.ioSendMessage(this.mvc.model.clientsNickname.get(clientId), message);
+	}
+
+
+	onGo(clientId){
+
+		if(this.mvc.gameState === 0){
+			this.start();
+		}
+
 	}
 
 	/*
@@ -1246,8 +1270,6 @@ class GameController {
 	*/
 	restart(){
 
-		this.mvc.model.reset();
-
 		this.start();
 
 	}
@@ -1257,6 +1279,8 @@ class GameController {
 	start(){
 
 		this.mvc.gameState = 1;
+
+		this.mvc.model.startProcedure();
 
 		this.mvc.model.nextNewPieceIndex = this.mvc.model.findNewPieceIndex();
 		
@@ -1300,8 +1324,7 @@ class GameController {
 
 		this.stop();
 
-		///DO SOMETHING ELSE THAN RESTARTING
-		//this.restart();
+		///SAVE THE RESULT HERE ???
 
 	}
 
@@ -1388,6 +1411,7 @@ class Base extends ModuleBase {
 		socket.on("movingKey", packet => this._onMovingKey(socket, packet));
 		socket.on("rotateKey", packet => this._onRotateKey(socket, packet));
 		socket.on("message", packet => this._onMessage(socket, packet));
+		socket.on("go", packet => this._onGo(socket, packet));
 	}
 
 	/*
@@ -1427,14 +1451,12 @@ class Base extends ModuleBase {
 
 		if(!/^[0-9]+$/.test(nbRoom)){
 			trace(nbRoom, "is not a room number");
-			///Envoyer (emit) erreur ?
 			return;
 		}
 
 		trace(nickname, "is my nickname");
 		if(/^[^A-Za-z0-9]+$/.test(nickname)){
 			trace(nickname, "is not a correct nickname");
-			///Envoyer (emit) erreur ?
 			return;
 		}
 
@@ -1507,6 +1529,16 @@ class Base extends ModuleBase {
 		}
 
 		this.roomGame.get(this.socketRoom.get(socket.id)).onMessage(socket.id, packet);
+
+	}
+
+	_onGo(socket, packet){
+
+		if(!this.socketRoom.has(socket.id)){
+			return;
+		}
+
+		this.roomGame.get(this.socketRoom.get(socket.id)).onGo(socket.id);
 
 	}
 

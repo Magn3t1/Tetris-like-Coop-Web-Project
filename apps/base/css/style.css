@@ -45,7 +45,7 @@ body {
 	height: 100%;
 }
 #inputDiv button {
-	font-size: 15pt;
+	font-size: 3vmin;
 	width: 20%;
 	height: 100%;
 	background: rgb(120, 209, 230);

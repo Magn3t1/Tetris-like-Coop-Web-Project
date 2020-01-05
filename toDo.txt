@@ -1,38 +1,32 @@
 
 A faire :
+	
+	IMPORTANT A FINIR :
 
-	Server : Lancer les procédure de fin de partie quand elle est détécté comme fini
-
-	Server : stoquer les meilleurs score en local
+		Server : Incrémenter la difficulté plus les lignes se casses
 
 
-	Client : Gerer la fin de partie
-
-	Server : changer le system de rotation et de collision
+		Server : stoquer les meilleurs score en local
 
 
 
-	( 
-		Server : Envoie la délimitation du tableau au client
-		// PAS BESOINS ? Vue que les délimitation sont par rapport au nombre de joueurs
-		// elles se calculs facilement non ?
-	)
 
- 	Server : Ajouter un petit delais lorsqu'une ligne ou plus se brise
+ 	OPTIONNEL :
 
- 	Client : Gérer l'affichage des nouvelle piece en fonction de la dimension de leur matrice
+ 		Server : Ajouter un petit delais lorsqu'une ligne ou plus se brise
 
+		Server : Envoyer des messages pour les connexion de nouveaux clients dans le salon, le debut de partie, etc...
 
- 	///CHAT
-	Server : Envoyer des messages pour les connexion de nouveaux clients dans le salon, le debut de partie, etc...
+		Server et client : Ajout de ping
 
 
-	Server : Incrémenter la difficulté plus les lignes se casses
 
 
 
 
 En cours :
+	Server : changer le system de rotation et de collision
+
 
 
 Fait mais a debug :
@@ -57,6 +51,9 @@ Fait :
 	Server : Empecher la rotation infini en bas de terrain pour ne jamais poser une piece - G
 	Client : Debut d'animation de fin de partie - G
 	Client : Ajouter des input pour smartphone - G
+	Server : Lancer les procédure de fin de partie quand elle est détécté comme fini - G
+	Client : Gerer la fin de partie - G
+
 
 
 	Server : Rotation, Client : Input rotation - E
@@ -70,9 +67,15 @@ Fait :
 	Client : Afficher le score - E
 	Server : Stoquer les pseudos - E
 	Client : Affichages des pseudo IG - E
+	Client : Gérer l'affichage des nouvelle piece en fonction de la dimension de leur matrice - E
 				
 
-	///CHAT
+
+
+
+
+
+	///CHAT - G
 	Client : Gerer l'affichage de nouveaux message dans le chat
 	Client : Gerer un evenement pour recevoir de nouveaux messages
 	Client : Gerer l'ecriture et l'envoie de message au serveur

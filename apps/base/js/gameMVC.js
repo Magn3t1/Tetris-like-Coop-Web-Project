@@ -9,7 +9,7 @@ const PIECE_COLOR =	[	"rgb(255, 255, 255)",
 						"rgb(242, 126, 31)"	];
 
 
-const NO_LOOP_KEY = new Set([90, 37, 38, 39, 40, 32]);
+const NO_LOOP_KEY = new Set([90, 37, 38, 39, 40, 32, 82]);
 
 
 
@@ -38,6 +38,8 @@ class gameModel extends Model {
 
 		this.playersNicknames = [];
 
+		this.gameState = 0;
+
 		
 	}
 
@@ -65,12 +67,17 @@ class gameModel extends Model {
 		this.fillData(0);		
 
 		this.mvc.view.generateBoard();
+
+		this.gameState = 1;
+		this.mvc.view.startProcedure();
 	}
 
 	/*
 		When receiving end
 	*/
 	ioEnd(){
+
+		this.gameState = 0;
 
 		this.mvc.view.startEndScreen();
 
@@ -162,6 +169,7 @@ class gameModel extends Model {
 
 
 class gameView extends View {
+
 	constructor() {
 		super();
 
@@ -191,6 +199,11 @@ class gameView extends View {
 		this.tempoScore = 0;
 
 		this.playerNicknamesDiv = [];
+
+
+		//For the tactile devices input
+		this.touchStartPos = undefined;
+		this.untilNextTouch = undefined;
 
 	}
 
@@ -235,11 +248,27 @@ class gameView extends View {
 							top:"50%",
 							color:"white",
 							textAlign:"center",
-							fontSize:"10em"})
+							fontSize:"15vw"})
 				.setText("0")
 				.getElement();
 
 		this.endScreenScoreDivOpacity = 0.0;
+
+		this.startButton = new easyElement("div")
+				.setStyle({	position:"absolute",
+							opacity:"1.0",
+							width:"20%",
+							top:"30%",
+							left:"40%",
+							padding: "3vh 3vw 3vh",
+							backgroundColor:"white",
+							textAlign:"center",
+							fontSize:"5vw",
+							borderRadius:"2%",
+							boxShadow: "0px 0px 30px 3px black"})
+				.setText("Start")
+				.attach(this.stage)
+				.getElement();
 
 		this.actualScoreDiv = new easyElement("div")
 				.setStyle({	position:"absolute",
@@ -249,12 +278,21 @@ class gameView extends View {
 				.setText("Score: 0")
 				.getElement();
 
-
 		
 		this.stage.appendChild(this.actualScoreDiv);
 
 
 		this.generateBoard();
+
+	}
+
+	startProcedure(){
+
+		this.startButton.remove();
+
+		this.endScreenScoreDiv.remove();
+
+		this.endScreenDiv.remove();
 
 	}
 
@@ -272,10 +310,18 @@ class gameView extends View {
 
 	startEndScreen(){
 
+		/*
+			Easy way to correct a bug that happen when
+			the player restart the game before the end animation end.
+		*/
+		if(this.mvc.model.gameState === 1){
+			return;
+		}
+
 		///TESTTT
 
 		//this.mvc.model.score = 210238900;
-
+		trace("start end");
 
 		///
 		this.actualScoreDiv.innerHTML = "";
@@ -283,6 +329,11 @@ class gameView extends View {
 		this.stage.appendChild(this.endScreenDiv);
 
 		this.endScreenDiv.style.backgroundColor = "rgb(0, 0, 0)";
+
+
+		this.endScreenDivOpacity = 0.0;
+		this.endScreenDiv.style.opacity = 0.0;
+
 
 		setTimeout(() => this.endAnimationLoop(), 16);
 	
@@ -305,8 +356,20 @@ class gameView extends View {
 	}
 
 	startShowScore(){
+
+		/*
+			Easy way to correct a bug that happen when
+			the player restart the game before the end animation end.
+		*/
+		if(this.mvc.model.gameState === 1){
+			return;
+		}
 		
 		this.stage.appendChild(this.endScreenScoreDiv);
+
+		this.endScreenScoreDivOpacity = 0.0;
+		this.endScreenScoreDiv.style.opacity = 0.0;
+		this.endScreenScoreDiv.innerHTML = "0";
 
 		setTimeout(() => this.showEndScoreAnimation(), 16);
 
@@ -328,8 +391,42 @@ class gameView extends View {
 			this.endScreenScoreDiv.innerHTML = this.tempoScore + "";
 		}
 
-		if(this.endScreenScoreDivOpacity === 100) trace("FINIII");
+		if(this.endScreenScoreDivOpacity === 100) this.startShowStartButton();
 		else setTimeout(() => this.showEndScoreAnimation(), 16);
+
+	}
+
+	startShowStartButton(){
+
+		/*
+			Easy way to correct a bug that happen when
+			the player restart the game before the end animation end.
+		*/
+		if(this.mvc.model.gameState === 1){
+			return;
+		}
+
+		this.stage.appendChild(this.startButton);
+
+		this.startButtonOpacity = 0.0;
+		this.startButton.style.opacity = 0.0;
+
+		setTimeout(() => this.showStartButtonAnimation(), 16);
+
+	}
+
+	showStartButtonAnimation(){
+
+		this.startButtonOpacity = Math.min(1, this.startButtonOpacity + 1 * 0.016);
+
+
+		let cosDelta = (1- Math.cos(this.startButtonOpacity * Math.PI))/2;
+
+
+		this.startButton.style.opacity = 1 * cosDelta;
+
+		if(this.startButtonOpacity === 1) trace("True END");
+		else setTimeout(() => this.showStartButtonAnimation(), 16);
 
 
 	}
@@ -392,6 +489,9 @@ class gameView extends View {
 		this.documentClickHandler = event => this.onClick(event);
 		document.addEventListener("click", this.documentClickHandler);
 
+		this.startButtonClickHandler = event => this.onStartButtonClick(event);
+		this.startButton.addEventListener("click", this.startButtonClickHandler);
+
 
 	}
 
@@ -405,6 +505,16 @@ class gameView extends View {
 		document.removeEventListener("keyup", this.documentKeyUpHandler);
 
 
+		document.removeEventListener("touchstart", this.documentTouchStartHandler);
+
+		document.removeEventListener("touchmove", this.documentTouchMoveHandler);
+
+		document.removeEventListener("touchend", this.documentTouchEndHandler);
+
+		document.removeEventListener("click", this.documentClickHandler);
+
+
+
 		//We also clear the timeout of the input
 		this.pressedKeyToLoopId.forEach((value) => {
 			clearTimeout(value);
@@ -412,6 +522,12 @@ class gameView extends View {
 		this.pressedKeyToLoopId.clear();
 
 
+
+	}
+
+	onStartButtonClick(event){
+
+		this.mvc.controller.ioGo();
 
 	}
 
@@ -490,6 +606,7 @@ class gameView extends View {
 
 	onTouchEnd(event){
 
+		//Clear every input loop
 		this.pressedKeyToLoopId.forEach((value) => {
 			clearTimeout(value);
 		});
@@ -590,6 +707,11 @@ class gameView extends View {
 				this.mvc.controller.movingKey(5);
 				break;
 
+			//Go, R
+			case 82:
+				this.mvc.controller.ioGo();
+				break;
+
 			default:
 				trace("Input :", value, " is not a game key.");
 		}
@@ -614,6 +736,7 @@ class gameView extends View {
 		When receiving the window resize event
 	*/
 	onResize(){
+
 		//We resize elements
 		this.resize();
 		//We set the good position to the canvas
@@ -661,7 +784,7 @@ class gameView extends View {
 
 		}
 
-		/*Resizing the next piece display in function of the board*/
+		/* Resizing the next piece display in function of the board */
 
 		let freeBlankSpace = window.innerHeight - this.boardCanvas.height;
 		let proportionOfFreeSpace = freeBlankSpace/window.innerHeight;
@@ -670,6 +793,7 @@ class gameView extends View {
 		let result = (offsetMargin * window.innerHeight);
 
 		let finalSize = result * (3/4);
+
 		//limiting the next piece width to the boardsize
 		if(finalSize > this.boardCanvas.width*(2/3)) finalSize =  this.boardCanvas.width *(2/3);
 
@@ -688,7 +812,7 @@ class gameView extends View {
 	*/
 	draw(){
 
-		/*Drawing the board*/
+		/* Drawing the board */
 		let canvas2dContextBoard = this.boardCanvas.getContext("2d");
 		canvas2dContextBoard.clearRect(0, 0, this.boardCanvas.width, this.boardCanvas.height);
 
@@ -715,7 +839,7 @@ class gameView extends View {
 		});
 
 
-		/*Drawing the next piece*/
+		/* Drawing the next piece */
 		let canvas2dContextNextPiece = this.nextPieceCanvas.getContext("2d");
 		canvas2dContextNextPiece.clearRect(0, 0, this.nextPieceCanvas.width, this.nextPieceCanvas.height);
 
@@ -749,7 +873,9 @@ class gameView extends View {
 	}
 
 
-	/*Keep the board at a central position*/
+	/*
+		Keep the board at a central position
+	*/
 	setProportinalPosition(){
 
 		let freeBlankSpace = window.innerWidth - this.boardCanvas.width;
@@ -783,7 +909,7 @@ class gameView extends View {
 		this.nextPieceCanvas.style.top = (boardStartV - (result))/2  + "px";
 
 		//this.actualScoreDiv.style.left = window.innerWidth/2 + (result)/2 + 1 + "px";
-		this.actualScoreDiv.style.top = boardStartV  + this.boardCanvas.height + "px";
+		this.actualScoreDiv.style.top = boardStartV + this.boardCanvas.height + "px";
 		this.actualScoreDiv.style.fontSize = this.boardCanvas.height/2 + "%";
 
 
@@ -874,6 +1000,13 @@ class gameController extends Controller {
 
 	rotateKey(direction){
 		this.mvc.app.io.emit("rotateKey", direction);
+	}
+
+	/*
+		This method send Go event to the server
+	*/
+	ioGo(){
+		this.mvc.app.io.emit("go");
 	}
 
 }
