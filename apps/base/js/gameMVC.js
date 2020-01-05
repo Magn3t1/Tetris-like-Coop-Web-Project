@@ -36,6 +36,8 @@ class gameModel extends Model {
 
 		this.nextPiecePlayer = 0;
 
+		this.playersNicknames = [];
+
 		
 	}
 
@@ -61,6 +63,10 @@ class gameModel extends Model {
 		this.boardRow 	= this.boardSize / this.boardLen;
 
 		this.fillData(0);
+
+		this.mvc.view.playerLeft.innerHTML = this.mvc.model.playersNicknames[0];
+		if(this.nbPlayer <= 1) this.mvc.model.playersNicknames[1] = "";
+		this.mvc.view.playerRight.innerHTML = this.mvc.model.playersNicknames[1];
 
 		this.mvc.view.generateBoard();
 
@@ -108,6 +114,11 @@ class gameModel extends Model {
 
 		this.mvc.view.actualScoreDiv.innerHTML = "Score: " + this.score;
 
+	}
+
+	ioNicknames(packet){
+		this.playersNicknames = packet.nicknames;
+		trace("nicknames of player in the game are :", this.playersNicknames);
 	}
 
 	/*
@@ -239,7 +250,25 @@ class gameView extends View {
 				.setText("Score: 0")
 				.getElement();
 
+		this.playerLeft= new easyElement("div")
+				.setStyle({	position:"absolute",
+							width:"100%",
+							color:"black",
+						   opacity:"0.7"})
+				.setText("")
+				.getElement();
+
+		this.playerRight= new easyElement("div")
+		.setStyle({	position:"absolute",
+					width:"100%",
+					color:"black",
+				    opacity:"0.7",})
+		.setText("")
+		.getElement();
+
 		this.stage.appendChild(this.actualScoreDiv);
+		this.stage.appendChild(this.playerLeft);
+		this.stage.appendChild(this.playerRight);
 
 		this.generateBoard();
 
@@ -731,15 +760,16 @@ class gameView extends View {
 		let proportionOfFreeSpace = freeBlankSpace/window.innerWidth;
 		let offsetMargin = proportionOfFreeSpace * 0.5;
 
-		this.boardCanvas.style.left = (offsetMargin * window.innerWidth) + "px";
+		let boardStartH = (offsetMargin * window.innerWidth)
+		this.boardCanvas.style.left = boardStartH + "px";
 
 
 		freeBlankSpace = window.innerHeight - this.boardCanvas.height;
 		proportionOfFreeSpace = freeBlankSpace/window.innerHeight;
 		offsetMargin = proportionOfFreeSpace * (3/4);
 
-		let boardStart = (offsetMargin * window.innerHeight)
-		this.boardCanvas.style.top = boardStart + "px";
+		let boardStartV = (offsetMargin * window.innerHeight)
+		this.boardCanvas.style.top = boardStartV + "px";
 
 
 		freeBlankSpace = window.innerWidth - this.nextPieceCanvas.width;
@@ -754,11 +784,20 @@ class gameView extends View {
 
 		let result = (offsetMargin * window.innerHeight) * (3/4);
 
-		this.nextPieceCanvas.style.top = (boardStart - (result))/2  + "px";
+		this.nextPieceCanvas.style.top = (boardStartV - (result))/2  + "px";
 
 		//this.actualScoreDiv.style.left = window.innerWidth/2 + (result)/2 + 1 + "px";
-		this.actualScoreDiv.style.top = boardStart  + this.boardCanvas.height + "px";
+		this.actualScoreDiv.style.top = boardStartV  + this.boardCanvas.height + "px";
 		this.actualScoreDiv.style.fontSize = this.boardCanvas.height/2 + "%";
+
+		this.playerLeft.style.top = boardStartV + "px";
+		this.playerRight.style.top = this.playerLeft.style.top;
+
+		this.playerLeft.style.fontSize = this.boardCanvas.height/4 + "%";
+		this.playerRight.style.fontSize = this.boardCanvas.height/4 + "%";
+
+		this.playerLeft.style.left = boardStartH + "px";
+		this.playerRight.style.left = boardStartH + this.boardCanvas.width/2 + "px";
 	}
 
 	/*

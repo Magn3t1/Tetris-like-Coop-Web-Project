@@ -1,10 +1,10 @@
 
 const ModuleBase = load("com/base"); // import ModuleBase class
 
-const BOARD_SIZE = 70;
-const BOARD_LEN = 7;
+const BOARD_SIZE = 200;
+const BOARD_LEN = 10;
 
-const NB_PLAYER_MAX = 1;
+const NB_PLAYER_MAX = 2;
 
 const MAX_RESET_TIMEOUT = 5;
 
@@ -142,6 +142,7 @@ class GameModel {
 
 		this.score = undefined;
 
+		this.playerNicknames = undefined;
 	}
 
 	async initialize(mvc) {
@@ -261,8 +262,10 @@ class GameModel {
 		this.mvc.app._io.to(this.mvc.room).emit("score", this.score);
 	}
 
-	ioSendNicknames(){
-		//this.mvc.app._io.to(this.mvc.room).emit("nicknames", ...);
+	ioNicknames(){
+		this.mvc.model.createNicknamesArray();
+		trace("NICKNAMES ARE:",this.mvc.model.playerNicknames)
+		this.mvc.app._io.to(this.mvc.room).emit("nicknames", {nicknames: this.playerNicknames});
 	}
 
 	ioStart(){
@@ -1150,6 +1153,13 @@ class GameModel {
 		return false;
 
 	}
+
+	createNicknamesArray(){
+		this.playerNicknames = []
+		this.mvc.model.clientsNickname.forEach((nickname, _) => {
+		  this.playerNicknames.push(nickname);
+		});
+	}
 	
 
 }
@@ -1252,13 +1262,9 @@ class GameController {
 		
 		this.mvc.model.changeNewPiece();
 
-
-		this.mvc.model.clientsNickname.forEach((valeur, cle) => {
-		  console.log("iciiiiiii");
-		  console.log(cle + " = " + valeur);
-		});
+		
 		//send nicknames of every players
-		this.mvc.model.ioSendNicknames();
+		this.mvc.model.ioNicknames();
 
 		//Send start and the number of player in the game
 		this.mvc.model.ioStart();

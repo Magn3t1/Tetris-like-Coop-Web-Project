@@ -116,6 +116,7 @@ class Base {
 		this.io.on("boardData", packet => this.onBoardData(packet));
 		this.io.on("nextPieceData", packet => this.onNextPieceData(packet));
 		this.io.on("score", packet => this.onScore(packet));
+		this.io.on("nicknames", packet => this.onNicknames(packet));
 
 		this.io.on("message", packet => this.onMessage(packet));
 	}
@@ -158,6 +159,9 @@ class Base {
 		this.chatMvc.model.ioMessage(packet);
 	}
 
+	onNicknames(packet){
+		this.mvc.model.ioNicknames(packet);
+	}
 }
 
 
