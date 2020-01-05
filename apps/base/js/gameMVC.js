@@ -62,14 +62,9 @@ class gameModel extends Model {
 		this.boardLen 	= packet.len;
 		this.boardRow 	= this.boardSize / this.boardLen;
 
-		this.fillData(0);
-
-		this.mvc.view.playerLeft.innerHTML = this.mvc.model.playersNicknames[0];
-		if(this.nbPlayer <= 1) this.mvc.model.playersNicknames[1] = "";
-		this.mvc.view.playerRight.innerHTML = this.mvc.model.playersNicknames[1];
+		this.fillData(0);		
 
 		this.mvc.view.generateBoard();
-
 	}
 
 	/*
@@ -119,6 +114,8 @@ class gameModel extends Model {
 	ioNicknames(packet){
 		this.playersNicknames = packet.nicknames;
 		trace("nicknames of player in the game are :", this.playersNicknames);
+
+		this.mvc.view.creatingNicknamesDiv();
 	}
 
 	/*
@@ -193,6 +190,8 @@ class gameView extends View {
 		//This variable store the animated score
 		this.tempoScore = 0;
 
+		this.playerNicknamesDiv = [];
+
 	}
 
 	async initialize(mvc) {
@@ -250,28 +249,25 @@ class gameView extends View {
 				.setText("Score: 0")
 				.getElement();
 
-		this.playerLeft= new easyElement("div")
-				.setStyle({	position:"absolute",
-							color:"black",
-						   opacity:"0.7",
-						   overflow: "hidden"})
-				.setText("")
-				.getElement();
 
-		this.playerRight= new easyElement("div")
-		.setStyle({	position:"absolute",
-					color:"black",
-				    opacity:"0.7",
-					overflow: "hidden"})
-		.setText("")
-		.getElement();
-
+		
 		this.stage.appendChild(this.actualScoreDiv);
-		this.stage.appendChild(this.playerLeft);
-		this.stage.appendChild(this.playerRight);
+
 
 		this.generateBoard();
 
+	}
+
+	/*Creating each div for players names*/
+	creatingNicknamesDiv(){
+
+		this.mvc.model.playersNicknames.forEach((element,index) => {
+			this.playerNicknamesDiv.push(new easyElement("div").setStyle({	position:"absolute",color:"black",opacity:"0.7",overflow: "hidden"}).setText("").getElement());
+			this.stage.appendChild(this.playerNicknamesDiv[index]);
+			this.playerNicknamesDiv[index].innerHTML = element;
+		});
+
+		trace("mon tableau:", this.playerNicknamesDiv);
 	}
 
 	startEndScreen(){
@@ -282,7 +278,7 @@ class gameView extends View {
 
 
 		///
-		this.mvc.view.actualScoreDiv.innerHTML = "";
+		this.actualScoreDiv.innerHTML = "";
 
 		this.stage.appendChild(this.endScreenDiv);
 
@@ -791,17 +787,25 @@ class gameView extends View {
 		this.actualScoreDiv.style.fontSize = this.boardCanvas.height/2 + "%";
 
 
-		this.playerLeft.style.width = this.boardCanvas.width/2.2 + "px";
+		this.mvc.model.playersNicknames.forEach((_,index) => {
+			this.mvc.view.playerNicknamesDiv[index].style.width = this.boardCanvas.width/this.mvc.model.nbPlayer + "px";
+			this.mvc.view.playerNicknamesDiv[index].style.top = boardStartV + "px";
+			this.mvc.view.playerNicknamesDiv[index].style.fontSize = this.boardCanvas.height/3 + "%";
+			this.mvc.view.playerNicknamesDiv[index].style.left = boardStartH + (this.boardCanvas.width/this.mvc.model.nbPlayer) * index + 5 + "px";
+		});
+
+		/*this.playerLeft.style.width = this.boardCanvas.width/2.2 + "px";
 		this.playerRight.style.width = this.playerLeft.style.width;
 
 		this.playerLeft.style.top = boardStartV + "px";
 		this.playerRight.style.top = this.playerLeft.style.top;
 
-		this.playerLeft.style.fontSize = this.boardCanvas.height/4 + "%";
-		this.playerRight.style.fontSize = this.boardCanvas.height/4 + "%";
+
+		this.playerLeft.style.fontSize = this.boardCanvas.height/3 + "%";
+		this.playerRight.style.fontSize = this.boardCanvas.height/3 + "%";
 
 		this.playerLeft.style.left = boardStartH + 5 + "px";
-		this.playerRight.style.left = boardStartH + this.boardCanvas.width/2 + 5 + "px";
+		this.playerRight.style.left = boardStartH + this.boardCanvas.width/2 + 5 + "px";*/
 	}
 
 	/*
