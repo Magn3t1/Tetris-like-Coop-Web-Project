@@ -299,6 +299,13 @@ class gameView extends View {
 	/*Creating each div for players names*/
 	creatingNicknamesDiv(){
 
+		//first clearing old div in case of restarts
+		this.playerNicknamesDiv.forEach((element,_) => {
+			element.remove();
+		});
+		this.playerNicknamesDiv = [];
+
+
 		this.mvc.model.playersNicknames.forEach((element,index) => {
 			this.playerNicknamesDiv.push(new easyElement("div").setStyle({	position:"absolute",color:"black",opacity:"0.7",overflow: "hidden"}).setText("").getElement());
 			this.stage.appendChild(this.playerNicknamesDiv[index]);
