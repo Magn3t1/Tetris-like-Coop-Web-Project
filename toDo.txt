@@ -3,9 +3,6 @@ A faire :
 	
 	IMPORTANT A FINIR :
 
-		Server : Incrémenter la difficulté plus les lignes se casses
-
-
 		Server : stoquer les meilleurs score en local
 
 
@@ -68,8 +65,7 @@ Fait :
 	Server : Stoquer les pseudos - E
 	Client : Affichages des pseudo IG - E
 	Client : Gérer l'affichage des nouvelle piece en fonction de la dimension de leur matrice - E
-				
-
+	Server : Incrémenter la difficulté plus les lignes se casses - E
 
 
 

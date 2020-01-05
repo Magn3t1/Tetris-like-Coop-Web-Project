@@ -8,6 +8,8 @@ const NB_PLAYER_MAX = 1;
 
 const MAX_RESET_TIMEOUT = 5;
 
+const NB_OF_LINES_TO_BREAK_TO_SPEED_UP = 10;
+
 const ALL_PIECE_AND_LEN = [
 					[	1, 1,
 						1, 1	], 2,
@@ -179,6 +181,9 @@ class GameModel {
 
 		this.resetTimeoutCounter = 0;
 		this.score = 0;
+
+		this.breakedLine = 0;
+		this.speedPoint = 0;
 
 		this.board.fill(0);
 		this.mergedBoard.fill(0);
@@ -1038,7 +1043,9 @@ class GameModel {
 
 		this.incrementScore(numberOfSlot/this.boardLen);
 
+		this.breakedLine += numberOfSlot/this.boardLen;
 
+		this.increaseSpeedFall();
 	}
 
 	/*
@@ -1061,6 +1068,16 @@ class GameModel {
 
 	}
 
+	//Increasing speed fall in fonction of number of line breakeds
+	increaseSpeedFall(){
+		if(this.breakedLine >= NB_OF_LINES_TO_BREAK_TO_SPEED_UP){
+			this.speedPoint++;
+			this.breakedLine-= NB_OF_LINES_TO_BREAK_TO_SPEED_UP;
+		}
+
+		this.mvc.controller.tick = 500 - (this.speedPoint*10);
+		trace("this.mvc.controller.tick", this.mvc.controller.tick)
+	}
 
 	/*
 		This method change the actual new piece to the piece
