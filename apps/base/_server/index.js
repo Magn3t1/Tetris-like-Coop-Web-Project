@@ -433,7 +433,7 @@ class GameModel {
 
 			default:
 				trace("ERROR moving pos of new piece");
-				return;
+				break;
 
 		}
 
@@ -443,30 +443,35 @@ class GameModel {
 	newPieceRotate(direction){
 
 		//anticlockwise
-		if(direction === 0){
-			this.rotateAntiClockWise();
-			/*
-				If this test pass, it mean that with the rotation,
-				the piece is now 1 move from a collision,
-				so we give 1 more tick to the player to think
-			*/
-			if(!this.newPieceCanDown() && this.resetTimeoutCounter < MAX_RESET_TIMEOUT){
-				this.mvc.controller.resetTimeout();
-				++this.resetTimeoutCounter;
-			}
-		}
-		//clockwise
-		else if(direction === 1){
-			this.rotateClockWise();
-			//Same comment as above
-			if(!this.newPieceCanDown() && this.resetTimeoutCounter < MAX_RESET_TIMEOUT){
-				this.mvc.controller.resetTimeout();
-				++this.resetTimeoutCounter;
-			}
-		}
-		else{
-			trace("Error in the client packet from rotateKey");
-			return;
+		switch(direction){
+			
+			case 0:
+				this.rotateAntiClockWise();
+				/*
+					If this test pass, it mean that with the rotation,
+					the piece is now 1 move from a collision,
+					so we give 1 more tick to the player to think
+				*/
+				if(!this.newPieceCanDown() && this.resetTimeoutCounter < MAX_RESET_TIMEOUT){
+					this.mvc.controller.resetTimeout();
+					++this.resetTimeoutCounter;
+				}
+				break;
+
+			//clockwise
+			case 1:
+				this.rotateClockWise();
+				//Same comment as above
+				if(!this.newPieceCanDown() && this.resetTimeoutCounter < MAX_RESET_TIMEOUT){
+					this.mvc.controller.resetTimeout();
+					++this.resetTimeoutCounter;
+				}
+				break;
+
+			default:
+				trace("Error in the client packet from rotateKey");
+				break;
+
 		}
 
 	}
@@ -782,34 +787,45 @@ class GameModel {
 			let x = this.newPiecePosition[0] + localX;
 			let y = this.newPiecePosition[1] + localY;
 
+
+			let outOfBoard = false;
+
 			if(element > 0){
 
-				//Board
-				if(this.board[x + y * this.boardLen] > 0){
-					
-					if(localY > 2){
-						down = true;
-					}
-					
-					if(localX <= 1){
-						left = true;
-					}
-					else if(localX >= 2){
-						right = true;
-					}
-
-				}
 				//Down
 				if(y >= this.boardSize/this.boardLen){
 					down = true;
+					outOfBoard = true;
+				}
+				//Up
+				if(y < 0){
+					outOfBoard = true;
 				}
 				//Right
 				if(x >= this.boardLen){
 					right = true;
+					outOfBoard = true;
 				}
 				//left
 				else if(x < 0){
 					left = true;
+					outOfBoard = true;
+				}
+
+				//Board
+				if(!outOfBoard && this.board[x + y * this.boardLen] > 0){
+					
+					if(localY === (this.newPieceLen - 1)){
+						down = true;
+					}
+					
+					else if(localX < Math.trunc(this.newPieceLen / 2)){
+						left = true;
+					}
+					else if(localX >= Math.trunc(this.newPieceLen / 2)){
+						right = true;
+					}
+
 				}
 
 			}
@@ -896,7 +912,12 @@ class GameModel {
 		let everTouchedRight = false;
 		let everTouchedDown = false;
 
+		let acc = 0;
+
 		while(1){
+
+			//To prevent to big send up
+			if(acc > 3) break;
 
 			let whereColli = this.newPieceCheckCollision();
 
@@ -905,7 +926,7 @@ class GameModel {
 			let touchedRight = false;
 			let touchedDown = false;
 
-			if(whereColli == 0){
+			if(whereColli === 0){
 				success = true;
 				break;
 			}
@@ -924,15 +945,13 @@ class GameModel {
 			}
 
 
-			//Right and left
-			if(touchedRight && touchedLeft){
+			//Fast verif
+			if((touchedRight? 1:0) + (touchedLeft? 1:0) + (touchedDown? 1:0) > 1){
 				break;
 			}
-			
-			//Down
-			
+				
 
-			//Right or Left
+			//Right or Left or down
 			if(touchedRight){
 				everTouchedRight = true;
 				this.newPiecePosition[0] -= 1;
@@ -946,10 +965,12 @@ class GameModel {
 				this.newPiecePosition[1] -= 1;
 			}
 
-			//ever Right and ever left
-			if(everTouchedRight && everTouchedLeft){
+			//Last verif
+			if((everTouchedRight? 1:0) + (everTouchedLeft? 1:0) + (everTouchedDown? 1:0) > 1){
 				break;
 			}
+
+			++acc;
 
 		}
 
@@ -972,9 +993,10 @@ class GameModel {
 			//returning a 1D index
 			return this.newPiece[rotateY * dimension + rotateX];
 		});*/
+
 		
-		let oldPiece = this.newPiece;
-		let oldPosition = this.newPiecePosition;
+		let oldPiece = this.newPiece.slice();
+		let oldPosition = this.newPiecePosition.slice();
 
 		//The same but in one line
 		this.newPiece = this.newPiece.map((element, index) => this.newPiece[(index%this.newPieceLen) * this.newPieceLen + (this.newPieceLen - Math.trunc(index/this.newPieceLen) - 1)]);
@@ -1006,8 +1028,10 @@ class GameModel {
 			return this.newPiece[rotateY * dimension + rotateX];
 		});*/
 
-		let oldPiece = this.newPiece;
-		let oldPosition = this.newPiecePosition;
+
+
+		let oldPiece = this.newPiece.slice();
+		let oldPosition = this.newPiecePosition.slice();
 
 		//The same but in one line
 		this.newPiece = this.newPiece.map((element, index) => this.newPiece[(this.newPieceLen - (index%this.newPieceLen) - 1) * this.newPieceLen + (Math.trunc(index/this.newPieceLen))]);
@@ -1018,6 +1042,7 @@ class GameModel {
 			this.newPiece = oldPiece;
 			this.newPiecePosition = oldPosition;
 		}
+
 
 	}
 
@@ -1432,12 +1457,12 @@ class Base extends ModuleBase {
 		this.socketRoom = new Map();
 
 
-		this.initializeFile();
+		this._initializeFile();
 
 
 	}
 
-	async initializeFile(){
+	async _initializeFile(){
 		
 		fs.access("hallOfFame.json", fs.constants.F_OK, (err) => {
 
