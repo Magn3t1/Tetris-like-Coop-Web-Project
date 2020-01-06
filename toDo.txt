@@ -3,7 +3,8 @@ A faire :
 	
 	IMPORTANT A FINIR :
 
-		Server : stoquer les meilleurs score en local
+
+		Client : afficher les meilleurs score avec un bouton pour ca
 
 
 
@@ -50,6 +51,7 @@ Fait :
 	Client : Ajouter des input pour smartphone - G
 	Server : Lancer les procédure de fin de partie quand elle est détécté comme fini - G
 	Client : Gerer la fin de partie - G
+	Server : stoquer les meilleurs score en local - G
 
 
 

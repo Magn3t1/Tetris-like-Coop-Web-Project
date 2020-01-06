@@ -6,8 +6,8 @@ const SocketIO = 	require("socket.io");	// socket.io
 // native modules
 const http = 		require("http"); 		// http server
 const path = 		require("path"); 		// path
-const fs = 			require("fs");			// file system
 
+global.fs = 		require("fs");			// file system
 global._root = __dirname; // keep root directory ref
 global.load = name => require(path.join(_root, path.sep, name)); // hack require.main.require()
 global.outload = name => require(`${name}`); // load modules from outside node app root directory

@@ -1,14 +1,15 @@
 
 const ModuleBase = load("com/base"); // import ModuleBase class
 
-const BOARD_SIZE = 100;
+const BOARD_SIZE = 200;
 const BOARD_LEN = 10;
 
 const NB_PLAYER_MAX = 1;
 
 const MAX_RESET_TIMEOUT = 5;
 
-const NB_OF_LINES_TO_BREAK_TO_SPEED_UP = 10;
+const STARTING_TICK = 1200;
+const NB_OF_LINES_TO_BREAK_TO_SPEED_UP = 1;
 
 const ALL_PIECE_AND_LEN = [
 					[	1, 1,
@@ -1041,9 +1042,13 @@ class GameModel {
 		//Then we add as many empty slots as there as deleted slot
 		this.board = new Array(numberOfSlot).fill(0).concat(this.board);
 
-		this.incrementScore(numberOfSlot/this.boardLen);
 
-		this.breakedLine += numberOfSlot/this.boardLen;
+		let tempoBreakedLine = numberOfSlot/this.boardLen;
+
+
+		this.incrementScore(tempoBreakedLine);
+
+		this.breakedLine += tempoBreakedLine;
 
 		this.increaseSpeedFall();
 	}
@@ -1070,13 +1075,20 @@ class GameModel {
 
 	//Increasing speed fall in fonction of number of line breakeds
 	increaseSpeedFall(){
-		if(this.breakedLine >= NB_OF_LINES_TO_BREAK_TO_SPEED_UP){
-			this.speedPoint++;
-			this.breakedLine-= NB_OF_LINES_TO_BREAK_TO_SPEED_UP;
-		}
+		// if(this.breakedLine >= NB_OF_LINES_TO_BREAK_TO_SPEED_UP){
+		// 	this.speedPoint++;
+		// 	this.breakedLine-= NB_OF_LINES_TO_BREAK_TO_SPEED_UP;
+		// }
 
-		this.mvc.controller.tick = 500 - (this.speedPoint*10);
-		trace("this.mvc.controller.tick", this.mvc.controller.tick)
+		this.speedPoint = Math.trunc(this.breakedLine/NB_OF_LINES_TO_BREAK_TO_SPEED_UP);
+
+		trace("SPEED POINT", this.speedPoint);
+
+		//this.mvc.controller.tick = STARTING_TICK - (this.speedPoint*10);
+
+		this.mvc.controller.tick = STARTING_TICK * 3/(this.speedPoint + 3);
+
+		trace("this.mvc.controller.tick", this.mvc.controller.tick);
 	}
 
 	/*
@@ -1193,6 +1205,45 @@ class GameModel {
 
 
 	}
+
+	/*
+		This method updated if needed the HallOfFame.
+	*/
+	updatedHallOfFame(){
+
+		let rawJson = fs.readFileSync("hallOfFame.json");
+		let tempoJson = JSON.parse(rawJson);
+
+		let edited = false;
+		let newJson = tempoJson.top5.reduce( (acc, value) => {
+
+			if(acc.top5.length > 4) return acc;
+
+			trace("tested score : ", value.score);
+			if(this.score > value.score && !edited){
+				acc.top5.push({"names":this.playerNicknames, "score":this.score});
+				edited = true;
+
+				trace("Better score : ", this.score, value.score);
+			}
+
+			acc.top5.push(value);
+
+			return acc;
+
+		}, {"top5":[]} );
+
+		if(edited){
+
+			let tempoRaw = JSON.stringify(newJson, null, 2);
+
+			fs.writeFileSync("hallOfFame.json",	tempoRaw);
+
+			trace("Updated hallOfFame.json file.");
+
+		}
+
+	}
 	
 
 }
@@ -1202,15 +1253,16 @@ class GameController {
 		this.name = undefined;
 		this.mvc = null;
 
-		this.timeoutTime = 0;
-		this.tick = 0;
+		this.timeoutTime = undefined;
+		this.tick = undefined;
 	}
 	
 	async initialize(mvc) {
+
 		this.mvc = mvc;
 		this.name = this.mvc.name + "-controller";
 	
-		this.tick = 500;
+		this.timeoutTime = 0;
 
 	}
 
@@ -1282,20 +1334,13 @@ class GameController {
 
 	}
 
-	/*
-		Start a game after the end of another game
-	*/
-	restart(){
-
-		this.start();
-
-	}
-
 
 	//STARTING
 	start(){
 
 		this.mvc.gameState = 1;
+
+		this.tick = STARTING_TICK;
 
 		this.mvc.model.startProcedure();
 
@@ -1341,7 +1386,7 @@ class GameController {
 
 		this.stop();
 
-		///SAVE THE RESULT HERE ???
+		this.mvc.model.updatedHallOfFame();
 
 	}
 
@@ -1385,6 +1430,30 @@ class Base extends ModuleBase {
 
 		//Relie l'identifiant a une room
 		this.socketRoom = new Map();
+
+
+		this.initializeFile();
+
+
+	}
+
+	async initializeFile(){
+		
+		fs.access("hallOfFame.json", fs.constants.F_OK, (err) => {
+
+	    	if (err) {
+
+        		let tempoJson = {"top5": [{"names": [],"score": 0},{"names": [],"score": 0},{"names": [],"score": 0},{"names": [],"score": 0},{"names": [],"score": 0}]}
+        		let tempoRaw = JSON.stringify(tempoJson, null, 2);
+
+            	fs.writeFileSync("hallOfFame.json",	tempoRaw);
+
+            	trace("Created hallOfFame.json file.");
+		    
+		    }
+
+		});
+
 
 	}
 
