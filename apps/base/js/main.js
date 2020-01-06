@@ -118,6 +118,8 @@ class Base {
 		this.io.on("score", packet => this.onScore(packet));
 		this.io.on("nicknames", packet => this.onNicknames(packet));
 
+		this.io.on("top5", packet => this.onTop5(packet));
+
 		this.io.on("message", packet => this.onMessage(packet));
 	}
 
@@ -162,6 +164,10 @@ class Base {
 	onNicknames(packet){
 		this.mvc.model.ioNicknames(packet);
 	}
+
+	onTop5(packet){
+		this.mvc.model.ioTop5(packet);
+	}
 }
 
 
@@ -175,7 +181,6 @@ class MyModel extends Model {
 
 	async initialize(mvc) {
 		super.initialize(mvc);
-
 	}
 
 	async data() {
@@ -223,46 +228,79 @@ class MyView extends View {
 		this.table = document.createElement("table");
 		this.stage.appendChild(this.table);
 
-		this.stage.style.backgroundColor = "black";
+		this.stage.style.backgroundColor = "rgb(90, 30, 35)";
 
-		///TEST
+
 		this.connectDiv = new easyElement("div")
 						.setStyle({	position:"absolute",
-									backgroundColor:"blue",
-									top:"30%",
+									backgroundColor:"rgb(40, 50, 120)",
+									top:"10%",
 									left:"0",
 									width:"100%",
-									height:"30%"})
+									height:"35%",
+									borderRadius: "2px",
+								    border:"5px solid rgb(120, 150, 200)",
+								    boxShadow: "0 8px 16px 0 rgba(0,0,0,0.4), 0 6px 20px 0 rgba(0,0,0,0.38)"
+								    })
 						.attach(this.stage)
 						.getElement();
 
+		this.nicknameTitle = new easyElement("div")
+				.setStyle({	position:"absolute",
+							color:"white",
+							fontSize:"4vh",
+							top:"11%",
+							left:"20%",
+							width:"60%",
+							height:"5%",
+							textAlign:"center"})
+				.setText("Nickname")
+				.attach(this.stage)
+				.getElement();
 
 		this.nicknameTextField = new easyElement("input")
 						.setStyle({	position:"absolute",
 									fontSize:"4vh",
-									top:"33%",
+									top:"16%",
 									left:"20%",
 									width:"60%",
 									height:"7%",
 									zIndex:"0",
-									textAlign:"center"})
+									textAlign:"center",
+									border:"5px solid rgb(120, 150, 200)",
+									borderRadius: "5px",
+									boxShadow: "0 8px 16px 0 rgba(0,0,0,0.2), 0 6px 20px 0 rgba(0,0,0,0.19)"})
 						.setAttribute({	type:"text",
 										pattern:"^[A-Za-z0-9]+$",
 										autoFocus:"autofocus"})
 						.attach(this.stage)
 						.getElement();
 
+		this.roomTitle = new easyElement("div")
+				.setStyle({	position:"absolute",
+							color:"white",
+							fontSize:"4vh",
+							top:"24%",
+							left:"20%",
+							width:"60%",
+							height:"5%",
+							textAlign:"center"})
+				.setText("Room")
+				.attach(this.stage)
+				.getElement();
 
 		this.roomIDTextField = new easyElement("input")
 						.setStyle({	position:"absolute",
-									//backgroundColor:"red",
 									fontSize:"4vh",
-									top:"43%",
+									top:"29%",
 									left:"20%",
 									width:"60%",
 									height:"7%",
 									zIndex:"0",
-									textAlign:"center"})
+									textAlign:"center",
+									border:"5px solid rgb(120, 150, 200)",
+									borderRadius: "5px",
+									boxShadow: "0 8px 16px 0 rgba(0,0,0,0.2), 0 6px 20px 0 rgba(0,0,0,0.19)"})
 						.setAttribute({	type:"text",
 										pattern:"^[0-9]+$"})
 						.attach(this.stage)
@@ -274,23 +312,135 @@ class MyView extends View {
 
 		this.connectButton = new easyElement("button")
 						.setStyle({	position:"absolute",
-									//backgroundColor:"blue",
-									top:"53%",
-									left:"40%",
-									width:"20%",
-									height:"5%"})
+									top:"37.5%",
+									left:"35%",
+									width:"30%",
+									height:"5%",
+									fontSize:"3vh",
+									backgroundColor:"white",
+									border:"5px solid rgb(120, 150, 255)",
+									borderRadius: "5px",
+									boxShadow: "0 8px 16px 0 rgba(0,0,0,0.2), 0 6px 20px 0 rgba(0,0,0,0.19)"})
 						.setText("Connect")
 						.attach(this.stage)
 						.getElement();
 
+		
+		//this.createHallOfFame(packet);
+		this.createHallOfFame();
+		this.move();
+	}
+
+	move(){
+		this.hallOfFameText.forEach((element,index) => {
+			element.style.left = this.hallOfFamePositions[index] + "px";
+			//console.log("taille ", element.offsetWidth)
+			if(this.hallOfFamePositions[index] > -element.offsetWidth + this.hallOfFameScore[index].offsetWidth)
+				this.hallOfFamePositions[index]-=window.innerWidth/350;
+			else if(this.hallOfFamePositions[index] <= -element.offsetWidth + this.hallOfFameScore[index].offsetWidth)
+				this.hallOfFamePositions[index] = window.innerWidth;
+		});
+		setTimeout(() => this.move(),1000/60);
+	}
+
+	//Creating some div, variables for hall of fame animations..
+	//createHallOfFame(packet){
+	createHallOfFame(){
+		this.hallOfFameTitleDiv = new easyElement("div")
+						.setStyle({	position:"absolute",
+									backgroundColor:"rgb(35, 80, 50)",
+									top:"55%",
+									left:"0",
+									width:"100%",
+									height:"7%",borderRadius: "2px",
+								    border:"5px solid rgb(40, 100, 50)",
+								    boxShadow: "0 8px 16px 0 rgba(0,0,0,0.4), 0 6px 20px 0 rgba(0,0,0,0.38)"})
+						.attach(this.stage)
+						.getElement();
+
+		this.hallOfFameDiv = [...Array(5)].map((element, index) =>{
+				return new easyElement("div")
+						.setStyle({	position:"absolute",
+									backgroundColor:"rgb(40, 100, 50)",
+									top: 62 + (28/5) * index + "%",
+									left:"0",
+									width:"100%",
+									height:(28/5) + "%",
+								    boxShadow: "0 8px 16px 0 rgba(0,0,0,0.4), 0 6px 20px 0 rgba(0,0,0,0.38)",
+									overflow: "hidden"})
+						.getElement();
+		});
+
+		this.hallOfFameText = [...Array(5)].map((element, index) =>{
+				return new easyElement("div")
+						.setStyle({	position:"absolute",
+									top: 62.5 + (28/5) * index + "%",
+									left: "100%",
+									height:(28/5) + "%",
+								    fontSize:"4vh",
+									whiteSpace: "nowrap"})
+						.setText("Etienne & Guillaume")
+						.getElement();
+		});
+
+		this.hallOfFameScore = [...Array(5)].map((element, index) =>{
+				return new easyElement("div")
+						.setStyle({	position:"absolute",
+									backgroundColor:"rgb(40, 100, 50)",
+									top: 62 + (28/5) * index + "%",
+									height:(28/5) + "%",
+									fontSize:"4vh",
+								    boxShadow: "0 8px 16px 0 rgba(0,0,0,0.2), 0 6px 20px 0 rgba(0,0,0,0.19)",
+									overflow: "hidden"})
+						.setText("9999:")
+						.getElement();
+		});
+
+		this.hallOfFameDiv.forEach((element,index) => {
+			if(index%2 == 0){
+				element.style.backgroundColor = "rgb(30, 100, 70)";
+				this.hallOfFameScore[index].style.backgroundColor = "rgb(30, 100, 70)";
+			}
+			element.style.left = this.hallOfFameScore[index].offsetWidth + "px";
+			this.stage.appendChild(element);
+		});
+
+		this.hallOfFameText.forEach((element,index) => {
+			this.stage.appendChild(element);
+		});
+
+		this.hallOfFameScore.forEach((element,index) => {
+			this.stage.appendChild(element);
+		});
+
+		this.hallOfFamePositions = [...Array(5)].fill(0);
 
 
+		this.hallOfFameTitle = new easyElement("div")
+				.setStyle({	position:"absolute",
+							color:"white",
+							fontSize:"4vh",
+							top:"56%",
+							left:"20%",
+							width:"60%",
+							height:"5%",
+							textAlign:"center"})
+				.setText("Hall of Fame")
+				.attach(this.stage)
+				.getElement();
+
+				/*
+		packet.forEach((element,index) => {
+			this.hallOfFameScore[index].innerHTML = element.score;
+			this.hallOfFameText[index].innerHTML = element.names; //On peut faire ca mdr ?
+		});*/
 	}
 
 	// activate UI
 	activate() {
 		super.activate();
 		this.addListeners(); // listen to events
+		//this.move();
 	}
 
 	// deactivate

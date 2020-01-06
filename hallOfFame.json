@@ -1,0 +1,34 @@
+{
+  "top5": [
+    {
+      "names": [
+        "Etienne"
+      ],
+      "score": 1260
+    },
+    {
+      "names": [
+        "Guillaume"
+      ],
+      "score": 420
+    },
+    {
+      "names": [
+        "Zeubi"
+      ],
+      "score": 80
+    },
+    {
+      "names": [
+        "Toto"
+      ],
+      "score": 40
+    },
+    {
+      "names": [
+        "SaleMerde"
+      ],
+      "score": 0
+    }
+  ]
+}
