@@ -1,12 +1,12 @@
 
 
-const BOARD_SIZE = 200;
-const BOARD_LEN = 10;
+const BOARD_SIZE = 126;
+const BOARD_LEN = 7;
 
 const MAX_RESET_TIMEOUT = 5;
 
-const STARTING_TICK = 1200;
-const NB_OF_LINES_TO_BREAK_TO_SPEED_UP = 8;
+const STARTING_TICK = 1000;
+const NB_OF_LINES_TO_BREAK_TO_SPEED_UP = 5;
 
 const ALL_PIECE_AND_LEN = [
 					[	1, 1,
@@ -1116,7 +1116,7 @@ class GameModel {
 
 		//this.mvc.controller.tick = STARTING_TICK - (this.speedPoint*10);
 
-		this.mvc.controller.tick = STARTING_TICK * 3/(this.speedPoint + 3);
+		this.mvc.controller.tick = STARTING_TICK * 1/(this.speedPoint + 1);
 
 		trace("this.mvc.controller.tick", this.mvc.controller.tick);
 	}
