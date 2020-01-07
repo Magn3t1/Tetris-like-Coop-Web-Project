@@ -40,12 +40,19 @@ class gameModel extends Model {
 
 		this.gameState = 0;
 
+		this.audio = undefined;
+
 		
 	}
 
 	async initialize(mvc) {
 		super.initialize(mvc);
 		this.fillData(0);
+
+		this.audio = new easyElement("audio")
+				.setAttribute({	src:"data/music/tetris.mp3",
+								loop:true})
+				.getElement();
 	}
 
 	fillData(value){
@@ -70,6 +77,9 @@ class gameModel extends Model {
 
 		this.gameState = 1;
 		this.mvc.view.startProcedure();
+
+		this.audio.play();
+
 	}
 
 	/*
@@ -78,6 +88,8 @@ class gameModel extends Model {
 	ioEnd(){
 
 		this.gameState = 0;
+
+		this.audio.pause();
 
 		this.mvc.view.startEndScreen();
 
@@ -286,6 +298,11 @@ class gameView extends View {
 
 	}
 
+	async destruct(){
+		this.mvc.view.detach(); // detach view
+		this.mvc.view.deactivate(); // deactivate user interface
+	}
+
 	startProcedure(){
 
 		this.startButton.remove();
@@ -300,16 +317,18 @@ class gameView extends View {
 	creatingNicknamesDiv(){
 
 		//first clearing old div in case of restarts
-		this.playerNicknamesDiv.forEach((element,_) => {
+		this.playerNicknamesDiv.forEach(element => {
 			element.remove();
 		});
 		this.playerNicknamesDiv = [];
 
 
 		this.mvc.model.playersNicknames.forEach((element,index) => {
-			this.playerNicknamesDiv.push(new easyElement("div").setStyle({	position:"absolute",color:"black",opacity:"0.7",overflow: "hidden"}).setText("").getElement());
-			this.stage.appendChild(this.playerNicknamesDiv[index]);
-			this.playerNicknamesDiv[index].innerHTML = element;
+			this.playerNicknamesDiv.push(new easyElement("div")
+				.setStyle({	position:"absolute",color:"black",opacity:"0.7",overflow: "hidden"})
+				.setText(element)
+				.attach(this.stage)
+				.getElement());
 		});
 
 		trace("mon tableau:", this.playerNicknamesDiv);

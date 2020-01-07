@@ -66,6 +66,28 @@ class ChatView extends View {
 				.attach(this.chatInputDiv)
 				.getElement();
 
+
+		this.openChatButton = new easyElement("div")
+				.setStyle({ position:"absolute",
+							left: "105%",
+							top: "2%",
+							width: "10vmin",
+							height: "10vmin",
+							backgroundColor: "white",
+							textAlign:"center",
+							fontSize:"3vmin",
+							padding: "3vmin 0vw 3vmin",
+							borderRadius:"2%",
+							boxShadow: "0px 0px 30px 3px black"})
+				.setText("Chat")
+				.attach(this.stage)
+				.getElement();
+
+	}
+
+	async destruct(){
+		this.mvc.view.detach(); // detach view
+		this.mvc.view.deactivate(); // deactivate user interface
 	}
 
 	activate() {
@@ -97,6 +119,9 @@ class ChatView extends View {
 		this.chatTextInputBlurHandler = event => this.onChatTextInputBlur(event);
 		this.chatTextInput.addEventListener("blur", this.chatTextInputBlurHandler);
 
+		this.openChatButtonClickHandler = event => this.onOpenChatButtonClick(event);
+		this.openChatButton.addEventListener("click", this.openChatButtonClickHandler);
+
 	}
 
 
@@ -113,6 +138,10 @@ class ChatView extends View {
 		this.chatTextInput.removeEventListener("blur", this.chatTextInputBlurHandler);
 
 
+	}
+
+	onOpenChatButtonClick(event){
+		this.mvc.view.changeChat();
 	}
 
 	onChatTextInputFocus(){

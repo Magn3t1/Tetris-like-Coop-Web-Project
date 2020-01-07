@@ -2,35 +2,33 @@
   "top5": [
     {
       "names": [
-        "Etienne"
+        "1"
+      ],
+      "score": 14160
+    },
+    {
+      "names": [
+        "1"
+      ],
+      "score": 4540
+    },
+    {
+      "names": [
+        "MDR"
+      ],
+      "score": 4040
+    },
+    {
+      "names": [
+        "1"
       ],
       "score": 3480
     },
     {
       "names": [
-        "Etienne"
+        "Mag"
       ],
-      "score": 1260
-    },
-    {
-      "names": [
-        "Etienne"
-      ],
-      "score": 600
-    },
-    {
-      "names": [
-        "Guillaume",
-        "Etienne",
-        "Bibi"
-      ],
-      "score": 420
-    },
-    {
-      "names": [
-        "Zeubi"
-      ],
-      "score": 80
+      "score": 2520
     }
   ]
 }

@@ -3,9 +3,7 @@ A faire :
 	
 	IMPORTANT A FINIR :
 
-
-		Client : afficher les meilleurs score avec un bouton pour ca
-
+		Client : detruire les boucles d'animation a la destruction de la vue
 
 
 
@@ -52,6 +50,7 @@ Fait :
 	Server : Lancer les procédure de fin de partie quand elle est détécté comme fini - G
 	Client : Gerer la fin de partie - G
 	Server : stoquer les meilleurs score en local - G
+	Server : envoyer mes meilleurs score - G
 
 
 
@@ -68,7 +67,7 @@ Fait :
 	Client : Affichages des pseudo IG - E
 	Client : Gérer l'affichage des nouvelle piece en fonction de la dimension de leur matrice - E
 	Server : Incrémenter la difficulté plus les lignes se casses - E
-
+	Client : afficher les meilleurs score - E
 
 
 

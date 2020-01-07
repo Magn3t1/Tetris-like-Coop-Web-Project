@@ -23,7 +23,7 @@ class easyElement {
 
 	setText(text){
 		this.element.innerHTML = text;
-		return this
+		return this;
 	}
 
 	attach(parent){

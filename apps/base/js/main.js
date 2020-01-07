@@ -1,22 +1,3 @@
-//NOTE :
-/*
-
-
-Date.now() pour récuperer le temps actuel
-
-fs (file system)
-createReadStream
-
-users.json
-[
-{
-	id:1, name:"blabla",...	
-
-}
-]
-
-*/
-
 
 
 window.addEventListener("load", event => new Base());
@@ -24,15 +5,14 @@ window.addEventListener("load", event => new Base());
 class Base {
 
 	constructor() {
-		console.log("loaded");
 
+		trace("loaded");
 
 		this.chatDiv = null;
 		this.chatMvc = null;
 
-
-
 		this.initialize();
+
 	}
 
 	async initialize() {
@@ -48,9 +28,22 @@ class Base {
 		this.mvc.view.attach(document.body); // attach view
 		this.mvc.view.activate(); // activate user interface
 
+
+		this.getData();
+
 	}
 
+
+	async getData(){
+
+		this.mvc.controller.getHallOfFame();
+	
+	}
+
+
 	async changeToGameMVC(model, view, controller){
+
+		this.mvc.destruct();
 
 		this.mvc = new MVC("game", this, model, view, controller); // init app MVC
 		await this.mvc.initialize(); // run init async tasks
@@ -90,22 +83,10 @@ class Base {
 	}
 
 	/**
-	 * @method test : test server GET fetch
-	 */
-	async test() {
-		console.log("test server hello method");
-		let result = await Comm.get("hello/everyone"); // call server hello method with argument "everyone"
-		console.log("result", result);
-		console.log("response", result.response);
-	}
-
-	/**
 	 * @method onIOConnect : socket is connected
 	 */
 	onIOConnect() {
-		trace("yay IO connected");
-		this.io.on("dummy", packet => this.onDummyData(packet)); // listen to "dummy" messages
-		this.io.emit("dummy", {value: "dummy data from client"}) // send test message
+		trace("IO connected");
 
 		this.io.on("connectedRoom", packet => this.onConnectedRoom(packet));
 		
@@ -118,22 +99,11 @@ class Base {
 		this.io.on("score", packet => this.onScore(packet));
 		this.io.on("nicknames", packet => this.onNicknames(packet));
 
-		this.io.on("top5", packet => this.onTop5(packet));
-
 		this.io.on("message", packet => this.onMessage(packet));
 	}
 
-	/**
-	 * @method onDummyData : dummy data received from io server
-	 * @param {Object} data 
-	 */
-	onDummyData(data) {
-		trace("IO data", data);
-		this.mvc.controller.ioDummy(data); // send it to controller
-	}
 
 	onConnectedRoom(packet){
-		trace("RECU CONNECTED ROOM :", packet);
 		this.mvc.controller.ioConnectedRoom(packet);
 	}
 
@@ -165,9 +135,6 @@ class Base {
 		this.mvc.model.ioNicknames(packet);
 	}
 
-	onTop5(packet){
-		this.mvc.model.ioTop5(packet);
-	}
 }
 
 
@@ -183,11 +150,13 @@ class MyModel extends Model {
 		super.initialize(mvc);
 	}
 
-	async data() {
-		trace("get data");
-		// keep data in class variable ? refresh rate ?
-		let result = await Comm.get("data"); // wait data from server
-		return result.response; // return it to controller
+
+	async hallOfFameData(){
+		trace("get hall of fame");
+
+		let result = await Comm.get("hallOfFame");
+		return result.response;
+
 	}
 
 }
@@ -201,32 +170,13 @@ class MyView extends View {
 		this.table = null;
 	}
 
-	destruct(){
+	async destruct(){
 		this.mvc.view.detach(); // detach view
 		this.mvc.view.deactivate(); // deactivate user interface
 	}
 
-	initialize(mvc) {
+	async initialize(mvc) {
 		super.initialize(mvc);
-
-		// create get test btn
-		this.btn = document.createElement("button");
-		this.btn.innerHTML = "get test";
-		//this.stage.appendChild(this.btn);
-
-		// create io test btn
-		this.iobtn = document.createElement("button");
-		this.iobtn.innerHTML = "io test";
-		//this.stage.appendChild(this.iobtn);
-
-		// io random value display
-		this.iovalue = document.createElement("div");
-		this.iovalue.innerHTML = "no value";
-		//this.stage.appendChild(this.iovalue);
-
-		// get dataset display
-		this.table = document.createElement("table");
-		//this.stage.appendChild(this.table);
 
 		this.stage.style.backgroundColor = "rgb(90, 30, 35)";
 
@@ -319,8 +269,6 @@ class MyView extends View {
 						.getElement();
 
 
-		//console.log("ici : ",this.roomIDTextField.pattern);
-
 
 		this.connectButton = new easyElement("button")
 						.setStyle({	position:"absolute",
@@ -338,16 +286,16 @@ class MyView extends View {
 						.getElement();
 
 		
-		//this.createHallOfFame(packet);
-		this.createHallOfFame();
-		this.move();
 		this.colorChanger();
 	}
 
+	/*
+		This method animate the hallOfFame and make it move
+	*/
 	move(){
 		this.hallOfFameText.forEach((element,index) => {
 			element.style.left = this.hallOfFamePositions[index] + "px";
-			//console.log("taille ", element.offsetWidth)
+			//trace("taille ", element.offsetWidth)
 			if(this.hallOfFamePositions[index] > -element.offsetWidth + this.hallOfFameScore[index].offsetWidth)
 				this.hallOfFamePositions[index]--;
 			else if(this.hallOfFamePositions[index] <= -element.offsetWidth + this.hallOfFameScore[index].offsetWidth)
@@ -358,50 +306,11 @@ class MyView extends View {
 
 	colorChanger(){
 		this.title.style.color = "rgb(" + Math.floor(Math.random() * 255) + "," + Math.floor(Math.random() * 255) + "," + + Math.floor(Math.random() * 255) + ")";
-		setTimeout(() => this.colorChanger(),250);
+		setTimeout(() => this.colorChanger(), 250);
 	}
 
 	//Creating some div, variables for hall of fame animations..
-	//createHallOfFame(packet){
-	createHallOfFame(){
-		/*TEST TO DELETE*/
-		let packet = {
-					  "top5": [
-					    {
-					      "names": [
-					        "Etienne"
-					      ],
-					      "score": 3480
-					    },
-					    {
-					      "names": [
-					        "Etienne"
-					      ],
-					      "score": 1260
-					    },
-					    {
-					      "names": [
-					        "Etienne"
-					      ],
-					      "score": 600
-					    },
-					    {
-					      "names": [
-					        "Guillaume",
-					        "Etienne",
-					        "Bibi"
-					      ],
-					      "score": 420
-					    },
-					    {
-					      "names": [
-					        "Zeubi"
-					      ],
-					      "score": 80
-					    }
-					  ]
-					};
-
+	createHallOfFame(packet){
 
 		//Title div of HoF
 		this.hallOfFameTitleDiv = new easyElement("div")
@@ -513,6 +422,9 @@ class MyView extends View {
 				this.hallOfFameScore[index].style.backgroundColor = "rgb(30, 100, 70)";
 			}
 		});
+
+		this.move();
+
 	}
 
 	// activate UI
@@ -529,11 +441,6 @@ class MyView extends View {
 	}
 
 	addListeners() {
-		this.getBtnHandler = e => this.btnClick(e);
-		this.btn.addEventListener("click", this.getBtnHandler);
-
-		this.ioBtnHandler = e => this.ioBtnClick(e);
-		this.iobtn.addEventListener("click", this.ioBtnHandler);
 
 		this.connectButtonHandler = event => this.connectButtonClick(event);
 		this.connectButton.addEventListener("click", this.connectButtonHandler);
@@ -575,20 +482,11 @@ class MyView extends View {
 	}
 
 	removeListeners() {
-		this.btn.removeEventListener("click", this.getBtnHandler);
-		this.iobtn.removeEventListener("click", this.ioBtnHandler);
 		this.connectButton.removeEventListener("click", this.connectButtonHandler); 
 		this.roomIDTextField.removeEventListener("input", this.roomIDTextFieldInputHandler);
 		this.roomIDTextField.removeEventListener("keydown",this.roomIDTextFieldKeyHandler);
 	}
 
-	btnClick(event) {
-		this.mvc.controller.btnWasClicked("more parameters"); // dispatch
-	}
-
-	ioBtnClick(event) {
-		this.mvc.controller.ioBtnWasClicked("io parameters"); // dispatch
-	}
 
 	connectButtonClick(event){
 		this.mvc.controller.connectButtonWasClicked(this.roomIDTextField.value, this.nicknameTextField.value);
@@ -609,9 +507,6 @@ class MyView extends View {
 		});
 	}
 
-	updateIO(value) {
-		this.iovalue.innerHTML = value.toString(); // update io display
-	}
 
 }
 
@@ -629,50 +524,34 @@ class MyController extends Controller {
 
 	}
 
-	async btnWasClicked(params) {
-		trace("btn click", params);
-		this.mvc.view.update(await this.mvc.model.data()); // wait async request > response from server and update view table values
+
+	async getHallOfFame(){
+		this.mvc.view.createHallOfFame(await this.mvc.model.hallOfFameData());
 	}
 
-	async ioBtnWasClicked(params) {
-		trace("io btn click", params);
-		this.mvc.app.io.emit("dummy", {message: "dummy io click"}); // send socket.io packet
-	}
 
 	async connectButtonWasClicked(roomNb, nickname){
 
 
 		if(!/^[0-9]+$/.test(roomNb)){//J'ai écris ca parceque ca marche 
-			console.log(roomNb, "is an invalid room number.");
+			trace(roomNb, "is an invalid room number.");
 			return;
 		}
 
 		if(!/^[A-Za-z0-9]+$/.test(nickname)){
-			console.log(nickname, "is an invalid nickname.");
+			trace(nickname, "is an invalid nickname.");
 			return;
 		}
 
 		this.mvc.app.io.emit("connectRoom", {value: roomNb, nickname: nickname});
 	}
 
-	ioDummy(data) {
-		this.mvc.view.updateIO(data.value); // io dummy data received from main app
-	}
 
 	async ioConnectedRoom(packet){
-		console.log("CONNECTED TO ROOM :", packet.room); //test
+		trace("CONNECTED TO ROOM :", packet.room); //test
 
-		///ON CHANGE DE CONTROLLER ET DE VIEW
-
-		this.mvc.destruct();
 
 		this.mvc.app.changeToGameMVC(new gameModel(), new gameView(), new gameController());
-		//await this.mvc.changeView(new gameView());
-
-		//this.mvc.view.attach(document.body); // attach view
-		//this.mvc.view.activate(); // activate user interface
-
-
 
 	}
 
