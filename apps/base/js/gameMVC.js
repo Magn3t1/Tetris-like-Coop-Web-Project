@@ -290,6 +290,21 @@ class gameView extends View {
 				.setText("Score: 0")
 				.getElement();
 
+		this.audioButton = new easyElement("div")
+				.setStyle({ position:"absolute",
+							left: "87.5%",
+							top: "2%",
+							width: "10vmin",
+							height: "10vmin",
+							backgroundColor: "white",
+							textAlign:"center",
+							fontSize:"3vmin",
+							padding: "3vmin 0vw 3vmin",
+							borderRadius:"2%",
+							boxShadow: "0px 0px 30px 3px black"})
+				.setText("Audio")
+				.attach(this.stage)
+				.getElement();		
 		
 		this.stage.appendChild(this.actualScoreDiv);
 
@@ -518,6 +533,9 @@ class gameView extends View {
 		this.startButtonClickHandler = event => this.onStartButtonClick(event);
 		this.startButton.addEventListener("click", this.startButtonClickHandler);
 
+		this.audioButtonHandler = event => this.onAudioButtonClick(event);
+		this.audioButton.addEventListener("click", this.audioButtonHandler);
+
 
 	}
 
@@ -539,7 +557,7 @@ class gameView extends View {
 
 		document.removeEventListener("click", this.documentClickHandler);
 
-
+		this.audioButton.removeEventListener("click", this.audioButtonHandler);
 
 		//We also clear the timeout of the input
 		this.pressedKeyToLoopId.forEach((value) => {
@@ -549,6 +567,13 @@ class gameView extends View {
 
 
 
+	}
+
+	onAudioButtonClick(event){
+		if(this.mvc.model.audio.paused == true)
+			this.mvc.model.audio.play();
+		else
+			this.mvc.model.audio.pause();
 	}
 
 	onStartButtonClick(event){
