@@ -965,9 +965,9 @@ class gameView extends View {
 	*/
 	generateFreeSlotColor(nbPlayer){
 		/*Generate some pair color*/
-		let r  = Math.random() * (135 - 200) + 200;
-		let g  = Math.random() * (135 - 200) + 200;
-		let b  = Math.random() * (135 - 200) + 200;
+		let r  = Math.random() * (145 - 210) + 210;
+		let g  = Math.random() * (145 - 210) + 210;
+		let b  = Math.random() * (145 - 210) + 210;
 		this.playerColors = new Array(nbPlayer).fill(0).map(() =>{
 			let rt  = b
 			let gt  = r
@@ -975,9 +975,9 @@ class gameView extends View {
 
 			/*retry while we don't have a colourful color*/
 			while(rt - gt < 50 && gt - bt <50 && bt - rt <50){
-				rt  = Math.random() * (135 - 200) + 200;
-				gt  = Math.random() * (135 - 200) + 200;
-				bt  = Math.random() * (135 - 200) + 200;
+				rt  = Math.random() * (145 - 210) + 210;
+				gt  = Math.random() * (145 - 210) + 210;
+				bt  = Math.random() * (145 - 210) + 210;
 			}
 
 			r = rt
