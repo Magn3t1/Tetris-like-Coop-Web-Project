@@ -212,24 +212,36 @@ class MyView extends View {
 		// create get test btn
 		this.btn = document.createElement("button");
 		this.btn.innerHTML = "get test";
-		this.stage.appendChild(this.btn);
+		//this.stage.appendChild(this.btn);
 
 		// create io test btn
 		this.iobtn = document.createElement("button");
 		this.iobtn.innerHTML = "io test";
-		this.stage.appendChild(this.iobtn);
+		//this.stage.appendChild(this.iobtn);
 
 		// io random value display
 		this.iovalue = document.createElement("div");
 		this.iovalue.innerHTML = "no value";
-		this.stage.appendChild(this.iovalue);
+		//this.stage.appendChild(this.iovalue);
 
 		// get dataset display
 		this.table = document.createElement("table");
-		this.stage.appendChild(this.table);
+		//this.stage.appendChild(this.table);
 
 		this.stage.style.backgroundColor = "rgb(90, 30, 35)";
 
+		this.title = new easyElement("div")
+				.setStyle({	position:"absolute",
+							fontSize:"6vh",
+							top:"1%",
+							left:"0%",
+							width:"100%",
+							height:"9%",
+							textAlign:"center",
+							fontWeight: "bold"})
+				.setText("TETRIS COOP")
+				.attach(this.stage)
+				.getElement();
 
 		this.connectDiv = new easyElement("div")
 						.setStyle({	position:"absolute",
@@ -316,7 +328,7 @@ class MyView extends View {
 									left:"35%",
 									width:"30%",
 									height:"5%",
-									fontSize:"3vh",
+									fontSize:"2vh",
 									backgroundColor:"white",
 									border:"5px solid rgb(120, 150, 255)",
 									borderRadius: "5px",
@@ -329,6 +341,7 @@ class MyView extends View {
 		//this.createHallOfFame(packet);
 		this.createHallOfFame();
 		this.move();
+		this.colorChanger();
 	}
 
 	move(){
@@ -336,16 +349,61 @@ class MyView extends View {
 			element.style.left = this.hallOfFamePositions[index] + "px";
 			//console.log("taille ", element.offsetWidth)
 			if(this.hallOfFamePositions[index] > -element.offsetWidth + this.hallOfFameScore[index].offsetWidth)
-				this.hallOfFamePositions[index]-=window.innerWidth/350;
+				this.hallOfFamePositions[index]--;
 			else if(this.hallOfFamePositions[index] <= -element.offsetWidth + this.hallOfFameScore[index].offsetWidth)
 				this.hallOfFamePositions[index] = window.innerWidth;
 		});
 		setTimeout(() => this.move(),1000/60);
 	}
 
+	colorChanger(){
+		this.title.style.color = "rgb(" + Math.floor(Math.random() * 255) + "," + Math.floor(Math.random() * 255) + "," + + Math.floor(Math.random() * 255) + ")";
+		setTimeout(() => this.colorChanger(),250);
+	}
+
 	//Creating some div, variables for hall of fame animations..
 	//createHallOfFame(packet){
 	createHallOfFame(){
+		/*TEST TO DELETE*/
+		let packet = {
+					  "top5": [
+					    {
+					      "names": [
+					        "Etienne"
+					      ],
+					      "score": 3480
+					    },
+					    {
+					      "names": [
+					        "Etienne"
+					      ],
+					      "score": 1260
+					    },
+					    {
+					      "names": [
+					        "Etienne"
+					      ],
+					      "score": 600
+					    },
+					    {
+					      "names": [
+					        "Guillaume",
+					        "Etienne",
+					        "Bibi"
+					      ],
+					      "score": 420
+					    },
+					    {
+					      "names": [
+					        "Zeubi"
+					      ],
+					      "score": 80
+					    }
+					  ]
+					};
+
+
+		//Title div of HoF
 		this.hallOfFameTitleDiv = new easyElement("div")
 						.setStyle({	position:"absolute",
 									backgroundColor:"rgb(35, 80, 50)",
@@ -358,6 +416,21 @@ class MyView extends View {
 						.attach(this.stage)
 						.getElement();
 
+		//Title of Hall of Fame
+		this.hallOfFameTitle = new easyElement("div")
+				.setStyle({	position:"absolute",
+							color:"white",
+							fontSize:"4vh",
+							top:"56%",
+							left:"20%",
+							width:"60%",
+							height:"5%",
+							textAlign:"center"})
+				.setText("Hall of Fame")
+				.attach(this.stage)
+				.getElement();
+
+		//Creating sub div for HoF, only colored box
 		this.hallOfFameDiv = [...Array(5)].map((element, index) =>{
 				return new easyElement("div")
 						.setStyle({	position:"absolute",
@@ -371,6 +444,7 @@ class MyView extends View {
 						.getElement();
 		});
 
+		//Creating sub div, only for the text which is moving
 		this.hallOfFameText = [...Array(5)].map((element, index) =>{
 				return new easyElement("div")
 						.setStyle({	position:"absolute",
@@ -383,6 +457,7 @@ class MyView extends View {
 						.getElement();
 		});
 
+		//Creating sub divs for the scores
 		this.hallOfFameScore = [...Array(5)].map((element, index) =>{
 				return new easyElement("div")
 						.setStyle({	position:"absolute",
@@ -392,16 +467,12 @@ class MyView extends View {
 									fontSize:"4vh",
 								    boxShadow: "0 8px 16px 0 rgba(0,0,0,0.2), 0 6px 20px 0 rgba(0,0,0,0.19)",
 									overflow: "hidden"})
-						.setText("9999:")
+						.setAttribute({	align: "right"})
 						.getElement();
 		});
 
+		//
 		this.hallOfFameDiv.forEach((element,index) => {
-			if(index%2 == 0){
-				element.style.backgroundColor = "rgb(30, 100, 70)";
-				this.hallOfFameScore[index].style.backgroundColor = "rgb(30, 100, 70)";
-			}
-			element.style.left = this.hallOfFameScore[index].offsetWidth + "px";
 			this.stage.appendChild(element);
 		});
 
@@ -416,24 +487,32 @@ class MyView extends View {
 		this.hallOfFamePositions = [...Array(5)].fill(0);
 
 
-		this.hallOfFameTitle = new easyElement("div")
-				.setStyle({	position:"absolute",
-							color:"white",
-							fontSize:"4vh",
-							top:"56%",
-							left:"20%",
-							width:"60%",
-							height:"5%",
-							textAlign:"center"})
-				.setText("Hall of Fame")
-				.attach(this.stage)
-				.getElement();
-
-				/*
-		packet.forEach((element,index) => {
-			this.hallOfFameScore[index].innerHTML = element.score;
+		
+		//Filling our hall with score and name from JSON
+		packet.top5.forEach((element,index) => {
+			this.hallOfFameScore[index].innerHTML = element.score + ":";
 			this.hallOfFameText[index].innerHTML = element.names; //On peut faire ca mdr ?
-		});*/
+		});
+
+
+		//Coloring the HoF in function of placement or things...
+		this.hallOfFameScore.forEach((_,index) => {
+			if(index == 0){
+				this.hallOfFameText[index].style.color = "gold";
+				this.hallOfFameScore[index].style.color= "gold";
+			} else if(index == 1){
+				this.hallOfFameText[index].style.color = "silver";
+				this.hallOfFameScore[index].style.color= "silver";
+			} else if(index == 2){
+				this.hallOfFameText[index].style.color = "#cd7f32";
+				this.hallOfFameScore[index].style.color= "#cd7f32";
+			}
+
+			if(index%2 == 0){
+				this.hallOfFameDiv[index].style.backgroundColor = "rgb(30, 100, 70)";
+				this.hallOfFameScore[index].style.backgroundColor = "rgb(30, 100, 70)";
+			}
+		});
 	}
 
 	// activate UI

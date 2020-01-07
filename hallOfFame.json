@@ -4,11 +4,25 @@
       "names": [
         "Etienne"
       ],
+      "score": 3480
+    },
+    {
+      "names": [
+        "Etienne"
+      ],
       "score": 1260
     },
     {
       "names": [
-        "Guillaume"
+        "Etienne"
+      ],
+      "score": 600
+    },
+    {
+      "names": [
+        "Guillaume",
+        "Etienne",
+        "Bibi"
       ],
       "score": 420
     },
@@ -17,18 +31,6 @@
         "Zeubi"
       ],
       "score": 80
-    },
-    {
-      "names": [
-        "Toto"
-      ],
-      "score": 40
-    },
-    {
-      "names": [
-        "SaleMerde"
-      ],
-      "score": 0
     }
   ]
 }
