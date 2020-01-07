@@ -1,11 +1,5 @@
 
 A faire :
-	
-	IMPORTANT A FINIR :
-
-		Client : detruire les boucles d'animation a la destruction de la vue
-
-
 
  	OPTIONNEL :
 
@@ -68,7 +62,7 @@ Fait :
 	Client : Gérer l'affichage des nouvelle piece en fonction de la dimension de leur matrice - E
 	Server : Incrémenter la difficulté plus les lignes se casses - E
 	Client : afficher les meilleurs score - E
-
+	Client : detruire les boucles d'animation a la destruction de la vue - E
 
 
 
