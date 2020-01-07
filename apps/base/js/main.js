@@ -173,6 +173,10 @@ class MyView extends View {
 	async destruct(){
 		this.mvc.view.detach(); // detach view
 		this.mvc.view.deactivate(); // deactivate user interface
+
+		clearTimeout(this.colorChangerTimeout);
+		cancelAnimationFrame(this.animationFrameMove);
+
 	}
 
 	async initialize(mvc) {
@@ -293,10 +297,9 @@ class MyView extends View {
 		This method animate the hallOfFame and make it move
 	*/
 	move(){
-		this.animationFrameMove = window.requestAnimationFrame(()=>{this.move()});
+		this.animationFrameMove = window.requestAnimationFrame( () => this.move() );
 		this.hallOfFameText.forEach((element,index) => {
 			element.style.left = this.hallOfFamePositions[index] + "px";
-			//trace("taille ", element.offsetWidth)
 			if(this.hallOfFamePositions[index] > -element.offsetWidth + this.hallOfFameScore[index].offsetWidth)
 				this.hallOfFamePositions[index]--;
 			else if(this.hallOfFamePositions[index] <= -element.offsetWidth + this.hallOfFameScore[index].offsetWidth)
@@ -438,8 +441,6 @@ class MyView extends View {
 	deactivate() {
 		super.deactivate();
 		this.removeListeners();
-		clearTimeout(this.colorChangerTimeout);
-		cancelAnimationFrame(this.animationFrameMove);
 	}
 
 	addListeners() {

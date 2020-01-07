@@ -2,39 +2,31 @@
   "top5": [
     {
       "names": [
-        "1"
+        "Mag"
       ],
-      "score": 14160
+      "score": 7900
     },
     {
       "names": [
-        "1"
+        "NicoSarco"
       ],
-      "score": 4540
+      "score": 5280
     },
     {
       "names": [
-        "MDR"
-      ],
-      "score": 4040
-    },
-    {
-      "names": [
-        "Etienne"
-      ],
-      "score": 3920
-    },
-    {
-      "names": [
-        "Etienne"
+        "JeanPierreLeGrand"
       ],
       "score": 3860
     },
     {
       "names": [
-        "1"
+        "FrancoisHollandeLeVraiDu93"
       ],
-      "score": 3480
+      "score": 240
+    },
+    {
+      "names": [],
+      "score": 0
     }
   ]
 }

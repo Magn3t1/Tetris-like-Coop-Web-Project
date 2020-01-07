@@ -1247,12 +1247,12 @@ class GameModel {
 
 			if(acc.top5.length > 4) return acc;
 
-			trace("tested score : ", value.score);
 			if(this.score > value.score && !edited){
 				acc.top5.push({"names":this.playerNicknames, "score":this.score});
 				edited = true;
 
-				trace("Better score : ", this.score, value.score);
+				//If this test pass, rip the old number 5 :'(
+				if(acc.top5.length > 4) return acc;
 			}
 
 			acc.top5.push(value);
@@ -1264,9 +1264,7 @@ class GameModel {
 		if(edited){
 
 			let tempoRaw = JSON.stringify(newJson, null, 2);
-
 			fs.writeFileSync("hallOfFame.json",	tempoRaw);
-
 			trace("Updated hallOfFame.json file.");
 
 		}
