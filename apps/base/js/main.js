@@ -293,6 +293,7 @@ class MyView extends View {
 		This method animate the hallOfFame and make it move
 	*/
 	move(){
+		this.animationFrameMove = window.requestAnimationFrame(()=>{this.move()});
 		this.hallOfFameText.forEach((element,index) => {
 			element.style.left = this.hallOfFamePositions[index] + "px";
 			//trace("taille ", element.offsetWidth)
@@ -301,12 +302,11 @@ class MyView extends View {
 			else if(this.hallOfFamePositions[index] <= -element.offsetWidth + this.hallOfFameScore[index].offsetWidth)
 				this.hallOfFamePositions[index] = window.innerWidth;
 		});
-		setTimeout(() => this.move(),1000/60);
 	}
 
 	colorChanger(){
 		this.title.style.color = "rgb(" + Math.floor(Math.random() * 255) + "," + Math.floor(Math.random() * 255) + "," + + Math.floor(Math.random() * 255) + ")";
-		setTimeout(() => this.colorChanger(), 250);
+		this.colorChangerTimeout = setTimeout(() => this.colorChanger(), 250);
 	}
 
 	//Creating some div, variables for hall of fame animations..
@@ -399,6 +399,7 @@ class MyView extends View {
 		
 		//Filling our hall with score and name from JSON
 		packet.top5.forEach((element,index) => {
+			console.log("mon index" + index)
 			this.hallOfFameScore[index].innerHTML = element.score + ":";
 			this.hallOfFameText[index].innerHTML = element.names; //On peut faire ca mdr ?
 		});
@@ -431,13 +432,14 @@ class MyView extends View {
 	activate() {
 		super.activate();
 		this.addListeners(); // listen to events
-		//this.move();
 	}
 
 	// deactivate
 	deactivate() {
 		super.deactivate();
 		this.removeListeners();
+		clearTimeout(this.colorChangerTimeout);
+		cancelAnimationFrame(this.animationFrameMove);
 	}
 
 	addListeners() {
