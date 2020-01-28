@@ -27,7 +27,7 @@ const App = require(path.join(appPath, "_server")); // load app module
 class Server {
 
 	constructor() {
-		this._port = 8080; // http port
+		this._port = process.env.PORT || 8080; // http port
 		trace("start http", this._port);
 		
 		this._connect = Connect(); // connect instance
